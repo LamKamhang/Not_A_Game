@@ -174,7 +174,7 @@ GLint main(GLvoid)
 
 ////////////////////////////////////////////////////////////////////////////////////
     // view/projection transformations
-    camera.SetOuterBound(glm::vec4(-50.0f,-50.0f,50.0f,50.0f));
+    camera.SetOuterBound(glm::vec4(-500.0f,-500.0f,500.0f,500.0f));
 	// render loop
 	while (!glfwWindowShouldClose(window))
 	{
