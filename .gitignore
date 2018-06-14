@@ -1,11 +1,17 @@
 # Prerequisites
 *.d
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
+# do not upload vscode
+.vscode
+
+# ignore build folder
+build
+
+# do not update apple store
+.DS_Store
+
+# do not upload __MACOSX
+__MACOSX
 
 # Precompiled Headers
 *.gch
@@ -19,12 +25,6 @@
 # Fortran module files
 *.mod
 *.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
 
 # Executables
 *.exe
