@@ -15,7 +15,7 @@
 #define BoundaryGap 1.0f          //碰撞间距
 #define JumpInitialSpeed 12.0f    //起跳初速度
 #define JumpFactor 2.0f          //跳起速度系数
-#define GravityFactor 0.06f       //下落速度系数
+#define GravityFactor 3.5f       //下落速度系数
 
 struct dot {  
     float x;  

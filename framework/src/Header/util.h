@@ -10,12 +10,12 @@
 // length指正面的底边，width指侧面的底边
 // 朝向面为逆时针，背向面为顺时针点，方便面剔除
 
-std::vector<float> GenCubeBackVertices(float length = 1.0, float width = 1.0, float height = 1.0);
-std::vector<float> GenCubeFrontVertices(float length = 1.0, float width = 1.0, float height = 1.0);
-std::vector<float> GenCubeLeftVertices(float length = 1.0, float width = 1.0, float height = 1.0);
-std::vector<float> GenCubeRightVertices(float length = 1.0, float width = 1.0, float height = 1.0);
-std::vector<float> GenCubeTopVertices(float length = 1.0, float width = 1.0, float height = 1.0);
-std::vector<float> GenCubeButtomVertices(float length = 1.0, float width = 1.0, float height = 1.0);
+std::vector<float> GenCubeBackVertices  (float length, float height, float cx = 0.0, float cy = 0.0, float cz = 0.0);
+std::vector<float> GenCubeFrontVertices (float length, float height, float cx = 0.0, float cy = 0.0, float cz = 0.0);
+std::vector<float> GenCubeLeftVertices  (float  width, float height, float cx = 0.0, float cy = 0.0, float cz = 0.0);
+std::vector<float> GenCubeRightVertices (float  width, float height, float cx = 0.0, float cy = 0.0, float cz = 0.0);
+std::vector<float> GenCubeTopVertices   (float length, float  width, float cx = 0.0, float cy = 0.0, float cz = 0.0);
+std::vector<float> GenCubeButtomVertices(float length, float  width, float cx = 0.0, float cy = 0.0, float cz = 0.0);
 std::vector<float> GenCubeVertices(float length = 1.0, float width = 1.0, float height = 1.0);
 
 // 球体还有问题

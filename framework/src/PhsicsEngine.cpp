@@ -63,7 +63,7 @@ bool insideTheCollider(glm::vec3 _cameraPos, glm::vec3 _innerMin, glm::vec3 _inn
 void PhysicsEngine::updateCameraVertMovement(glm::vec3 & cameraPos, glm::vec3 & targetPos,GLfloat deltaTime) 
 {
 	glm::vec3 acceleration = gravity + accelerUp;
-	velocity += acceleration * GravityFactor;
+	velocity += acceleration * GravityFactor * deltaTime;
 	cameraPos += velocity * JumpFactor * deltaTime;
 	targetPos += velocity * JumpFactor * deltaTime;
 

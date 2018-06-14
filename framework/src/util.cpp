@@ -1,76 +1,76 @@
 #include "Header/util.h"
 
 // 按照背面，正面，左面，右面，顶面，底面顺序排放
-std::vector<float> GenCubeBackVertices(float length, float width, float height)
+std::vector<float> GenCubeBackVertices(float length, float height, float cx, float cy, float cz)
 {
     return std::vector<float>{
         // back（cannot see, cw)
-         length/2, -height/2, -width/2,     0, 0, 1,        0, 0,   // G
-        -length/2, -height/2, -width/2,     0, 0, 1,        1, 0,   // F
-        -length/2,  height/2, -width/2,     0, 0, 1,        1, 1,   // E
-        -length/2,  height/2, -width/2,     0, 0, 1,        1, 1,   // E
-         length/2,  height/2, -width/2,     0, 0, 1,        0, 1,   // H
-         length/2, -height/2, -width/2,     0, 0, 1,        0, 0,   // G
+         cx +  length/2,  cy + -height/2,  cz,     0, 0, 1,        0, 0,   // G
+         cx + -length/2,  cy + -height/2,  cz,     0, 0, 1,        1, 0,   // F
+         cx + -length/2,  cy +  height/2,  cz,     0, 0, 1,        1, 1,   // E
+         cx + -length/2,  cy +  height/2,  cz,     0, 0, 1,        1, 1,   // E
+         cx +  length/2,  cy +  height/2,  cz,     0, 0, 1,        0, 1,   // H
+         cx +  length/2,  cy + -height/2,  cz,     0, 0, 1,        0, 0,   // G
     };
 }
-std::vector<float> GenCubeFrontVertices(float length, float width, float height)
+std::vector<float> GenCubeFrontVertices(float length, float height, float cx, float cy, float cz)
 {
     return std::vector<float>{
         // front(can see, ccw)
-        -length/2,  height/2,  width/2,     0, 0, -1,       0, 1,   // A
-        -length/2, -height/2,  width/2,     0, 0, -1,       0, 0,   // B
-         length/2, -height/2,  width/2,     0, 0, -1,       1, 0,   // C
-         length/2, -height/2,  width/2,     0, 0, -1,       1, 0,   // C
-         length/2,  height/2,  width/2,     0, 0, -1,       1, 1,   // D
-        -length/2,  height/2,  width/2,     0, 0, -1,       0, 1,   // A
+         cx + -length/2,  cy +  height/2,  cz,     0, 0, -1,       0, 1,   // A
+         cx + -length/2,  cy + -height/2,  cz,     0, 0, -1,       0, 0,   // B
+         cx +  length/2,  cy + -height/2,  cz,     0, 0, -1,       1, 0,   // C
+         cx +  length/2,  cy + -height/2,  cz,     0, 0, -1,       1, 0,   // C
+         cx +  length/2,  cy +  height/2,  cz,     0, 0, -1,       1, 1,   // D
+         cx + -length/2,  cy +  height/2,  cz,     0, 0, -1,       0, 1,   // A
     };
 }
-std::vector<float> GenCubeLeftVertices(float length, float width, float height)
+std::vector<float> GenCubeLeftVertices(float width, float height, float cx, float cy, float cz)
 {
     return std::vector<float>{
      // left(cannot see, cw)
-        -length/2,  height/2,  width/2,     -1, 0, 0,       1, 1,   // A
-        -length/2,  height/2, -width/2,     -1, 0, 0,       0, 1,   // E
-        -length/2, -height/2, -width/2,     -1, 0, 0,       0, 0,   // F
-        -length/2, -height/2, -width/2,     -1, 0, 0,       0, 0,   // F
-        -length/2, -height/2,  width/2,     -1, 0, 0,       1, 0,   // B
-        -length/2,  height/2,  width/2,     -1, 0, 0,       1, 1,   // A
+        cx,  cy +  height/2,  cz +   width/2,     -1, 0, 0,       1, 1,   // A
+        cx,  cy +  height/2,  cz +  -width/2,     -1, 0, 0,       0, 1,   // E
+        cx,  cy + -height/2,  cz +  -width/2,     -1, 0, 0,       0, 0,   // F
+        cx,  cy + -height/2,  cz +  -width/2,     -1, 0, 0,       0, 0,   // F
+        cx,  cy + -height/2,  cz +   width/2,     -1, 0, 0,       1, 0,   // B
+        cx,  cy +  height/2,  cz +   width/2,     -1, 0, 0,       1, 1,   // A
     };
 }
-std::vector<float> GenCubeRightVertices(float length, float width, float height)
+std::vector<float> GenCubeRightVertices(float width, float height, float cx, float cy, float cz)
 {
     return std::vector<float>{
         // right(can see, ccw)
-         length/2,  height/2,  width/2,     1, 0, 0,        0, 1,    // D
-         length/2, -height/2,  width/2,     1, 0, 0,        0, 0,    // C
-         length/2, -height/2, -width/2,     1, 0, 0,        1, 0,    // G
-         length/2, -height/2, -width/2,     1, 0, 0,        1, 0,    // G
-         length/2,  height/2, -width/2,     1, 0, 0,        1, 1,    // H
-         length/2,  height/2,  width/2,     1, 0, 0,        0, 1,    // D
+         cx,  cy +  height/2,  cz +   width/2,     1, 0, 0,        0, 1,    // D
+         cx,  cy + -height/2,  cz +   width/2,     1, 0, 0,        0, 0,    // C
+         cx,  cy + -height/2,  cz +  -width/2,     1, 0, 0,        1, 0,    // G
+         cx,  cy + -height/2,  cz +  -width/2,     1, 0, 0,        1, 0,    // G
+         cx,  cy +  height/2,  cz +  -width/2,     1, 0, 0,        1, 1,    // H
+         cx,  cy +  height/2,  cz +   width/2,     1, 0, 0,        0, 1,    // D
     };
 }
-std::vector<float> GenCubeTopVertices(float length, float width, float height)
+std::vector<float> GenCubeTopVertices(float length, float width, float cx, float cy, float cz)
 {
     return std::vector<float>{
         // top(can see, ccw)
-        -length/2,  height/2, -width/2,     0, 1, 0,        0, 1,    // E
-        -length/2,  height/2,  width/2,     0, 1, 0,        0, 0,    // A
-         length/2,  height/2,  width/2,     0, 1, 0,        1, 0,    // D
-         length/2,  height/2,  width/2,     0, 1, 0,        1, 0,    // D
-         length/2,  height/2, -width/2,     0, 1, 0,        1, 1,    // H
-        -length/2,  height/2, -width/2,     0, 1, 0,        0, 1,    // E
+        cx + -length/2,  cy,  cz +  -width/2,     0, 1, 0,        0, 1,    // E
+        cx + -length/2,  cy,  cz +   width/2,     0, 1, 0,        0, 0,    // A
+        cx +  length/2,  cy,  cz +   width/2,     0, 1, 0,        1, 0,    // D
+        cx +  length/2,  cy,  cz +   width/2,     0, 1, 0,        1, 0,    // D
+        cx +  length/2,  cy,  cz +  -width/2,     0, 1, 0,        1, 1,    // H
+        cx + -length/2,  cy,  cz +  -width/2,     0, 1, 0,        0, 1,    // E
     };
 }
-std::vector<float> GenCubeButtomVertices(float length, float width, float height)
+std::vector<float> GenCubeButtomVertices(float length, float width, float cx, float cy, float cz)
 {
     return std::vector<float>{
         // buttom(cannot see, cw)
-        -length/2, -height/2, -width/2,     0, -1, 0,       0, 0,    // F
-         length/2, -height/2, -width/2,     0, -1, 0,       1, 0,    // G
-         length/2, -height/2,  width/2,     0, -1, 0,       1, 1,    // C
-         length/2, -height/2,  width/2,     0, -1, 0,       1, 1,    // C
-        -length/2, -height/2,  width/2,     0, -1, 0,       0, 1,    // B
-        -length/2, -height/2, -width/2,     0, -1, 0,       0, 0,    // F
+        cx + -length/2, cy,  cz +  -width/2,     0, -1, 0,       0, 0,    // F
+        cx +  length/2, cy,  cz +  -width/2,     0, -1, 0,       1, 0,    // G
+        cx +  length/2, cy,  cz +   width/2,     0, -1, 0,       1, 1,    // C
+        cx +  length/2, cy,  cz +   width/2,     0, -1, 0,       1, 1,    // C
+        cx + -length/2, cy,  cz +   width/2,     0, -1, 0,       0, 1,    // B
+        cx + -length/2, cy,  cz +  -width/2,     0, -1, 0,       0, 0,    // F
     };
 }
 std::vector<float> GenCubeVertices(float length, float width, float height)

@@ -6,14 +6,13 @@ in vs{
     vec2 texCoord;
 }_in;
 
-uniform sampler2D color;
 
 void main()
 {
     if (gl_FrontFacing)
-        FragColor = vec4(1, 0, 1, 1);
+        FragColor = vec4(1, 0, 0, 1);
     else
-        FragColor = texture(color, _in.texCoord);
+        FragColor = vec4(0, 1, 0, 1);
     // if (color.a < 0.1)
     //     discard;
     // else
