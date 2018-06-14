@@ -1,6 +1,3 @@
-# Prerequisites
-*.d
-
 # do not upload vscode
 .vscode
 
@@ -13,20 +10,10 @@ build
 # do not upload __MACOSX
 __MACOSX
 
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
 # Executables
 *.exe
 *.out
 *.app
+
+# omit .zip
+*.zip
