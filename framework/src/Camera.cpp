@@ -58,7 +58,7 @@ GLvoid Camera::ProcessKeyboard(Camera_Movement direction, GLfloat deltaTime)
 		dx = velocity;
 	if (direction == JUMP){
 		if (!physicsEngine->isJumping) {
-			physicsEngine->jumpAndUpdateVelocity(deltaTime*100);
+			physicsEngine->jumpAndUpdateVelocity();
 		}
 		physicsEngine->isJumping = true;
 	}
@@ -72,9 +72,9 @@ GLvoid Camera::ProcessKeyboard(Camera_Movement direction, GLfloat deltaTime)
 	}
 }
 
-GLvoid Camera::LoopFunction()
+GLvoid Camera::LoopFunction(GLfloat deltaTime)
 {
-	physicsEngine->updateCameraVertMovement(Position,TargetPos);
+	physicsEngine->updateCameraVertMovement(Position,TargetPos,deltaTime);
 	if(Position.y-HeroHeight<0.0f)
 	{
 		Position.y=HeroHeight;

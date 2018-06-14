@@ -40,8 +40,8 @@ void PhysicsEngine::outCollisionTestXZ(float x1, float z1, float x2, float z2, g
 	}
 }
 
-void PhysicsEngine::jumpAndUpdateVelocity(GLfloat deltaTime) {
-	velocity = glm::vec3(0.f, JumpInitialSpeed*deltaTime, 0.f);
+void PhysicsEngine::jumpAndUpdateVelocity() {
+	velocity = glm::vec3(0.f, JumpInitialSpeed, 0.f);
 	accelerUp.y = 0.f;
 }
 
@@ -60,11 +60,12 @@ bool insideTheCollider(glm::vec3 _cameraPos, glm::vec3 _innerMin, glm::vec3 _inn
 		return false;
 }
 
-void PhysicsEngine::updateCameraVertMovement(glm::vec3 & cameraPos, glm::vec3 & targetPos) {
+void PhysicsEngine::updateCameraVertMovement(glm::vec3 & cameraPos, glm::vec3 & targetPos,GLfloat deltaTime) 
+{
 	glm::vec3 acceleration = gravity + accelerUp;
 	velocity += acceleration * GravityFactor;
-	cameraPos += velocity * JumpFactor;
-	targetPos += velocity * JumpFactor;
+	cameraPos += velocity * JumpFactor * deltaTime;
+	targetPos += velocity * JumpFactor * deltaTime;
 
 	//检测所有碰撞体
 	for (unsigned int i = 0; i < innerBoundaryMin.size(); i++) {

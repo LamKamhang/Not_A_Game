@@ -78,7 +78,7 @@ public:
 	GLvoid ProcessMouseScroll(GLfloat yoffset);
 	
 	// Loop and update data
-	GLvoid LoopFunction();
+	GLvoid LoopFunction(GLfloat deltaTime);
 
 	// Get the camera's corresponding view Matrix
 	const glm::mat4 GetViewMatrix();

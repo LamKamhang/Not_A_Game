@@ -74,7 +74,7 @@ namespace settings{
             camera.ProcessKeyboard(RIGHT, deltaTime);
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)//hero can jump!
             camera.ProcessKeyboard(JUMP, deltaTime);
-        camera.LoopFunction();
+        camera.LoopFunction(deltaTime);
     }
 
     // glfw: whenever the window size changed (by OS or user resize) this callback function executes
