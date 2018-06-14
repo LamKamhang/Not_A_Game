@@ -7,18 +7,21 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1026956B20CAD57C00723F52 /* PhsicsEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1026956A20CAD57C00723F52 /* PhsicsEngine.cpp */; };
+		1042321720D25D42006F3043 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1042320D20D25D41006F3043 /* main.cpp */; };
+		1042321820D25D42006F3043 /* config.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1042320F20D25D41006F3043 /* config.cpp */; };
+		1042321920D25D42006F3043 /* Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1042321020D25D41006F3043 /* Texture.cpp */; };
+		1042321A20D25D42006F3043 /* Mesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1042321120D25D41006F3043 /* Mesh.cpp */; };
+		1042321B20D25D42006F3043 /* Model.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1042321220D25D41006F3043 /* Model.cpp */; };
+		1042321C20D25D42006F3043 /* PhsicsEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1042321320D25D41006F3043 /* PhsicsEngine.cpp */; };
+		1042321D20D25D42006F3043 /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1042321420D25D42006F3043 /* util.cpp */; };
+		1042321E20D25D42006F3043 /* Shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1042321520D25D42006F3043 /* Shader.cpp */; };
+		1042321F20D25D42006F3043 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1042321620D25D42006F3043 /* Camera.cpp */; };
+		1042322120D25DA5006F3043 /* stb_image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1042322020D25DA5006F3043 /* stb_image.cpp */; };
+		1042322320D25DB2006F3043 /* glad.c in Sources */ = {isa = PBXBuildFile; fileRef = 1042322220D25DB2006F3043 /* glad.c */; };
 		10F940C720CAAF2C00691D27 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 10F940C620CAAF2C00691D27 /* OpenGL.framework */; };
 		10F940C920CAAF3800691D27 /* libglfw.3.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 10F940C820CAAF3800691D27 /* libglfw.3.2.dylib */; };
 		10F940CB20CAAF4200691D27 /* libassimp.4.1.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 10F940CA20CAAF4200691D27 /* libassimp.4.1.0.dylib */; };
 		10F940CD20CAAF5200691D27 /* libGLEW.2.1.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 10F940CC20CAAF5200691D27 /* libGLEW.2.1.0.dylib */; };
-		10F940D720CAB0EF00691D27 /* Model.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 10F940D120CAB0EF00691D27 /* Model.cpp */; };
-		10F940D820CAB0EF00691D27 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 10F940D320CAB0EF00691D27 /* Camera.cpp */; };
-		10F940D920CAB0EF00691D27 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 10F940D420CAB0EF00691D27 /* main.cpp */; };
-		10F940DA20CAB0EF00691D27 /* Shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 10F940D520CAB0EF00691D27 /* Shader.cpp */; };
-		10F940DB20CAB0EF00691D27 /* Mesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 10F940D620CAB0EF00691D27 /* Mesh.cpp */; };
-		10F940DD20CAB10400691D27 /* stb_image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 10F940DC20CAB10400691D27 /* stb_image.cpp */; };
-		10F940DF20CAB11000691D27 /* glad.c in Sources */ = {isa = PBXBuildFile; fileRef = 10F940DE20CAB11000691D27 /* glad.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -34,20 +37,23 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		1026956620CAB30F00723F52 /* Header */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Header; path = ../../Framework/src/Header; sourceTree = "<group>"; };
-		1026956A20CAD57C00723F52 /* PhsicsEngine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PhsicsEngine.cpp; path = ../../Framework/src/PhsicsEngine.cpp; sourceTree = "<group>"; };
+		1042320D20D25D41006F3043 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../framework/src/main.cpp; sourceTree = "<group>"; };
+		1042320F20D25D41006F3043 /* config.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = config.cpp; path = ../framework/src/config.cpp; sourceTree = "<group>"; };
+		1042321020D25D41006F3043 /* Texture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Texture.cpp; path = ../framework/src/Texture.cpp; sourceTree = "<group>"; };
+		1042321120D25D41006F3043 /* Mesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Mesh.cpp; path = ../framework/src/Mesh.cpp; sourceTree = "<group>"; };
+		1042321220D25D41006F3043 /* Model.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Model.cpp; path = ../framework/src/Model.cpp; sourceTree = "<group>"; };
+		1042321320D25D41006F3043 /* PhsicsEngine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PhsicsEngine.cpp; path = ../framework/src/PhsicsEngine.cpp; sourceTree = "<group>"; };
+		1042321420D25D42006F3043 /* util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = util.cpp; path = ../framework/src/util.cpp; sourceTree = "<group>"; };
+		1042321520D25D42006F3043 /* Shader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Shader.cpp; path = ../framework/src/Shader.cpp; sourceTree = "<group>"; };
+		1042321620D25D42006F3043 /* Camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Camera.cpp; path = ../framework/src/Camera.cpp; sourceTree = "<group>"; };
+		1042322020D25DA5006F3043 /* stb_image.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = stb_image.cpp; path = ../framework/OpenGL/stb_image.cpp; sourceTree = "<group>"; };
+		1042322220D25DB2006F3043 /* glad.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glad.c; path = ../framework/OpenGL/glad.c; sourceTree = "<group>"; };
+		1042322E20D260BC006F3043 /* Header */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Header; path = src/Header; sourceTree = "<group>"; };
 		10F940BB20CAAF2400691D27 /* NotAGame_mac */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = NotAGame_mac; sourceTree = BUILT_PRODUCTS_DIR; };
 		10F940C620CAAF2C00691D27 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		10F940C820CAAF3800691D27 /* libglfw.3.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglfw.3.2.dylib; path = ../../../../usr/local/Cellar/glfw/3.2.1/lib/libglfw.3.2.dylib; sourceTree = "<group>"; };
 		10F940CA20CAAF4200691D27 /* libassimp.4.1.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libassimp.4.1.0.dylib; path = ../../../../usr/local/Cellar/assimp/4.1.0/lib/libassimp.4.1.0.dylib; sourceTree = "<group>"; };
 		10F940CC20CAAF5200691D27 /* libGLEW.2.1.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLEW.2.1.0.dylib; path = ../../../../usr/local/Cellar/glew/2.1.0/lib/libGLEW.2.1.0.dylib; sourceTree = "<group>"; };
-		10F940D120CAB0EF00691D27 /* Model.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Model.cpp; path = ../../Framework/src/Model.cpp; sourceTree = "<group>"; };
-		10F940D320CAB0EF00691D27 /* Camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Camera.cpp; path = ../../Framework/src/Camera.cpp; sourceTree = "<group>"; };
-		10F940D420CAB0EF00691D27 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../../Framework/src/main.cpp; sourceTree = "<group>"; };
-		10F940D520CAB0EF00691D27 /* Shader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Shader.cpp; path = ../../Framework/src/Shader.cpp; sourceTree = "<group>"; };
-		10F940D620CAB0EF00691D27 /* Mesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Mesh.cpp; path = ../../Framework/src/Mesh.cpp; sourceTree = "<group>"; };
-		10F940DC20CAB10400691D27 /* stb_image.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = stb_image.cpp; path = ../../Framework/OpenGL/stb_image.cpp; sourceTree = "<group>"; };
-		10F940DE20CAB11000691D27 /* glad.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glad.c; path = ../../Framework/OpenGL/glad.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,17 +91,21 @@
 		10F940BD20CAAF2400691D27 /* NotAGame_mac */ = {
 			isa = PBXGroup;
 			children = (
-				1026956A20CAD57C00723F52 /* PhsicsEngine.cpp */,
-				1026956620CAB30F00723F52 /* Header */,
-				10F940DE20CAB11000691D27 /* glad.c */,
-				10F940DC20CAB10400691D27 /* stb_image.cpp */,
-				10F940D320CAB0EF00691D27 /* Camera.cpp */,
-				10F940D420CAB0EF00691D27 /* main.cpp */,
-				10F940D620CAB0EF00691D27 /* Mesh.cpp */,
-				10F940D120CAB0EF00691D27 /* Model.cpp */,
-				10F940D520CAB0EF00691D27 /* Shader.cpp */,
+				1042322E20D260BC006F3043 /* Header */,
+				1042322020D25DA5006F3043 /* stb_image.cpp */,
+				1042322220D25DB2006F3043 /* glad.c */,
+				1042321620D25D42006F3043 /* Camera.cpp */,
+				1042320F20D25D41006F3043 /* config.cpp */,
+				1042320D20D25D41006F3043 /* main.cpp */,
+				1042321120D25D41006F3043 /* Mesh.cpp */,
+				1042321220D25D41006F3043 /* Model.cpp */,
+				1042321320D25D41006F3043 /* PhsicsEngine.cpp */,
+				1042321520D25D42006F3043 /* Shader.cpp */,
+				1042321020D25D41006F3043 /* Texture.cpp */,
+				1042321420D25D42006F3043 /* util.cpp */,
 			);
-			path = NotAGame_mac;
+			name = NotAGame_mac;
+			path = ../framework;
 			sourceTree = "<group>";
 		};
 		10F940C520CAAF2B00691D27 /* Frameworks */ = {
@@ -166,14 +176,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				10F940D820CAB0EF00691D27 /* Camera.cpp in Sources */,
-				1026956B20CAD57C00723F52 /* PhsicsEngine.cpp in Sources */,
-				10F940D720CAB0EF00691D27 /* Model.cpp in Sources */,
-				10F940DA20CAB0EF00691D27 /* Shader.cpp in Sources */,
-				10F940DD20CAB10400691D27 /* stb_image.cpp in Sources */,
-				10F940D920CAB0EF00691D27 /* main.cpp in Sources */,
-				10F940DB20CAB0EF00691D27 /* Mesh.cpp in Sources */,
-				10F940DF20CAB11000691D27 /* glad.c in Sources */,
+				1042321920D25D42006F3043 /* Texture.cpp in Sources */,
+				1042321C20D25D42006F3043 /* PhsicsEngine.cpp in Sources */,
+				1042321E20D25D42006F3043 /* Shader.cpp in Sources */,
+				1042321D20D25D42006F3043 /* util.cpp in Sources */,
+				1042322320D25DB2006F3043 /* glad.c in Sources */,
+				1042321F20D25D42006F3043 /* Camera.cpp in Sources */,
+				1042321720D25D42006F3043 /* main.cpp in Sources */,
+				1042321B20D25D42006F3043 /* Model.cpp in Sources */,
+				1042322120D25DA5006F3043 /* stb_image.cpp in Sources */,
+				1042321A20D25D42006F3043 /* Mesh.cpp in Sources */,
+				1042321820D25D42006F3043 /* config.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -290,7 +303,7 @@
 				DEVELOPMENT_TEAM = R75VEQMRKB;
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
-					"~/cg/bigpro/NotAGame/Framework/OpenGL/includes",
+					"~/cg/bigpro/nag2/Not_A_Game/framework/OpenGL/includes",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -309,7 +322,7 @@
 				DEVELOPMENT_TEAM = R75VEQMRKB;
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include,
-					"~/cg/bigpro/NotAGame/Framework/OpenGL/includes",
+					"~/cg/bigpro/nag2/Not_A_Game/framework/OpenGL/includes",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",

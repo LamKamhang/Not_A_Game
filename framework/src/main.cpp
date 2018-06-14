@@ -31,7 +31,7 @@ GLint main(GLvoid)
 
 	// build and compile our shader zprogram
 	Shader modelShader("Resource/Shader/model.vs", "Resource/Shader/model.fs");
-	Model Nanosuit("Resource/Model/new-years-on-the-verge-of-stokes-croft/source/maya2sketchfab.fbx");	
+	Model Nanosuit("Resource/Model/nanosuit/nanosuit.obj");
 
 	Shader testShader("Resource/Shader/test.vs", "Resource/Shader/test.fs");
 	std::vector<float> rectVertex = GenCubeVertices(50, 50, 50);
@@ -143,7 +143,7 @@ GLint main(GLvoid)
 			glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.getTextId());
 			cubeShader.setInt("skybox",0);
 			model=glm::mat4(1.0f);
-			model=glm::translate(model,glm::vec3(15,1.0,0.0));
+			model=glm::translate(model,glm::vec3(3.5,1.0,0.0));
 			model=glm::scale(model,glm::vec3(2.0f,2.0f,2.0f));
 			cubeShader.setMat4("model", model);
 			glDrawArrays(GL_TRIANGLES,0,rectVertex.size()/8);

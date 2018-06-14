@@ -14,8 +14,8 @@
 #define MoveSpeed 5.0f           //玩家移动速度
 #define BoundaryGap 1.0f          //碰撞间距
 #define JumpInitialSpeed 12.0f    //起跳初速度
-#define JumpFactor 0.04f          //跳起速度系数
-#define GravityFactor 0.04f       //下落速度系数
+#define JumpFactor 2.0f          //跳起速度系数
+#define GravityFactor 0.06f       //下落速度系数
 
 struct dot {  
     float x;  
@@ -38,9 +38,9 @@ public:
     void inCollisionTest(glm::vec3 & cameraPos, glm::vec3 & targetPos);
   
     bool isJumping;  
-    void jumpAndUpdateVelocity(GLfloat deltaTime);    //按下space跳跃时调用  
+    void jumpAndUpdateVelocity();    //按下space跳跃时调用  
     //每帧绘制的时候更新摄像机垂直方向移动  
-    void updateCameraVertMovement(glm::vec3 & cameraPos, glm::vec3 & targetPos);  
+    void updateCameraVertMovement(glm::vec3 & cameraPos, glm::vec3 & targetPos,GLfloat deltaTime);  
 
 private:  
     //空间内部边缘碰撞检测（考虑高度）  
