@@ -14,5 +14,5 @@ void main()
     // vec3 R = normalize( reflect(I, normalize(Normal)) );
     float ratio = 1.00 / 1.33;
     vec3 R = refract(I, normalize(Normal), ratio);
-    FragColor = vec4(texture(skybox, R).rgb, 1.0);
+    FragColor = vec4(texture(skybox, R).rgb * vec3(1.0,0.3,0.3), 1.0);
 }

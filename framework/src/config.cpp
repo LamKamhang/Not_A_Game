@@ -8,7 +8,7 @@ namespace settings{
     enum button_mode cur_button_mode;
 
     // camera
-    Camera camera(glm::vec3(0.0f, 1.0f, 5.0f));
+    Camera camera(glm::vec3(0.0f, 2.5f, 5.0f));
 
     // timing
     GLfloat deltaTime = 0.0f;

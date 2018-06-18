@@ -132,8 +132,8 @@ GLint main(GLvoid)
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-	Shader modelShader("Resource/Shader/model.vs", "Resource/Shader/model.fs");
-	Model Nanosuit("Resource/Model/nanosuit/nanosuit.obj");
+	// Shader modelShader("Resource/Shader/model.vs", "Resource/Shader/model.fs");
+	// Model Nanosuit("Resource/Model/nanosuit/nanosuit.obj");
 
 	// create test box
     std::vector<float> cubicVertex = GenCubeVertices();
@@ -175,7 +175,7 @@ GLint main(GLvoid)
 
 
 	// !!!!!crystal!!!!!
-	Crystal crystal;
+	Crystal crystal(camera.physicsEngine,glm::vec3(0.0f,20.0f,-9.0f));
 	Shader cryShader("Resource/Shader/reflect.vs","Resource/Shader/reflect.fs");
 ////////////////////////////////////////////////////////////////////////////////////
     // view/projection transformations
@@ -217,7 +217,7 @@ GLint main(GLvoid)
 			glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.getTextId());
 			cryShader.setInt("skybox",0);
 			model=glm::mat4(1.0f);
-			crystal.updatePosition(camera.physicsEngine,camera.GetPosition(),deltaTime);
+			crystal.updatePosition(camera.GetPosition(),deltaTime);
 			model=glm::translate(model,crystal.Position);
 			cryShader.setMat4("model", model);
 			
@@ -244,15 +244,15 @@ GLint main(GLvoid)
 
 		// step4 : draw models
 		// be sure to activate shader when setting uniforms/drawing objects
-		modelShader.use();
-			modelShader.setVec3("viewPos", camera.GetPosition());
-			modelShader.setMat4("projection", projection);
-			modelShader.setMat4("view", view);
-			model=glm::mat4(1.0f);
-			model = glm::scale(model, glm::vec3(0.1, 0.1, 0.1));
-			modelShader.setMat4("model", model);
-			Nanosuit.Draw(modelShader);
-		glUseProgram(0);
+		// modelShader.use();
+		// 	modelShader.setVec3("viewPos", camera.GetPosition());
+		// 	modelShader.setMat4("projection", projection);
+		// 	modelShader.setMat4("view", view);
+		// 	model=glm::mat4(1.0f);
+		// 	model = glm::scale(model, glm::vec3(0.1, 0.1, 0.1));
+		// 	modelShader.setMat4("model", model);
+		// 	Nanosuit.Draw(modelShader);
+		// glUseProgram(0);
 
 		roomShader.use();
 			roomShader.setVec3("viewPos", camera.GetPosition());

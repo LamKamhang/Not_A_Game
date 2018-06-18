@@ -10,7 +10,8 @@
 #define PI 3.14159265358979323846
 #define EdgeNum 6
 #define speed 2.5f
-
+#define CloseEnough 25.0f
+#define AccelerFactor 0.005f
 class Crystal{
 private:
     GLuint VAO,VBO;
@@ -19,12 +20,16 @@ private:
     
     glm::vec3 TargetPos;
     glm::vec3 velocity;
-    
+    glm::vec3 acceler;
+    PhysicsEngine* physicsEngine;
+    bool firstupdate;
 public:
     glm::vec3 Position;
 
-    Crystal(glm::vec3 position=glm::vec3(0.0f), GLfloat height=2.5f):Position(position),TargetPos(position),velocity(0.0f)
+    Crystal(PhysicsEngine* physicsEngine, glm::vec3 position=glm::vec3(0.0f), GLfloat height=2.5f):Position(position),TargetPos(position),velocity(0.0f),acceler(0.0f)
     {
+        firstupdate = 1;
+        this->physicsEngine = physicsEngine;
         this->height=height;
         this->radius=height*HRrate;
         vertexs.clear();
@@ -94,14 +99,26 @@ public:
         glBindVertexArray(0);
     }
 
-    void updatePosition(PhysicsEngine* physicsEngine, glm::vec3 cameraPos, GLfloat deltaTime)
+    void updatePosition(glm::vec3 cameraPos, GLfloat deltaTime)
     {
         glm::vec3 direc=cameraPos - Position;
-        velocity = glm::normalize( glm::vec3(direc.x,0.0f,direc.z) ) * speed * deltaTime;
+        if(direc.x*direc.x + direc.z*direc.z < CloseEnough * CloseEnough){
+            velocity = glm::normalize( glm::vec3(direc.x,0.0f,direc.z) ) * speed * deltaTime;
+        }
+        else{
+            if(firstupdate)velocity = glm::vec3(0.0f,0.0f,-1.0f) * speed * deltaTime;
+            else{
+                acceler = glm::normalize(glm::vec3(velocity.z,0.0f,-velocity.x)) * AccelerFactor * speed * deltaTime;
+                velocity += acceler;
+                velocity=glm::normalize(velocity) * speed * deltaTime;
+            }
+        }
         Position += velocity;
         TargetPos = Position + 10.0f * velocity;
 
         physicsEngine->outCollisionTest(Position, TargetPos);
 		physicsEngine->inCollisionTest(Position, TargetPos);
+        
+        if(firstupdate)firstupdate=0;
     }
 };
