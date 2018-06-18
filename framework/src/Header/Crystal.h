@@ -12,6 +12,7 @@
 #define speed 2.5f
 #define CloseEnough 25.0f
 #define AccelerFactor 0.005f
+
 class Crystal{
 private:
     GLuint VAO,VBO;

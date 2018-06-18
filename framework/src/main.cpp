@@ -14,6 +14,7 @@
 #include "Header/skybox.h"
 #include "Header/config.h"
 #include "Header/Crystal.h"
+#include "Header/UI.h"
 #include "Header/util.h"
 
 using namespace settings;
@@ -174,8 +175,11 @@ GLint main(GLvoid)
 	glUseProgram(0);
 
 
-	// !!!!!crystal!!!!!
-	Crystal crystal(camera.physicsEngine,glm::vec3(0.0f,20.0f,-9.0f));
+	// !!!!! UI !!!!!
+	UI myUI;
+
+	// !!!!! crystal !!!!!
+	Crystal crystal(camera.physicsEngine,glm::vec3(0.0f,0.0f,-9.0f));
 	Shader cryShader("Resource/Shader/reflect.vs","Resource/Shader/reflect.fs");
 ////////////////////////////////////////////////////////////////////////////////////
     // view/projection transformations
@@ -197,6 +201,7 @@ GLint main(GLvoid)
 		
 		view = camera.GetViewMatrix();
 		projection = glm::perspective(glm::radians(camera.GetFov()), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+		
 		//step1: draw skybox
 		skyboxShader.use();
 			// ... 设置观察和投影矩阵
@@ -279,6 +284,10 @@ GLint main(GLvoid)
 			roomShader.setMat4("model", glm::mat4(1.0));
 			glDrawArrays(GL_TRIANGLES, 0, Room_wall.size() / 8);
 		
+
+		//step final: draw UI
+		myUI.updateAlpha(1,currentFrame);
+		myUI.draw();
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		glfwSwapBuffers(window);
