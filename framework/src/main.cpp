@@ -54,7 +54,7 @@ GLint main(GLvoid)
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-	float height = 6, length = 10;
+	int height = 6, length = 10;
 	// B->0, L->1, F->2, R->3
 	// 这里可以利用L-system去生成,先随便搞一个demo
 	// type, x, y, z（墙的类型，墙中心的位置）
