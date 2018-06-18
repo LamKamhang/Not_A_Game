@@ -27,9 +27,11 @@ static const GLfloat __MIN_FOV						= 1.0f;
 
 class Camera
 {
-private:
+public:
 	// Physics Engine
 	PhysicsEngine* physicsEngine;
+private:
+	
 	// Camera Attributes
 	glm::vec3 Position;
 	glm::vec3 TargetPos;// movement target position

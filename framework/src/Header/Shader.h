@@ -15,6 +15,7 @@ public:
 	GLuint ID;
 
 	// constructor and destructor
+	Shader(){}
 	Shader(const GLchar *vertexPath, const GLchar *fragmentPath, const GLchar *tcsPath = nullptr, const GLchar *tesPath = nullptr, const GLchar *geometryPath = nullptr);
 	~Shader();
 

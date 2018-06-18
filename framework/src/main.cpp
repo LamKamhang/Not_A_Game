@@ -13,6 +13,7 @@
 #include "Header/texture.h"
 #include "Header/skybox.h"
 #include "Header/config.h"
+#include "Header/Crystal.h"
 #include "Header/util.h"
 
 using namespace settings;
@@ -172,6 +173,10 @@ GLint main(GLvoid)
 		skyboxShader.setInt("skybox",0);
 	glUseProgram(0);
 
+
+	// !!!!!crystal!!!!!
+	Crystal crystal;
+	Shader cryShader("Resource/Shader/reflect.vs","Resource/Shader/reflect.fs");
 ////////////////////////////////////////////////////////////////////////////////////
     // view/projection transformations
     camera.SetOuterBound(glm::vec4(-500.0f,-500.0f,500.0f,500.0f));
@@ -202,7 +207,24 @@ GLint main(GLvoid)
 			skyboxShader.setMat4("projection",projection);
 			skybox.draw(skyboxShader);
 		glUseProgram(0);
-		// step2 : draw test cube
+		
+		// step2 : draw crystal
+		cryShader.use();
+			cryShader.setMat4("projection",projection);
+			cryShader.setMat4("view",view);
+			cryShader.setVec3("cameraPos",camera.GetPosition());
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.getTextId());
+			cryShader.setInt("skybox",0);
+			model=glm::mat4(1.0f);
+			crystal.updatePosition(camera.physicsEngine,camera.GetPosition(),deltaTime);
+			model=glm::translate(model,crystal.Position);
+			cryShader.setMat4("model", model);
+			
+			crystal.draw();//draw
+		glUseProgram(0);
+
+		// step3 : draw test cube
 		glBindVertexArray(VAOcube);
 		cubeShader.use();
 			cubeShader.setMat4("projection",projection);
@@ -220,7 +242,7 @@ GLint main(GLvoid)
 		glBindVertexArray(0);
 
 
-		// step3 : draw models
+		// step4 : draw models
 		// be sure to activate shader when setting uniforms/drawing objects
 		modelShader.use();
 			modelShader.setVec3("viewPos", camera.GetPosition());

@@ -36,7 +36,7 @@ public:
     void setSceneInnerBoundary(float x1, float y1, float z1, float x2, float y2, float z2);
     //内部碰撞检测
     void inCollisionTest(glm::vec3 & cameraPos, glm::vec3 & targetPos);
-  
+
     bool isJumping;  
     void jumpAndUpdateVelocity();    //按下space跳跃时调用  
     //每帧绘制的时候更新摄像机垂直方向移动  

@@ -29,4 +29,3 @@ std::vector<float> GenConeVertices(float radius = 1.0, float height = 1.0, float
 
 void ExternSphereVertexAttribute(std::vector<float> &vertices, std::vector<float> &position, int index, int totalPhiStep, int totalThetaStep, float texCoordX, float texCoordY);
 
-			
