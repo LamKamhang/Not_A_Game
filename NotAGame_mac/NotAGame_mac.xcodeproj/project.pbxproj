@@ -18,6 +18,7 @@
 		1042321F20D25D42006F3043 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1042321620D25D42006F3043 /* Camera.cpp */; };
 		1042322120D25DA5006F3043 /* stb_image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1042322020D25DA5006F3043 /* stb_image.cpp */; };
 		1042322320D25DB2006F3043 /* glad.c in Sources */ = {isa = PBXBuildFile; fileRef = 1042322220D25DB2006F3043 /* glad.c */; };
+		1097E63620D91422004EBA4E /* Crystal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1097E63520D91422004EBA4E /* Crystal.cpp */; };
 		10F940C720CAAF2C00691D27 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 10F940C620CAAF2C00691D27 /* OpenGL.framework */; };
 		10F940C920CAAF3800691D27 /* libglfw.3.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 10F940C820CAAF3800691D27 /* libglfw.3.2.dylib */; };
 		10F940CB20CAAF4200691D27 /* libassimp.4.1.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 10F940CA20CAAF4200691D27 /* libassimp.4.1.0.dylib */; };
@@ -49,6 +50,7 @@
 		1042322020D25DA5006F3043 /* stb_image.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = stb_image.cpp; path = ../framework/OpenGL/stb_image.cpp; sourceTree = "<group>"; };
 		1042322220D25DB2006F3043 /* glad.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glad.c; path = ../framework/OpenGL/glad.c; sourceTree = "<group>"; };
 		1042322E20D260BC006F3043 /* Header */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Header; path = src/Header; sourceTree = "<group>"; };
+		1097E63520D91422004EBA4E /* Crystal.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Crystal.cpp; path = src/Crystal.cpp; sourceTree = "<group>"; };
 		10F940BB20CAAF2400691D27 /* NotAGame_mac */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = NotAGame_mac; sourceTree = BUILT_PRODUCTS_DIR; };
 		10F940C620CAAF2C00691D27 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		10F940C820CAAF3800691D27 /* libglfw.3.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglfw.3.2.dylib; path = ../../../../usr/local/Cellar/glfw/3.2.1/lib/libglfw.3.2.dylib; sourceTree = "<group>"; };
@@ -91,6 +93,7 @@
 		10F940BD20CAAF2400691D27 /* NotAGame_mac */ = {
 			isa = PBXGroup;
 			children = (
+				1097E63520D91422004EBA4E /* Crystal.cpp */,
 				1042322E20D260BC006F3043 /* Header */,
 				1042322020D25DA5006F3043 /* stb_image.cpp */,
 				1042322220D25DB2006F3043 /* glad.c */,
@@ -186,6 +189,7 @@
 				1042321B20D25D42006F3043 /* Model.cpp in Sources */,
 				1042322120D25DA5006F3043 /* stb_image.cpp in Sources */,
 				1042321A20D25D42006F3043 /* Mesh.cpp in Sources */,
+				1097E63620D91422004EBA4E /* Crystal.cpp in Sources */,
 				1042321820D25D42006F3043 /* config.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

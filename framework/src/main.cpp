@@ -179,11 +179,16 @@ GLint main(GLvoid)
 	UI myUI;
 
 	// !!!!! crystal !!!!!
-	Crystal crystal(camera.physicsEngine,glm::vec3(0.0f,0.0f,-9.0f));
-	Shader cryShader("Resource/Shader/reflect.vs","Resource/Shader/reflect.fs");
+	CrystalSystem crystalsystem(camera.physicsEngine);
+	crystalsystem.addCrystal(glm::vec3(0.0f,0.0f,-9.0f),2.5f,0);//position, height, type
+	crystalsystem.addCrystal(glm::vec3(10.0f,0.0f,-9.0f),2.5f,0);
+	crystalsystem.addCrystal(glm::vec3(10.0f,0.0f,0.0f),2.5f,1);
+	crystalsystem.addCrystal(glm::vec3(0.0f,0.0f,9.0f),2.5f,1);
+
 ////////////////////////////////////////////////////////////////////////////////////
     // view/projection transformations
     camera.SetOuterBound(glm::vec4(-500.0f,-500.0f,500.0f,500.0f));
+	int closeEnough,damage,bullet;
 	// render loop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -214,20 +219,13 @@ GLint main(GLvoid)
 		glUseProgram(0);
 		
 		// step2 : draw crystal
-		cryShader.use();
-			cryShader.setMat4("projection",projection);
-			cryShader.setMat4("view",view);
-			cryShader.setVec3("cameraPos",camera.GetPosition());
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.getTextId());
-			cryShader.setInt("skybox",0);
-			model=glm::mat4(1.0f);
-			crystal.updatePosition(camera.GetPosition(),deltaTime);
-			model=glm::translate(model,crystal.Position);
-			cryShader.setMat4("model", model);
-			
-			crystal.draw();//draw
-		glUseProgram(0);
+		crystalsystem.updateAll(camera.GetPosition(),deltaTime);
+		crystalsystem.updateHeroState(camera.GetPosition(),closeEnough,damage,bullet);
+		crystalsystem.drawAll(projection,view,camera.GetPosition(),skybox.getTextId(),deltaTime);
+		
+        std::cout<<"damage="<<damage<<std::endl;
+        std::cout<<"bullet="<<bullet<<std::endl;
+
 
 		// step3 : draw test cube
 		glBindVertexArray(VAOcube);
@@ -286,7 +284,7 @@ GLint main(GLvoid)
 		
 
 		//step final: draw UI
-		myUI.updateAlpha(1,currentFrame);
+		myUI.updateAlpha(closeEnough,currentFrame);
 		myUI.draw();
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
