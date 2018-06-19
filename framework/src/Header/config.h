@@ -11,6 +11,7 @@ namespace settings{
     // settings
     extern const GLuint SCR_WIDTH;
     extern const GLuint SCR_HEIGHT;
+    extern bool explode;
 
     enum button_mode {
         none, left, middle, right,

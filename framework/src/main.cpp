@@ -56,7 +56,7 @@ GLint main(GLvoid)
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-	int height = 6, length = 10;
+	float height = 6, length = 10;
 	// B->0, L->1, F->2, R->3
 	// 这里可以利用L-system去生成,先随便搞一个demo
 	// type, x, y, z（墙的类型，墙中心的位置）
@@ -133,8 +133,8 @@ GLint main(GLvoid)
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-	// Shader modelShader("Resource/Shader/model.vs", "Resource/Shader/model.fs");
-	// Model Nanosuit("Resource/Model/nanosuit/nanosuit.obj");
+	Shader modelShader("Resource/Shader/model.vs", "Resource/Shader/model.fs", nullptr, nullptr, "Resource/Shader/model.gs");
+	Model Nanosuit("Resource/Model/nanosuit/nanosuit.obj");
 
 	// create test box
     std::vector<float> cubicVertex = GenCubeVertices();
@@ -185,6 +185,9 @@ GLint main(GLvoid)
 	crystalsystem.addCrystal(glm::vec3(10.0f,0.0f,0.0f),2.5f,1);
 	crystalsystem.addCrystal(glm::vec3(0.0f,0.0f,9.0f),2.5f,1);
 
+	// explode
+	modelShader.use();
+	bool explode_first = true;
 ////////////////////////////////////////////////////////////////////////////////////
     // view/projection transformations
     camera.SetOuterBound(glm::vec4(-500.0f,-500.0f,500.0f,500.0f));
@@ -245,17 +248,26 @@ GLint main(GLvoid)
 		glBindVertexArray(0);
 
 
-		// step4 : draw models
+		// step3 : draw models
 		// be sure to activate shader when setting uniforms/drawing objects
-		// modelShader.use();
-		// 	modelShader.setVec3("viewPos", camera.GetPosition());
-		// 	modelShader.setMat4("projection", projection);
-		// 	modelShader.setMat4("view", view);
-		// 	model=glm::mat4(1.0f);
-		// 	model = glm::scale(model, glm::vec3(0.1, 0.1, 0.1));
-		// 	modelShader.setMat4("model", model);
-		// 	Nanosuit.Draw(modelShader);
-		// glUseProgram(0);
+		modelShader.use();
+			if(explode && explode_first)
+			{
+				explode_first = false;
+				modelShader.setFloat("initTime", currentFrame);
+			}else if (!explode){
+				explode_first = true;
+			}
+			modelShader.setFloat("time", currentFrame);
+			modelShader.setBool("explode_now", explode);
+			modelShader.setVec3("viewPos", camera.GetPosition());
+			modelShader.setMat4("projection", projection);
+			modelShader.setMat4("view", view);
+			model=glm::mat4(1.0f);
+			model = glm::scale(model, glm::vec3(0.3, 0.3, 0.3));
+			modelShader.setMat4("model", model);
+			Nanosuit.Draw(modelShader);
+		glUseProgram(0);
 
 		roomShader.use();
 			roomShader.setVec3("viewPos", camera.GetPosition());

@@ -13,7 +13,7 @@ namespace settings{
     // timing
     GLfloat deltaTime = 0.0f;
     GLfloat lastFrame = 0.0f;
-
+    bool explode = false;
 
     // API
     GLuint init_setting(GLFWwindow *&window)
@@ -74,6 +74,10 @@ namespace settings{
             camera.ProcessKeyboard(RIGHT, deltaTime);
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)//hero can jump!
             camera.ProcessKeyboard(JUMP, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)
+            explode = true;
+        if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
+            explode = false;
         camera.LoopFunction(deltaTime);
     }
 
