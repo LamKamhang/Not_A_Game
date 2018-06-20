@@ -180,15 +180,31 @@ GLint main(GLvoid)
 
 	// !!!!! crystal !!!!!
 	CrystalSystem crystalsystem(camera.physicsEngine);
-	crystalsystem.addCrystal(glm::vec3(0.0f,0.0f,-9.0f),2.5f,0);//position, height, type
-	crystalsystem.addCrystal(glm::vec3(10.0f,0.0f,-9.0f),2.5f,0);
-	crystalsystem.addCrystal(glm::vec3(10.0f,0.0f,0.0f),2.5f,1);
-	crystalsystem.addCrystal(glm::vec3(0.0f,0.0f,9.0f),2.5f,1);
+	crystalsystem.addCrystal(glm::vec3(0.0f,100.0f,-9.0f),2.5f,0);//position, height, type
+	crystalsystem.addCrystal(glm::vec3(10.0f,100.0f,-9.0f),2.5f,0);
+	crystalsystem.addCrystal(glm::vec3(10.0f,100.0f,0.0f),2.5f,1);
+	crystalsystem.addCrystal(glm::vec3(0.0f,100.0f,9.0f),2.5f,1);
+
+	// test demo
+	std::vector<glm::vec3>cubeposition;
+	cubeposition.push_back(glm::vec3(0.0f,1.0f,0.0f));
+	cubeposition.push_back(glm::vec3(10.0f,2.5f,0.0f));
+	cubeposition.push_back(glm::vec3(10.0f,5.0f,10.0f));
+	cubeposition.push_back(glm::vec3(-10.0f,2.5f,10.0f));
+	cubeposition.push_back(glm::vec3(-10.0f,5.0f,-10.0f));
+	cubeposition.push_back(glm::vec3(0.0f,1.0f,10.0f));
+
+	camera.SetinnerBound(glm::vec3(-1.0f,0.0f,-1.0f),glm::vec3(1.0f,2.0f,1.0f));
+	camera.SetinnerBound(glm::vec3(9.0f,1.5f,-1.0f),glm::vec3(11.0f,3.5f,1.0f));
+	camera.SetinnerBound(glm::vec3(9.0f,4.0f,9.0f),glm::vec3(11.0f,6.0f,11.0f));
+	camera.SetinnerBound(glm::vec3(-11.0f,1.5f,9.0f),glm::vec3(-9.0f,3.5f,11.0f));
+	camera.SetinnerBound(glm::vec3(-11.0f,4.0f,-11.0f),glm::vec3(-9.0f,6.0f,-9.0f));
+	camera.SetinnerBound(glm::vec3(-1.0f,0.0f,9.0f),glm::vec3(1.0f,2.0f,11.0f));
 
 ////////////////////////////////////////////////////////////////////////////////////
     // view/projection transformations
     camera.SetOuterBound(glm::vec4(-500.0f,-500.0f,500.0f,500.0f));
-	int closeEnough,damage,bullet;
+	int closeEnough=0,damage=0,bullet=0;
 	// render loop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -236,11 +252,13 @@ GLint main(GLvoid)
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.getTextId());
 			cubeShader.setInt("skybox",0);
-			model=glm::mat4(1.0f);
-			model=glm::translate(model,glm::vec3(3.5,1.0,0.0));
-			model=glm::scale(model,glm::vec3(2.0f,2.0f,2.0f));
-			cubeShader.setMat4("model", model);
-			glDrawArrays(GL_TRIANGLES,0,cubicVertex.size()/8);
+			for(int i=0;i<cubeposition.size();i++){
+				model=glm::mat4(1.0f);
+				model=glm::translate(model,cubeposition[i]);
+				model=glm::scale(model,glm::vec3(2.0f,2.0f,2.0f));
+				cubeShader.setMat4("model", model);
+				glDrawArrays(GL_TRIANGLES,0,cubicVertex.size()/8);
+			}
 		glUseProgram(0);
 		glBindVertexArray(0);
 

@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "PhysicsEngine.h"
+#include "Camera.h"
 #include "Shader.h"
 
 // 1/(2*sqrt(3))
@@ -14,6 +15,9 @@
 #define speed 2.5f
 #define CloseEnough 18.0f
 #define AccelerFactor 0.003f
+#define RaiusRate 0.3f  //攻击范围
+#define BloodViewRate 0.25f  //过近警报
+#define CloseRate 0.5f  //加速距离
 
 class Crystal{
 private:
@@ -25,6 +29,13 @@ private:
     glm::vec3 velocity;
     glm::vec3 acceler;//self circle movement
     PhysicsEngine* physicsEngine;// physicsEngine used
+
+    //vert movement
+    glm::vec3 VertVelocity;        //垂直方向速度
+	glm::vec3 accelerUp;       //方向向上的加速度
+	bool isJumping;  
+    
+    // status
     bool IsDead;
     int type;// good 1, bad 0
     
@@ -39,6 +50,7 @@ public:
     GLfloat getRadius(){return radius;}
     void die(){IsDead = 1;}
     bool IsOk(){return !IsDead;}
+    void jump();
 
     void draw();
     void updatePosition(const glm::vec3 cameraPos, const GLfloat deltaTime);

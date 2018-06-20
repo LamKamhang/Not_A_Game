@@ -1,11 +1,7 @@
 #include "Header/PhysicsEngine.h"
 
 PhysicsEngine::PhysicsEngine() {
-    velocity = glm::vec3(0.f, 0.f, 0.f);
     gravity = glm::vec3(0.f, GravityAcceler, 0.f);
-    accelerUp = glm::vec3(0.f, 0.f, 0.f);
-
-    isJumping = false;
 }
 
 PhysicsEngine::~PhysicsEngine() {
@@ -40,11 +36,6 @@ void PhysicsEngine::outCollisionTestXZ(float x1, float z1, float x2, float z2, g
 	}
 }
 
-void PhysicsEngine::jumpAndUpdateVelocity() {
-	velocity = glm::vec3(0.f, JumpInitialSpeed, 0.f);
-	accelerUp.y = 0.f;
-}
-
 //判断在xz平面，相机位置是否位于碰撞体内部
 bool insideTheCollider(glm::vec3 _cameraPos, glm::vec3 _innerMin, glm::vec3 _innerMax) {
 	float camX = _cameraPos.x;
@@ -60,7 +51,7 @@ bool insideTheCollider(glm::vec3 _cameraPos, glm::vec3 _innerMin, glm::vec3 _inn
 		return false;
 }
 
-void PhysicsEngine::updateCameraVertMovement(glm::vec3 & cameraPos, glm::vec3 & targetPos,GLfloat deltaTime) 
+void PhysicsEngine::updateCameraVertMovement(glm::vec3 & cameraPos, glm::vec3 & targetPos, glm::vec3 & velocity, glm::vec3 &accelerUp, bool &isJumping, const float HeroHeight, GLfloat deltaTime)
 {
 	glm::vec3 acceleration = gravity + accelerUp;
 	velocity += acceleration * GravityFactor * deltaTime;
@@ -95,15 +86,15 @@ void PhysicsEngine::updateCameraVertMovement(glm::vec3 & cameraPos, glm::vec3 & 
 	}
 }
 
-void PhysicsEngine::inCollisionTest(glm::vec3 & cameraPos, glm::vec3 & targetPos) {
+void PhysicsEngine::inCollisionTest(glm::vec3 & cameraPos, glm::vec3 & targetPos, float HeroHeight) {
 	//后面可以在这里添加：预处理，排除当前肯定不会产生碰撞的物体
 	for (unsigned int i = 0; i < innerBoundaryMin.size(); i++) {
 		inCollisionTestWithHeight(innerBoundaryMin[i][0], innerBoundaryMin[i][1], innerBoundaryMin[i][2],
-			innerBoundaryMax[i][0], innerBoundaryMax[i][1], innerBoundaryMax[i][2], cameraPos, targetPos);
+			innerBoundaryMax[i][0], innerBoundaryMax[i][1], innerBoundaryMax[i][2], cameraPos, targetPos, HeroHeight);
 	}
 }
 
-void PhysicsEngine::inCollisionTestWithHeight(float x1, float y1, float z1, float x2, float y2, float z2, glm::vec3 & cameraPos, glm::vec3 & targetPos) {
+void PhysicsEngine::inCollisionTestWithHeight(float x1, float y1, float z1, float x2, float y2, float z2, glm::vec3 & cameraPos, glm::vec3 & targetPos, float HeroHeight) {
 	//当身体处于碰撞体垂直区域范围内，才进行XZ平面的碰撞检测
 	if (!(cameraPos[1] <= y1 || cameraPos[1] - HeroHeight >= y2)) {
 		inCollisionTestXZ(x1, z1, x2, z2, cameraPos, targetPos);

@@ -11,6 +11,9 @@ Camera::Camera(glm::vec3 position, glm::vec3 up,
 	ScrollSensitivity(scrollSensitivity), Fov(fov)
 {
 	physicsEngine=new PhysicsEngine;
+	VertVelocity=glm::vec3(0.0f);
+	accelerUp=glm::vec3(0.0f);
+	isJumping=false;
 	UpdateCameraVectors();
 }
 
@@ -24,6 +27,9 @@ Camera::Camera(GLfloat posX, GLfloat posY, GLfloat posZ,
 	ScrollSensitivity(scrollSensitivity) ,Fov(fov)
 {
 	physicsEngine=new PhysicsEngine;
+	VertVelocity=glm::vec3(0.0f);
+	accelerUp=glm::vec3(0.0f);
+	isJumping=false;
 	UpdateCameraVectors();
 }
 
@@ -35,12 +41,22 @@ Camera::Camera():
 	ScrollSensitivity(__INIT_SCROLL_SENSITIVITY) ,Fov(__INIT_FOV)
 {
 	physicsEngine=new PhysicsEngine;
+	VertVelocity=glm::vec3(0.0f);
+	accelerUp=glm::vec3(0.0f);
+	isJumping=false;
 	UpdateCameraVectors();
 }
 Camera::~Camera()
 {
 	delete physicsEngine;
 }
+
+void Camera::jumpAndUpdateVelocity() {
+	VertVelocity = glm::vec3(0.f, JumpInitialSpeed, 0.f);
+	accelerUp.y = 0.f;
+	isJumping = true;
+}
+
 
 // Update the camera's position corresponding to the keyboard event.
 // deltatime just to eliminate the performance among different PCs.
@@ -57,10 +73,9 @@ GLvoid Camera::ProcessKeyboard(Camera_Movement direction, GLfloat deltaTime)
 	if (direction == RIGHT)
 		dx = velocity;
 	if (direction == JUMP){
-		if (!physicsEngine->isJumping) {
-			physicsEngine->jumpAndUpdateVelocity();
+		if (!isJumping) {
+			jumpAndUpdateVelocity();
 		}
-		physicsEngine->isJumping = true;
 	}
 
 	if(!dx || !dz){
@@ -68,17 +83,17 @@ GLvoid Camera::ProcessKeyboard(Camera_Movement direction, GLfloat deltaTime)
 		TargetPos = Position + 10.0f * (dz * BodyFront + dx * BodyRight);
 		
 		physicsEngine->outCollisionTest(Position, TargetPos);
-		physicsEngine->inCollisionTest(Position, TargetPos);
+		physicsEngine->inCollisionTest(Position, TargetPos, HeroHeight);
 	}
 }
 
 GLvoid Camera::LoopFunction(GLfloat deltaTime)
 {
-	physicsEngine->updateCameraVertMovement(Position,TargetPos,deltaTime);
-	if(Position.y-HeroHeight<0.0f)
+	physicsEngine->updateCameraVertMovement(Position,TargetPos,VertVelocity,accelerUp,isJumping,HeroHeight,deltaTime);
+	if(Position.y - HeroHeight < 0.0f)
 	{
-		Position.y=HeroHeight;
-		physicsEngine->isJumping=false;
+		Position.y = HeroHeight;
+		isJumping=false;
 	}
 }
 
