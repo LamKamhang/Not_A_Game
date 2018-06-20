@@ -45,7 +45,9 @@ namespace settings{
         glfwSetMouseButtonCallback(window, mouse_button_callback);
         
         // capture the mouse
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        
 
         // glad: load all OpenGL fucniton pointers
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -74,6 +76,9 @@ namespace settings{
             camera.ProcessKeyboard(RIGHT, deltaTime);
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)//hero can jump!
             camera.ProcessKeyboard(JUMP, deltaTime);
+        if(cur_button_mode == left)
+            ;// camera.ProcessMouseButton(MB_LEFT,deltaTime);
+        
         camera.LoopFunction(deltaTime);
     }
 

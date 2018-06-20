@@ -6,11 +6,14 @@ Camera::Camera(glm::vec3 position, glm::vec3 up,
 				GLfloat yaw, GLfloat pitch,
 				GLfloat movementSpeed, GLfloat mouseSensitivity, 
 				GLfloat scrollSensitivity, GLfloat fov) :
+	// bullet(physicsEngine),
 	Position(position), Up(up), Yaw(yaw), Pitch(pitch), 
 	MovementSpeed(movementSpeed),MouseSensitivity(mouseSensitivity), 
 	ScrollSensitivity(scrollSensitivity), Fov(fov)
 {
 	physicsEngine=new PhysicsEngine;
+	// bullet=new Bullet;
+	// bullet->setPhysicsEngine(physicsEngine);
 	VertVelocity=glm::vec3(0.0f);
 	accelerUp=glm::vec3(0.0f);
 	isJumping=false;
@@ -22,11 +25,14 @@ Camera::Camera(GLfloat posX, GLfloat posY, GLfloat posZ,
 				GLfloat yaw, GLfloat pitch,
 				GLfloat movementSpeed, GLfloat mouseSensitivity, 
 				GLfloat scrollSensitivity, GLfloat fov) :
+	// bullet(physicsEngine),
 	Position(posX, posY, posZ), Up(upX, upY, upZ), Yaw(yaw), Pitch(pitch),
 	MovementSpeed(movementSpeed), MouseSensitivity(mouseSensitivity), 
 	ScrollSensitivity(scrollSensitivity) ,Fov(fov)
 {
 	physicsEngine=new PhysicsEngine;
+	// bullet=new Bullet;
+	// bullet->setPhysicsEngine(physicsEngine);
 	VertVelocity=glm::vec3(0.0f);
 	accelerUp=glm::vec3(0.0f);
 	isJumping=false;
@@ -34,6 +40,7 @@ Camera::Camera(GLfloat posX, GLfloat posY, GLfloat posZ,
 }
 
 Camera::Camera():
+	// bullet(physicsEngine),
 	Position(glm::vec3(0.0f, 0.0f, 0.0f)), 
 	Up(glm::vec3(0.0f, 1.0f, 0.0f)), 
 	Yaw(__INIT_YAW), Pitch(__INIT_PITCH), 
@@ -41,6 +48,8 @@ Camera::Camera():
 	ScrollSensitivity(__INIT_SCROLL_SENSITIVITY) ,Fov(__INIT_FOV)
 {
 	physicsEngine=new PhysicsEngine;
+	// bullet=new Bullet;
+	// bullet->setPhysicsEngine(physicsEngine);
 	VertVelocity=glm::vec3(0.0f);
 	accelerUp=glm::vec3(0.0f);
 	isJumping=false;
@@ -49,6 +58,7 @@ Camera::Camera():
 Camera::~Camera()
 {
 	delete physicsEngine;
+//    delete bullet;
 }
 
 void Camera::jumpAndUpdateVelocity() {
@@ -86,6 +96,18 @@ GLvoid Camera::ProcessKeyboard(Camera_Movement direction, GLfloat deltaTime)
 		physicsEngine->inCollisionTest(Position, TargetPos, HeroHeight);
 	}
 }
+
+
+// GLvoid Camera::ProcessMouseButton(Mouse_Button button, GLfloat deltaTime)
+// {
+// 	if(button == MB_LEFT){
+		// if(!bullet.IsAttacking){
+		// 	bullet.SetStartPos(Position);
+		// 	bullet.SetDirection(EyeFront);
+		// 	bullet.Attack();
+		// }
+// 	}
+// }
 
 GLvoid Camera::LoopFunction(GLfloat deltaTime)
 {

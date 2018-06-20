@@ -6,6 +6,7 @@ Crystal::Crystal(PhysicsEngine* physicsEngine, glm::vec3 position, GLfloat heigh
     firstupdate = 1;
     
     IsDead = 0;
+    age = 0.0f;
     this->type=type;
     this->height=height;
     this->radius=height*HRrate;
@@ -137,6 +138,34 @@ void Crystal::updatePosition(const glm::vec3 cameraPos, const GLfloat deltaTime)
 
 //###################### CrystalSystem ######################
 
+void CrystalSystem::generateCrystal(glm::vec3 centerPos,float areaRadius,float frequency,float goodRate,float curTime)
+{
+    if( curTime - lastTime > 1.0f / frequency){
+        lastTime = curTime;
+
+        float theta = (float)(rand()%180)/180.0f * PI;
+        float r=(float)(rand()%15)/15.0f * areaRadius;
+        int type = 0;
+        if(rand()%100 < goodRate*100)type = 1;
+        glm::vec3 position;
+        position.x = centerPos.x + r * sin(theta);
+        position.y = centerPos.y;
+        position.z = centerPos.z + r * cos(theta);
+        addCrystal(position, 2.5f, type);
+
+        std::map<int,Crystal>::iterator p;
+        for(p=GoodCrystals.begin();p!=GoodCrystals.end();p++){
+            p->second.ageIncrease( 1.0f / frequency );
+            if(p->second.getAge() > LifeTime)p->second.die();
+        }
+        for(p=BadCrystals.begin();p!=BadCrystals.end();p++){
+            p->second.ageIncrease( 1.0f / frequency );
+            if(p->second.getAge() > LifeTime)p->second.die();
+        }
+    }
+}
+
+
 void CrystalSystem::addCrystal(glm::vec3 position, GLfloat height, int type)
 {
     if(type)GoodCrystals.insert(std::make_pair(goodCnt++,Crystal(physicsEngine,position,height,1)));
@@ -220,14 +249,14 @@ void CrystalSystem::updateHeroState(const glm::vec3 &cameraPos,int &closeEnough,
 {
     closeEnough = 0;
     std::map<int,Crystal>::iterator p;
-    for(p=BadCrystals.begin();p!=BadCrystals.end();p++){
+    for(p=BadCrystals.begin();p!=BadCrystals.end();p++)if(p->second.IsOk()){
         glm::vec3 direc = glm::vec3(cameraPos.x,cameraPos.y - HeroHeight,cameraPos.z) - p->second.Position;
         if(glm::length(direc) < BloodViewRate * CloseEnough)
             closeEnough = 1;// enable blood view
         if(glm::length(direc) < RaiusRate * p->second.getRadius())
             damage++;// be attacked and loss blood
     }
-    for(p=GoodCrystals.begin();p!=GoodCrystals.end();p++){
+    for(p=GoodCrystals.begin();p!=GoodCrystals.end();p++)if(p->second.IsOk()){
         glm::vec3 direc=glm::vec3(cameraPos.x,cameraPos.y - HeroHeight,cameraPos.z) - p->second.Position;
         if(glm::length(direc) < RaiusRate * p->second.getRadius()){
             bullet++;// get bullets

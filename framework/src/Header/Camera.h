@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "PhysicsEngine.h"
+#include "Bullet.h"
 
 #define HeroHeight 2.5f           //玩家视点到脚的高度  
 #define MoveSpeed 5.0f           //玩家移动速度
@@ -16,6 +17,12 @@ enum Camera_Movement {
 	LEFT,
 	RIGHT,
 	JUMP
+};
+
+enum Mouse_Button {
+	MB_LEFT,
+	MB_MIDDLE,
+	MB_RIGHT
 };
 
 static const GLfloat __INIT_YAW						= -90.0f;
@@ -34,8 +41,8 @@ class Camera
 public:
 	// Physics Engine
 	PhysicsEngine* physicsEngine;
+	// Bullet bullet;
 private:
-	
 	// Camera Attributes
 	glm::vec3 Position;
 	glm::vec3 TargetPos;// movement target position
@@ -81,6 +88,8 @@ public:
 	// Update the camera's position corresponding to the keyboard event.
 	// deltatime just to eliminate the performance among different PCs.
 	GLvoid ProcessKeyboard(Camera_Movement direction, GLfloat deltaTime);	
+	
+	// GLvoid ProcessMouseButton(Mouse_Button button, GLfloat deltaTime);
 
 	void jumpAndUpdateVelocity();    //按下space跳跃时调用  
 

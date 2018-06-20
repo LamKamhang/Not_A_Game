@@ -27,22 +27,22 @@ public:
     //设置空间外部边缘  
     void setSceneOuterBoundary(float x1, float z1, float x2, float z2);
     //外部碰撞检测
-    void outCollisionTest(glm::vec3 & cameraPos, glm::vec3 & targetPos);
+    bool outCollisionTest(glm::vec3 & cameraPos, glm::vec3 & targetPos);
     //设置空间内部边缘
     void setSceneInnerBoundary(float x1, float y1, float z1, float x2, float y2, float z2);
     //内部碰撞检测
-    void inCollisionTest(glm::vec3 & cameraPos, glm::vec3 & targetPos,float HeroHeight);
+    bool inCollisionTest(glm::vec3 & cameraPos, glm::vec3 & targetPos,float HeroHeight);
 
     //每帧绘制的时候更新摄像机垂直方向移动  
     void updateCameraVertMovement(glm::vec3 & cameraPos, glm::vec3 & targetPos, glm::vec3 & velocity, glm::vec3 &accelerUp, bool &isJumping, const float HeroHeight, GLfloat deltaTime);
 
 private:  
     //空间内部边缘碰撞检测（考虑高度）  
-    void inCollisionTestWithHeight(float x1, float y1, float z1, float x2, float y2, float z2, glm::vec3 & cameraPos, glm::vec3 & targetPos, float HeroHeight);
+    bool inCollisionTestWithHeight(float x1, float y1, float z1, float x2, float y2, float z2, glm::vec3 & cameraPos, glm::vec3 & targetPos, float HeroHeight);
     //空间内部边缘碰撞检测（不考虑高度，即XZ平面）  
-    void inCollisionTestXZ(float x1, float z1, float x2, float z2, glm::vec3 & cameraPos, glm::vec3 & targetPos);  
+    bool inCollisionTestXZ(float x1, float z1, float x2, float z2, glm::vec3 & cameraPos, glm::vec3 & targetPos);  
     //空间外部边缘碰撞检测  
-    void outCollisionTestXZ(float x1, float z1, float x2, float z2, glm::vec3 & cameraPos, glm::vec3 & targetPos);  
+    bool outCollisionTestXZ(float x1, float z1, float x2, float z2, glm::vec3 & cameraPos, glm::vec3 & targetPos);  
   
     glm::vec3 gravity;         //重力加速度
   

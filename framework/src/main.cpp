@@ -14,6 +14,7 @@
 #include "Header/skybox.h"
 #include "Header/config.h"
 #include "Header/Crystal.h"
+#include "Header/bullet.h"
 #include "Header/UI.h"
 #include "Header/util.h"
 
@@ -133,8 +134,8 @@ GLint main(GLvoid)
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-	// Shader modelShader("Resource/Shader/model.vs", "Resource/Shader/model.fs");
-	// Model Nanosuit("Resource/Model/nanosuit/nanosuit.obj");
+	Shader ganShader("Resource/Shader/model.vs", "Resource/Shader/model.fs");
+	Model SKgan("Resource/Model/SKgan/ SK.obj");
 
 	// create test box
     std::vector<float> cubicVertex = GenCubeVertices();
@@ -187,19 +188,22 @@ GLint main(GLvoid)
 
 	// test demo
 	std::vector<glm::vec3>cubeposition;
-	cubeposition.push_back(glm::vec3(0.0f,1.0f,0.0f));
+	// cubeposition.push_back(glm::vec3(0.0f,1.0f,0.0f));
 	cubeposition.push_back(glm::vec3(10.0f,2.5f,0.0f));
 	cubeposition.push_back(glm::vec3(10.0f,5.0f,10.0f));
 	cubeposition.push_back(glm::vec3(-10.0f,2.5f,10.0f));
 	cubeposition.push_back(glm::vec3(-10.0f,5.0f,-10.0f));
 	cubeposition.push_back(glm::vec3(0.0f,1.0f,10.0f));
 
-	camera.SetinnerBound(glm::vec3(-1.0f,0.0f,-1.0f),glm::vec3(1.0f,2.0f,1.0f));
+	// camera.SetinnerBound(glm::vec3(-1.0f,0.0f,-1.0f),glm::vec3(1.0f,2.0f,1.0f));
 	camera.SetinnerBound(glm::vec3(9.0f,1.5f,-1.0f),glm::vec3(11.0f,3.5f,1.0f));
 	camera.SetinnerBound(glm::vec3(9.0f,4.0f,9.0f),glm::vec3(11.0f,6.0f,11.0f));
 	camera.SetinnerBound(glm::vec3(-11.0f,1.5f,9.0f),glm::vec3(-9.0f,3.5f,11.0f));
 	camera.SetinnerBound(glm::vec3(-11.0f,4.0f,-11.0f),glm::vec3(-9.0f,6.0f,-9.0f));
 	camera.SetinnerBound(glm::vec3(-1.0f,0.0f,9.0f),glm::vec3(1.0f,2.0f,11.0f));
+
+	// bullet!
+	Bullet heroBullet(camera.physicsEngine);
 
 ////////////////////////////////////////////////////////////////////////////////////
     // view/projection transformations
@@ -212,10 +216,11 @@ GLint main(GLvoid)
 		GLfloat currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
-		
+		std::cout<<"time="<<currentFrame<<std::endl;
 		// input
 		processInput(window);
-
+		crystalsystem.generateCrystal(glm::vec3(0.0f,100.0f,0.0f),30.0f,0.1f,0.3f,currentFrame);
+		
 		// render
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -239,11 +244,22 @@ GLint main(GLvoid)
 		crystalsystem.updateHeroState(camera.GetPosition(),closeEnough,damage,bullet);
 		crystalsystem.drawAll(projection,view,camera.GetPosition(),skybox.getTextId(),deltaTime);
 		
+		// step3: draw bullet !!
+		if(cur_button_mode == left){
+			if(!heroBullet.IsAttacking){
+				heroBullet.SetDirection(camera.GetEyeFront());
+				heroBullet.SetStartPos(camera.GetPosition());
+				heroBullet.Attack();
+			}
+		}
+		heroBullet.updatePosition(deltaTime,currentFrame);
+        heroBullet.draw(projection,view,camera.GetPosition(),skybox.getTextId(),deltaTime);
+
+		std::cout<<"mousebutton="<<cur_button_mode<<std::endl;
         std::cout<<"damage="<<damage<<std::endl;
         std::cout<<"bullet="<<bullet<<std::endl;
 
-
-		// step3 : draw test cube
+		// step4 : draw test cube
 		glBindVertexArray(VAOcube);
 		cubeShader.use();
 			cubeShader.setMat4("projection",projection);
@@ -263,18 +279,8 @@ GLint main(GLvoid)
 		glBindVertexArray(0);
 
 
-		// step4 : draw models
+		// step5 : draw models
 		// be sure to activate shader when setting uniforms/drawing objects
-		// modelShader.use();
-		// 	modelShader.setVec3("viewPos", camera.GetPosition());
-		// 	modelShader.setMat4("projection", projection);
-		// 	modelShader.setMat4("view", view);
-		// 	model=glm::mat4(1.0f);
-		// 	model = glm::scale(model, glm::vec3(0.1, 0.1, 0.1));
-		// 	modelShader.setMat4("model", model);
-		// 	Nanosuit.Draw(modelShader);
-		// glUseProgram(0);
-
 		roomShader.use();
 			roomShader.setVec3("viewPos", camera.GetPosition());
 			roomShader.setVec3("lightPos", glm::vec3(0.0, 10, 0.0));
@@ -300,6 +306,27 @@ GLint main(GLvoid)
 			roomShader.setMat4("model", glm::mat4(1.0));
 			glDrawArrays(GL_TRIANGLES, 0, Room_wall.size() / 8);
 		
+		//!!!!!! hero's gan !!!!!!!
+		ganShader.use();
+			ganShader.setVec3("viewPos", camera.GetPosition());
+			ganShader.setMat4("projection", projection);
+			ganShader.setMat4("view", view);
+			model=glm::mat4(1.0f);
+			glm::vec3 HeroEyeFront = camera.GetEyeFront();
+			glm::vec3 HeroEyeUp = camera.GetUp();
+			glm::vec3 HeroEyeRight =camera.GetRight();
+			glm::vec3 HeroEyePos = camera.GetPosition();
+
+			model = glm::translate(model,2.9f * HeroEyeFront);
+			model = glm::translate(model,0.6f * HeroEyeRight);
+			model = glm::translate(model,glm::vec3(HeroEyePos.x,HeroEyePos.y - 3.0f * HeroHeight / 5.0f,HeroEyePos.z));
+			model=glm::rotate(model,(float)PI/13.0f,HeroEyeUp);
+			glm::mat4 GanRotateMatrix = glm::mat4(glm::vec4(-1.0f * HeroEyeFront,0.0f),glm::vec4(HeroEyeUp,0.0f),glm::vec4(-1.0f*HeroEyeRight,0.0f),glm::vec4(0.0f,0.0f,0.0f,1.0f));
+			model = model * GanRotateMatrix;
+			model = glm::scale(model, glm::vec3(0.2, 0.2, 0.2));
+			ganShader.setMat4("model", model);
+			SKgan.Draw(ganShader);
+		glUseProgram(0);
 
 		//step final: draw UI
 		myUI.updateAlpha(closeEnough,currentFrame);
