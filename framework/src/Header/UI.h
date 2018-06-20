@@ -3,7 +3,7 @@
 #include "Shader.h"
 #define MaxAlpha 0.5f
 #define MinAlpha 0.25f
-#define speed 2.0
+#define UI_SPEED 2.0    // 避免speed重定义
 
 class UI{
 private:
@@ -38,7 +38,7 @@ public:
     void updateAlpha(int State, float curTime){
         if(State==0)alpha=0.0f;
         else if(State==1){
-            alpha = (MaxAlpha-MinAlpha) * sin(curTime * speed) + MinAlpha;
+            alpha = (MaxAlpha-MinAlpha) * sin(curTime * UI_SPEED) + MinAlpha;
         }
     }
     void draw(){

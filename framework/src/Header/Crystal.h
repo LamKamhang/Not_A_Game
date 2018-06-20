@@ -11,7 +11,7 @@
 #define HRrate 0.2886751345948129
 #define PI 3.14159265358979323846
 #define EdgeNum 6
-#define speed 2.5f
+#define CRYSTAL_SPEED 2.5f
 #define CloseEnough 18.0f
 #define AccelerFactor 0.003f
 
