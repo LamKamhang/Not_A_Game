@@ -79,22 +79,22 @@ void Crystal::updatePosition(const glm::vec3 cameraPos, const GLfloat deltaTime)
     glm::vec3 direc=cameraPos - Position;
     float distance = glm::length(glm::vec3(direc.x,0.0f,direc.z));
     if(distance < 3.0f * radius){
-        if(!type)velocity = glm::normalize( glm::vec3(direc.x,0.0f,direc.z) ) * -1.5f * speed * deltaTime;
-        else velocity = glm::normalize( glm::vec3(direc.x,0.0f,direc.z) ) * speed * deltaTime;
+        if(!type)velocity = glm::normalize( glm::vec3(direc.x,0.0f,direc.z) ) * -1.5f * CRYSTAL_SPEED * deltaTime;
+        else velocity = glm::normalize( glm::vec3(direc.x,0.0f,direc.z) ) * CRYSTAL_SPEED * deltaTime;
     }
     else if(distance < 0.5f * CloseEnough){
-        if(!type)velocity = glm::normalize( glm::vec3(direc.x,0.0f,direc.z) ) * 1.1f * speed * deltaTime;
-        else velocity = glm::normalize( glm::vec3(direc.x,0.0f,direc.z) ) * speed * deltaTime;
+        if(!type)velocity = glm::normalize( glm::vec3(direc.x,0.0f,direc.z) ) * 1.1f * CRYSTAL_SPEED * deltaTime;
+        else velocity = glm::normalize( glm::vec3(direc.x,0.0f,direc.z) ) * CRYSTAL_SPEED * deltaTime;
     }
     else if(distance < CloseEnough){
-        velocity = glm::normalize( glm::vec3(direc.x,0.0f,direc.z) ) * speed * deltaTime;
+        velocity = glm::normalize( glm::vec3(direc.x,0.0f,direc.z) ) * CRYSTAL_SPEED * deltaTime;
     }
     else{
-        if(firstupdate)velocity = glm::vec3(0.0f,0.0f,-1.0f) * speed * deltaTime;
+        if(firstupdate)velocity = glm::vec3(0.0f,0.0f,-1.0f) * CRYSTAL_SPEED * deltaTime;
         else{
-            acceler = glm::normalize(glm::vec3(velocity.z,0.0f,-velocity.x)) * AccelerFactor * speed * deltaTime;
+            acceler = glm::normalize(glm::vec3(velocity.z,0.0f,-velocity.x)) * AccelerFactor * CRYSTAL_SPEED * deltaTime;
             velocity += acceler;
-            velocity=glm::normalize(velocity) * speed * deltaTime;
+            velocity=glm::normalize(velocity) * CRYSTAL_SPEED * deltaTime;
         }
     }
     Position += velocity;
