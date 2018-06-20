@@ -45,7 +45,7 @@ namespace settings{
         glfwSetMouseButtonCallback(window, mouse_button_callback);
         
         // capture the mouse
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
         // glad: load all OpenGL fucniton pointers
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))

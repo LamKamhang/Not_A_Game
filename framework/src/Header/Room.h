@@ -34,18 +34,18 @@ struct Material{
     glm::vec3 specular;
     float shininess;
     Material()=default;
-    Material(const glm::vec3 &ambient, const glm::vec3 &diffuse, const glm::vec3 &specular, const shininess):
+    Material(const glm::vec3 &ambient, const glm::vec3 &diffuse, const glm::vec3 &specular, const float shininess):
         ambient(ambient), diffuse(diffuse), specular(specular), shininess(shininess)
     {};
 };
 
-struct Light{
+struct PointLight{
 	glm::vec3 color;
     float ambient;
 	float diffuse;
 	float specular;
-    Light()=default;
-    Light(const glm::vec3 &color, const ambient, const diffuse, const specular):
+    PointLight()=default;
+    PointLight(const glm::vec3 &color, const float ambient, const float diffuse, const float specular):
         color(color), ambient(ambient), diffuse(diffuse), specular(specular)
     {};
 };
@@ -55,22 +55,25 @@ class Room
 private:
     GLuint wall_VAO, wall_VBO, floor_VAO, floor_VBO;
     //GLuint wall_texID, floor_texID, ceil_texID;
-    Material wall_material, floor_material, ceil_material;
-    std::vector<float> wall_vertices, floor_vertices;
-    std::vector<glm::vec3> light_pos;
+    std::vector<float> wall_vertices;
+    std::vector<float> floor_vertices;
+    std::vector<glm::vec3> point_light_pos;
+    Material wall_material;
+    Material floor_material;
+    Material ceil_material;
+    PointLight point_light;
     std::string directory;
-    Light light;
 
     inline void bindVAO();
     inline void initRoom(Camera &camera);
     inline void setMaterial(Shader &shader, const std::string &name, Material &value);
-    inline void setLight(Shader &shader, const std::string &name, Light &value);
-    inline void setLightPos(Shader &shader, const std::string &name);
+    inline void setPointLight(Shader &shader, const std::string &name, PointLight &value);
+    inline void setPointLightPos(Shader &shader, const std::string &name);
 public:
     Room() = default;
     Room(Camera &camera);
     Room(const std::vector<float> &_wall, const std::vector<float> &_floor, 
-        const Material &wall_material, const Material &floor_material, const Material &ceil_material);
+        const Material &wall_material, const Material &floor_material, const Material &ceil_material, const std::vector<glm::vec3> &point_light_pos, const PointLight &point_light);
     ~Room() = default;
 
     inline const std::vector<glm::vec3>& GetLightPos();
@@ -83,7 +86,7 @@ void GetVertexByRules(std::vector<float> &vertices, Camera &camera, const std::v
 std::vector<float> GetFirstFloorDefaultGround(Camera &camera);
 std::vector<float> GetFirstFloorDefaultWall(Camera &camera);
 std::vector<glm::vec3> GetFirstFloorDefaultLightPos();
-Light GetFirstFloorDefaultLight();
+PointLight GetFirstFloorDefaultPointLight();
 Material GetFirstFloorDefaultWallMaterial();
 Material GetFirstFloorDefaultFloorMaterial();
 Material GetFirstFloorDefaultCeilMaterial();

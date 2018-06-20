@@ -37,9 +37,8 @@ GLint main(GLvoid)
 	// some settings for room
 	//Shader roomShader("Resource/Shader/test.vs", "Resource/Shader/test.fs");
 	Shader roomShader("Resource/Shader/room.vs", "Resource/Shader/room.fs");
-	 std::vector<float> _wall = GetFirstFloorWall(camera);
-	 std::vector<float> _floor = GetFirstFloorGround(camera);
-	 Room room1(_wall, _floor, "wall.jpg", "floor.jpg", "ceil.jpg");
+	 
+	 Room room1(camera);
 
 	Shader modelShader("Resource/Shader/model.vs", "Resource/Shader/model.fs", nullptr, nullptr, "Resource/Shader/model.gs");
 	Model Nanosuit("Resource/Model/nanosuit/nanosuit.obj");
@@ -83,15 +82,15 @@ GLint main(GLvoid)
 	glUseProgram(0);
 
 
-	// !!!!! UI !!!!!
-	UI myUI;
+	// // !!!!! UI !!!!!
+	// UI myUI;
 
-	// !!!!! crystal !!!!!
-	CrystalSystem crystalsystem(camera.physicsEngine);
-	crystalsystem.addCrystal(glm::vec3(0.0f,0.0f,-9.0f),2.5f,0);//position, height, type
-	crystalsystem.addCrystal(glm::vec3(10.0f,0.0f,-9.0f),2.5f,0);
-	crystalsystem.addCrystal(glm::vec3(10.0f,0.0f,0.0f),2.5f,1);
-	crystalsystem.addCrystal(glm::vec3(0.0f,0.0f,9.0f),2.5f,1);
+	// // !!!!! crystal !!!!!
+	// CrystalSystem crystalsystem(camera.physicsEngine);
+	// crystalsystem.addCrystal(glm::vec3(0.0f,0.0f,-9.0f),2.5f,0);//position, height, type
+	// crystalsystem.addCrystal(glm::vec3(10.0f,0.0f,-9.0f),2.5f,0);
+	// crystalsystem.addCrystal(glm::vec3(10.0f,0.0f,0.0f),2.5f,1);
+	// crystalsystem.addCrystal(glm::vec3(0.0f,0.0f,9.0f),2.5f,1);
 
 	// explode
 	modelShader.use();
@@ -129,10 +128,10 @@ GLint main(GLvoid)
 			skybox.draw(skyboxShader);
 		glUseProgram(0);
 		
-		// step2 : draw crystal
-		crystalsystem.updateAll(camera.GetPosition(),deltaTime);
-		crystalsystem.updateHeroState(camera.GetPosition(),closeEnough,damage,bullet);
-		crystalsystem.drawAll(projection,view,camera.GetPosition(),skybox.getTextId(),deltaTime);
+		// // step2 : draw crystal
+		// crystalsystem.updateAll(camera.GetPosition(),deltaTime);
+		// crystalsystem.updateHeroState(camera.GetPosition(),closeEnough,damage,bullet);
+		// crystalsystem.drawAll(projection,view,camera.GetPosition(),skybox.getTextId(),deltaTime);
 		
         // std::cout<<"damage="<<damage<<std::endl;
         // std::cout<<"bullet="<<bullet<<std::endl;
@@ -179,17 +178,18 @@ GLint main(GLvoid)
 
 		roomShader.use();
 			roomShader.setVec3("viewPos", camera.GetPosition());
-			roomShader.setVec3("lightPos", glm::vec3(0.0, 10, 0.0));
 			roomShader.setMat4("projection", projection);
 			roomShader.setMat4("view", view);
-			roomShader.setMat4("model", glm::mat4(1.0));
+			model = glm::mat4(1.0);
+			model = glm::translate(model, glm::vec3(5, 0, 0));
+			roomShader.setMat4("model", model);
 
 			room1.Draw(roomShader);
 		
 
-		//step final: draw UI
-		myUI.updateAlpha(closeEnough,currentFrame);
-		myUI.draw();
+		// //step final: draw UI
+		// myUI.updateAlpha(closeEnough,currentFrame);
+		// myUI.draw();
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		glfwSwapBuffers(window);
