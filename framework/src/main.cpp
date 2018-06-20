@@ -16,6 +16,7 @@
 #include "Header/Crystal.h"
 #include "Header/UI.h"
 #include "Header/util.h"
+#include "Header/Room.h"
 
 using namespace settings;
 
@@ -36,102 +37,9 @@ GLint main(GLvoid)
 	// some settings for room
 	//Shader roomShader("Resource/Shader/test.vs", "Resource/Shader/test.fs");
 	Shader roomShader("Resource/Shader/room.vs", "Resource/Shader/room.fs");
-	std::vector<float> Room_floor = GenCubeTopVertices(150, 150);
-	std::vector<float> Room_wall;
-	GLuint floor_tex = loadTexture("floor.jpg", "Resource/Texture");
-	GLuint wall_tex = loadTexture("wall.jpg", "Resource/Texture");
-
-	GLuint floor_VAO, floor_VBO;
-	glGenVertexArrays(1, &floor_VAO);
-	glBindVertexArray(floor_VAO);
-		glGenBuffers(1, &floor_VBO);
-		glBindBuffer(GL_ARRAY_BUFFER, floor_VBO);
-			glBufferData(GL_ARRAY_BUFFER, Room_floor.size() * sizeof(float), &Room_floor[0], GL_STATIC_DRAW);
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid *)(0));
-			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8*sizeof(GLfloat), (GLvoid *)(3*sizeof(GLfloat)));
-			glEnableVertexAttribArray(1);
-			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8*sizeof(GLfloat), (GLvoid *)(6*sizeof(GLfloat)));
-			glEnableVertexAttribArray(2);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-
-	float height = 6, length = 10;
-	// B->0, L->1, F->2, R->3
-	// 这里可以利用L-system去生成,先随便搞一个demo
-	// type, x, y, z（墙的类型，墙中心的位置）
-	std::vector<int> heart_point{
-		0, 0, height/2, -20,
-		0, length, height/2, -20,
-		0, 2*length, height/2, -20,
-		3, 2*length+length/2, height/2, -20+length/2,
-		0, 3*length, height/2, -20+length,
-		0, 4*length, height/2, -20+length,
-		1, 4*length+length/2, height/2, -20 + length/2,
-		0, 5*length, height/2, -20,
-		3, 5*length+length/2, height/2, -20+length/2,
-		3, 5*length+length/2, height/2, -20+length+length/2,
-		3, 5*length+length/2, height/2, -20+2*length+length/2,
-		2, 5*length, height/2, -20+3*length,
-		2, 4*length, height/2, -20+3*length,
-		2, 3*length, height/2, -20+3*length,
-		2, 2*length, height/2, -20+3*length,
-		1, 2*length - length/2, height/2, -20+3*length - length/2,
-		2, 2*length, height/2, -20+2*length,
-		3, 2*length-length/2, height/2, -20+2*length+length/2,
-		2, length, height/2, -20+3*length,
-		1, length/2, height/2, -20+2*length+length/2,
-		1, -length/2, height/2, -20+2*length - length/2,
-		1, -length/2, height/2, -20+length - length/2,
-	};
-
-	for (int i = 0; i < heart_point.size(); i+=4)
-	{
-		std::vector<float> temp_wall;
-		switch(heart_point[i])
-		{
-			case 0: 
-				temp_wall = GenCubeBackVertices(length, height, heart_point[i+1], heart_point[i+2], heart_point[i+3]);
-				camera.SetinnerBound(glm::vec3(heart_point[i+1]-length/2, heart_point[i+2]-height/2, heart_point[i+3]), 
-								glm::vec3(heart_point[i+1] + length/2, heart_point[i+2]+height/2, heart_point[i+3]));
-				Room_wall.insert(Room_wall.end(), temp_wall.begin(), temp_wall.end());
-				break;
-			case 1:
-				temp_wall = GenCubeLeftVertices(length, height, heart_point[i+1], heart_point[i+2], heart_point[i+3]);
-				camera.SetinnerBound(glm::vec3(heart_point[i+1], heart_point[i+2]-height/2, heart_point[i+3]-length/2), 
-								glm::vec3(heart_point[i+1], heart_point[i+2]+height/2, heart_point[i+3]+length/2));
-				Room_wall.insert(Room_wall.end(), temp_wall.begin(), temp_wall.end());
-				break;
-			case 2:
-				temp_wall = GenCubeFrontVertices(length, height, heart_point[i+1], heart_point[i+2], heart_point[i+3]);
-				camera.SetinnerBound(glm::vec3(heart_point[i+1]-length/2, heart_point[i+2]-height/2, heart_point[i+3]), 
-								glm::vec3(heart_point[i+1] + length/2, heart_point[i+2]+height/2, heart_point[i+3]));
-				Room_wall.insert(Room_wall.end(), temp_wall.begin(), temp_wall.end());
-				break;
-			case 3:
-				temp_wall = GenCubeRightVertices(length, height, heart_point[i+1], heart_point[i+2], heart_point[i+3]);
-				camera.SetinnerBound(glm::vec3(heart_point[i+1], heart_point[i+2]-height/2, heart_point[i+3]-length/2), 
-								glm::vec3(heart_point[i+1], heart_point[i+2]+height/2, heart_point[i+3]+length/2));
-				Room_wall.insert(Room_wall.end(), temp_wall.begin(), temp_wall.end());
-				break;
-			default:break;
-		}
-	}
-
-	GLuint wall_VAO, wall_VBO;
-	glGenVertexArrays(1, &wall_VAO);
-	glBindVertexArray(wall_VAO);
-		glGenBuffers(1, &wall_VBO);
-		glBindBuffer(GL_ARRAY_BUFFER, wall_VBO);
-			glBufferData(GL_ARRAY_BUFFER, Room_wall.size() * sizeof(float), &Room_wall[0], GL_STATIC_DRAW);
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid *)(0));
-			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8*sizeof(GLfloat), (GLvoid *)(3*sizeof(GLfloat)));
-			glEnableVertexAttribArray(1);
-			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8*sizeof(GLfloat), (GLvoid *)(6*sizeof(GLfloat)));
-			glEnableVertexAttribArray(2);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+	 std::vector<float> _wall = GetFirstFloorWall(camera);
+	 std::vector<float> _floor = GetFirstFloorGround(camera);
+	 Room room1(_wall, _floor, "wall.jpg", "floor.jpg", "ceil.jpg");
 
 	Shader modelShader("Resource/Shader/model.vs", "Resource/Shader/model.fs", nullptr, nullptr, "Resource/Shader/model.gs");
 	Model Nanosuit("Resource/Model/nanosuit/nanosuit.obj");
@@ -226,8 +134,8 @@ GLint main(GLvoid)
 		crystalsystem.updateHeroState(camera.GetPosition(),closeEnough,damage,bullet);
 		crystalsystem.drawAll(projection,view,camera.GetPosition(),skybox.getTextId(),deltaTime);
 		
-        std::cout<<"damage="<<damage<<std::endl;
-        std::cout<<"bullet="<<bullet<<std::endl;
+        // std::cout<<"damage="<<damage<<std::endl;
+        // std::cout<<"bullet="<<bullet<<std::endl;
 
 
 		// step3 : draw test cube
@@ -275,24 +183,8 @@ GLint main(GLvoid)
 			roomShader.setMat4("projection", projection);
 			roomShader.setMat4("view", view);
 			roomShader.setMat4("model", glm::mat4(1.0));
-			//roomShader.setMat4("PVM", projection * view);
-			roomShader.setBool("floor_wall", 1);
-			glBindVertexArray(floor_VAO);
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, floor_tex);
-			roomShader.setInt("floor_tex", 0);
-			glDrawArrays(GL_TRIANGLES, 0, Room_floor.size() / 8);
-			glBindVertexArray(wall_VAO);
-			roomShader.setBool("floor_wall", 0);
-			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, wall_tex);
-			roomShader.setInt("wall_tex", 1);
-			roomShader.setVec3("viewPos", camera.GetPosition());
-			roomShader.setVec3("lightPos", glm::vec3(0.0, 10, 0.0));
-			roomShader.setMat4("projection", projection);
-			roomShader.setMat4("view", view);
-			roomShader.setMat4("model", glm::mat4(1.0));
-			glDrawArrays(GL_TRIANGLES, 0, Room_wall.size() / 8);
+
+			room1.Draw(roomShader);
 		
 
 		//step final: draw UI

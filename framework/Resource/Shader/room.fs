@@ -7,10 +7,24 @@ in vs{
     vec2 texCoord;
 }_in;
 
+struct Material{
+	vec3 ambient;
+	vec3 diffuse;
+	vec3 specular;
+	float shininess;
+};
+
+struct Light{
+	vec3 ambient;
+	vec3 diffuse;
+	vec3 specular;
+};
+
 uniform vec3 lightPos;
 uniform vec3 viewPos;
 
 uniform sampler2D floor_tex;
+uniform sampler2D ceil_tex;
 uniform sampler2D wall_tex;
 uniform bool floor_wall;
 
@@ -19,11 +33,14 @@ void main()
     vec3 color;
     if (floor_wall)
     {
-        color = vec3(texture(floor_tex, _in.texCoord));
+        color = vec3(texture(wall_tex, _in.texCoord));
     }
     else
     {
-        color = vec3(texture(wall_tex, _in.texCoord));
+        if(gl_FrontFacing)
+            color = vec3(texture(ceil_tex, _in.texCoord));
+        else
+            color = vec3(texture(floor_tex, _in.texCoord));
     }
 
     // Ambient Lighting
