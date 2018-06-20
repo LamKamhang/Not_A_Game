@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		103B041120DADC2F000836A0 /* Room.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 103B041020DADC2F000836A0 /* Room.cpp */; };
 		1042321720D25D42006F3043 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1042320D20D25D41006F3043 /* main.cpp */; };
 		1042321820D25D42006F3043 /* config.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1042320F20D25D41006F3043 /* config.cpp */; };
 		1042321920D25D42006F3043 /* Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1042321020D25D41006F3043 /* Texture.cpp */; };
@@ -38,6 +39,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		103B041020DADC2F000836A0 /* Room.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Room.cpp; path = src/Room.cpp; sourceTree = "<group>"; };
 		1042320D20D25D41006F3043 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../framework/src/main.cpp; sourceTree = "<group>"; };
 		1042320F20D25D41006F3043 /* config.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = config.cpp; path = ../framework/src/config.cpp; sourceTree = "<group>"; };
 		1042321020D25D41006F3043 /* Texture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Texture.cpp; path = ../framework/src/Texture.cpp; sourceTree = "<group>"; };
@@ -93,6 +95,7 @@
 		10F940BD20CAAF2400691D27 /* NotAGame_mac */ = {
 			isa = PBXGroup;
 			children = (
+				103B041020DADC2F000836A0 /* Room.cpp */,
 				1097E63520D91422004EBA4E /* Crystal.cpp */,
 				1042322E20D260BC006F3043 /* Header */,
 				1042322020D25DA5006F3043 /* stb_image.cpp */,
@@ -186,6 +189,7 @@
 				1042322320D25DB2006F3043 /* glad.c in Sources */,
 				1042321F20D25D42006F3043 /* Camera.cpp in Sources */,
 				1042321720D25D42006F3043 /* main.cpp in Sources */,
+				103B041120DADC2F000836A0 /* Room.cpp in Sources */,
 				1042321B20D25D42006F3043 /* Model.cpp in Sources */,
 				1042322120D25DA5006F3043 /* stb_image.cpp in Sources */,
 				1042321A20D25D42006F3043 /* Mesh.cpp in Sources */,
