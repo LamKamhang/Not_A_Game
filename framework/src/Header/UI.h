@@ -1,6 +1,8 @@
 #include <glad/glad.h>
 #include <vector>
 #include "Shader.h"
+#include "Texture.h"
+
 #define MaxAlpha 0.5f
 #define MinAlpha 0.25f
 #define UI_SPEED 2.0    // 避免speed重定义
@@ -11,6 +13,7 @@ private:
     std::vector<float>UIvertexs;
     float alpha;
     Shader uiShader;
+    GLuint crossTexture;
 public:
     UI():uiShader("Resource/Shader/ui.vs","Resource/Shader/ui.fs")
     {
@@ -34,6 +37,8 @@ public:
                 glEnableVertexAttribArray(0);
             glBindBuffer(GL_ARRAY_BUFFER,0);
         glBindVertexArray(0);
+
+        crossTexture = loadTexture("crosshair.png","Resource/Texture/");
     }
     void updateAlpha(int State, float curTime){
         if(State==0)alpha=0.0f;
@@ -46,7 +51,10 @@ public:
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glBindVertexArray(uiVAO);
         uiShader.use();
-        uiShader.setFloat("alpha",alpha);
+            uiShader.setFloat("alpha",alpha);
+            uiShader.setInt("crosshair",0);
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, crossTexture);
             glDrawArrays(GL_TRIANGLES,0,UIvertexs.size()/3);
 		glUseProgram(0);
 		glBindVertexArray(0);
