@@ -122,6 +122,8 @@ inline void Room::initRoom(Camera &camera)
 // public function
 void GetVertexByRules(std::vector<float> &vertices, Camera &camera, const std::vector<Rule> &rules)
 {
+    // world coordinate.
+    float mx = -5, my = 0, mz = -3;
     auto size = rules.size();
     std::vector<float> temp_wall;
     float p1, p2, cx, cy, cz;
@@ -136,38 +138,38 @@ void GetVertexByRules(std::vector<float> &vertices, Camera &camera, const std::v
 		{
 			case _back: 
 				temp_wall = GenCubeBackVertices(p1, p2, cx, cy, cz);
-				//camera.SetinnerBound(glm::vec3(cx-p1/2, cy-p2/2, cz), 
-				//				    glm::vec3(cx+p1/2, cy+p2/2, cz));
+				camera.SetinnerBound(glm::vec3(cx-p1/2+mx, cy-p2/2+my, cz+mz), 
+								    glm::vec3(cx+p1/2+mx, cy+p2/2+my, cz+mz));
 				vertices.insert(vertices.end(), temp_wall.begin(), temp_wall.end());
 				break;
 			case _left:
 				temp_wall = GenCubeLeftVertices(p1, p2, cx, cy, cz);
-				//camera.SetinnerBound(glm::vec3(cx, cy-p2/2, cz-p1/2), 
-				//				    glm::vec3(cx, cy+p2/2, cz+p1/2));
+				camera.SetinnerBound(glm::vec3(cx+mx, cy-p2/2+my, cz-p1/2+mz), 
+								    glm::vec3(cx+mx, cy+p2/2+my, cz+p1/2+mz));
 				vertices.insert(vertices.end(), temp_wall.begin(), temp_wall.end());
 				break;
 			case _front:
 				temp_wall = GenCubeFrontVertices(p1, p2, cx, cy, cz);
-				//camera.SetinnerBound(glm::vec3(cx-p1/2, cy-p2/2, cz), 
-				//				    glm::vec3(cx+p1/2, cy+p2/2, cz));
+				camera.SetinnerBound(glm::vec3(cx-p1/2+mx, cy-p2/2+my, cz+mz), 
+								    glm::vec3(cx+p1/2+mx, cy+p2/2+my, cz+mz));
 				vertices.insert(vertices.end(), temp_wall.begin(), temp_wall.end());
 				break;
 			case _right:
 				temp_wall = GenCubeRightVertices(p1, p2, cx, cy, cz);
-				//camera.SetinnerBound(glm::vec3(cx, cy-p2/2, cz-p1/2), 
-				//				    glm::vec3(cx, cy+p2/2, cz+p1/2));
+				camera.SetinnerBound(glm::vec3(cx+mx, cy-p2/2+my, cz-p1/2+mz), 
+								    glm::vec3(cx+mx, cy+p2/2+my, cz+p1/2+mz));
 				vertices.insert(vertices.end(), temp_wall.begin(), temp_wall.end());
 				break;
             case _buttom:
                 temp_wall = GenCubeButtomVertices(p1, p2, cx, cy, cz); 
-                //camera.SetinnerBound(glm::vec3(cx-p1/2, cy, cz-p2/2),
-                //                    glm::vec3(cx+p1/2, cy, cz+p2/2));
+                camera.SetinnerBound(glm::vec3(cx-p1/2+mx, cy+my, cz-p2/2+mz),
+                                    glm::vec3(cx+p1/2+mx, cy+my, cz+p2/2+mz));
                 vertices.insert(vertices.end(), temp_wall.begin(), temp_wall.end());
                 break;
             case _top:
                 temp_wall = GenCubeTopVertices(p1, p2, cx, cy, cz); 
-                //camera.SetinnerBound(glm::vec3(cx-p1/2, cy, cz-p2/2),
-                //                    glm::vec3(cx+p1/2, cy, cz+p2/2));
+                camera.SetinnerBound(glm::vec3(cx-p1/2+mx, cy+my, cz-p2/2+mz),
+                                    glm::vec3(cx+p1/2+mx, cy+my, cz+p2/2+mz));
                 vertices.insert(vertices.end(), temp_wall.begin(), temp_wall.end());
                 break;
 			default:break;
@@ -199,7 +201,7 @@ std::vector<float> GetFirstFloorDefaultGround(Camera &camera)
 std::vector<float> GetFirstFloorDefaultWall(Camera &camera)
 {
     
-    float wall_height = 10, door_height = 6, wall_width = 1.5, cy = wall_height/2;
+    float wall_height = 10, door_height = 7.5, wall_width = 1.5, cy = wall_height/2, dy = (door_height+wall_height)/2;
     std::vector<float> vertices;
     std::vector<Rule> rules{
        Rule(_back, 15, wall_height, 7.5, cy, 25),//1
@@ -207,7 +209,7 @@ std::vector<float> GetFirstFloorDefaultWall(Camera &camera)
        Rule(_back, 25, wall_height,  15+12.5, cy, 40),//3
        Rule(_back, 28, wall_height,  15+14, cy, 60),//4
        Rule(_back, 65, wall_height,  15+32.5, cy, 75),//5
-       Rule(_back, 18, wall_height,  65-9, cy, 60),//6
+       Rule(_back, 22, wall_height,  69-11, cy, 60),//6
        Rule(_back, 3, wall_height,  40+1.5, cy, 60-wall_width),//7
        Rule(_back, 3, wall_height,  47+1.5, cy, 60-wall_width),//8
        Rule(_back, 17, wall_height,  90-8.5, cy, 60),//9
@@ -259,6 +261,29 @@ std::vector<float> GetFirstFloorDefaultWall(Camera &camera)
        Rule(_left, 15, wall_height,  80, cy, 75-7.5),//26
        Rule(_left, 17-wall_width, wall_height,  80, cy, 40+(17-wall_width)/2),//27
        Rule(_left, 45, wall_height,  90, cy, 15+22.5),//28
+
+       //door
+       Rule(_back, 3, wall_height-door_height, 6+1.5, dy, wall_width), //1
+       Rule(_front, 3, wall_height-door_height, 6+1.5, dy, 0),//1
+       Rule(_buttom, 3, wall_width, 6+1.5, door_height, wall_width/2),//1
+       Rule(_back, 4, wall_height-door_height, 43+2, dy, 60),//2
+       Rule(_front, 4, wall_height-door_height, 43+2, dy, 60-wall_width),//2
+       Rule(_buttom, 4, wall_width, 43+2, door_height, 60 - wall_width/2),//2
+       Rule(_back, 3, wall_height-door_height, 56+1.5, dy, 40+wall_width),//3
+       Rule(_front, 3, wall_height-door_height, 56+1.5, dy, 40),//3
+       Rule(_buttom, 3, wall_width, 56+1.5, door_height, 40 + wall_width/2),//3
+       Rule(_back, 4, wall_height-door_height, 69+2, dy, 60-3-wall_width),//4
+       Rule(_front, 4, wall_height-door_height,69+2, dy, 60-3-2*wall_width),//4
+       Rule(_buttom, 4, wall_width, 69+2, door_height, 60-3-1.5*wall_width),//4
+       Rule(_back, 4, wall_height-door_height, 69+2, dy, 60),//5
+       Rule(_front, 4, wall_height-door_height, 69+2, dy, 60-wall_width),//5
+       Rule(_buttom, 4, wall_width, 69+2, door_height, 60-wall_width/2),//5
+       Rule(_right, 3, wall_height-door_height, 15, dy, 7+1.5),//6
+       Rule(_left, 3, wall_height-door_height, 15+wall_width, dy, 7+1.5),//6
+       Rule(_buttom, wall_width, 3, 15+wall_width/2, door_height, 7+1.5),//6
+       Rule(_right, 3, wall_height-door_height, 40-wall_width, dy, 52+1.5),//7
+       Rule(_left, 3, wall_height-door_height, 40, dy, 52+1.5),//7
+       Rule(_buttom, wall_width, 3, 40-wall_width/2, door_height, 52+1.5),//7
     };
     GetVertexByRules(vertices, camera, rules);
     return vertices;
@@ -275,9 +300,9 @@ std::vector<glm::vec3> GetFirstFloorDefaultLightPos()
         glm::vec3(40, y, 67.5),//4
         glm::vec3(57.5, y, 55),//5
         glm::vec3(72.5, y, 68),//6
-        glm::vec3(73, y, 50),//7
+        //glm::vec3(73, y, 50),//7
         glm::vec3(75, y, 25),//8
-        glm::vec3(85, y, 60),//9
+        //glm::vec3(85, y, 60),//9
     };
 }
 

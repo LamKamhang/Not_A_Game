@@ -181,9 +181,9 @@ GLint main(GLvoid)
 			roomShader.setMat4("projection", projection);
 			roomShader.setMat4("view", view);
 			model = glm::mat4(1.0);
-			model = glm::translate(model, glm::vec3(5, 0, 0));
+			model = glm::translate(model, glm::vec3(-5, 0, -3));
 			roomShader.setMat4("model", model);
-
+			roomShader.setBool("phong", phong);
 			room1.Draw(roomShader);
 		
 

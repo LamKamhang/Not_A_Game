@@ -14,6 +14,7 @@ namespace settings{
     GLfloat deltaTime = 0.0f;
     GLfloat lastFrame = 0.0f;
     bool explode = false;
+    bool phong = false;
 
     // API
     GLuint init_setting(GLFWwindow *&window)
@@ -78,6 +79,10 @@ namespace settings{
             explode = true;
         if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
             explode = false;
+        if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
+            phong = true;
+        if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
+            phong = false;
         camera.LoopFunction(deltaTime);
     }
 
