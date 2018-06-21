@@ -1,7 +1,7 @@
 #include "Header/Crystal.h"
 #include <cstdlib>
 Crystal::Crystal(PhysicsEngine* physicsEngine, glm::vec3 position, GLfloat height,int type)
-:Position(position),TargetPos(position),velocity(0.0f),acceler(0.0f)
+:TargetPos(position),velocity(0.0f),acceler(0.0f), Position(position)
 {
     firstupdate = 1;
     

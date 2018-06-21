@@ -19,11 +19,11 @@ enum Camera_Movement {
 	JUMP
 };
 
-enum Mouse_Button {
-	MB_LEFT,
-	MB_MIDDLE,
-	MB_RIGHT
-};
+// enum Mouse_Button{
+// 	MB_LEFT,
+// 	MB_MIDDLE,
+// 	MB_RIGHT
+// };
 
 static const GLfloat __INIT_YAW						= -90.0f;
 static const GLfloat __INIT_PITCH					= 0.0f;

@@ -132,7 +132,7 @@ GLint main(GLvoid)
 		GLfloat currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
-		std::cout<<"time="<<currentFrame<<std::endl;
+		// std::cout<<"time="<<currentFrame<<std::endl;
 		// input
 		processInput(window);
 		crystalsystem.generateCrystal(glm::vec3(0.0f,100.0f,0.0f),30.0f,0.1f,0.3f,currentFrame);
@@ -171,9 +171,9 @@ GLint main(GLvoid)
 		heroBullet.updatePosition(deltaTime,currentFrame);
         heroBullet.draw(projection,view,camera.GetPosition(),skybox.getTextId(),deltaTime);
 
-		std::cout<<"mousebutton="<<cur_button_mode<<std::endl;
-        std::cout<<"damage="<<damage<<std::endl;
-        std::cout<<"bullet="<<bullet<<std::endl;
+		// std::cout<<"mousebutton="<<cur_button_mode<<std::endl;
+  //       std::cout<<"damage="<<damage<<std::endl;
+  //       std::cout<<"bullet="<<bullet<<std::endl;
 
 		// step4 : draw test cube
 		glBindVertexArray(VAOcube);
@@ -184,7 +184,7 @@ GLint main(GLvoid)
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.getTextId());
 			cubeShader.setInt("skybox",0);
-			for(int i=0;i<cubeposition.size();i++){
+			for(size_t i=0;i<cubeposition.size();i++){
 				model=glm::mat4(1.0f);
 				model=glm::translate(model,cubeposition[i]);
 				model=glm::scale(model,glm::vec3(2.0f,2.0f,2.0f));

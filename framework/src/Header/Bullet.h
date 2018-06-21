@@ -21,12 +21,13 @@ private:
     glm::vec3 Position;
     glm::vec3 TargetPos;
     std::vector<float> vertexs;
+    
+    glm::vec3 velocity;
+    PhysicsEngine* physicsEngine;// physicsEngine used
 
     float height;
     float radius;
 
-    glm::vec3 velocity;
-    PhysicsEngine* physicsEngine;// physicsEngine used
     float lastTime;
 
     unsigned int bulletVAO,bulletVBO;
@@ -34,7 +35,11 @@ private:
 public:
     bool IsAttacking;
 
-    Bullet(PhysicsEngine* physicsEngine):shader("Resource/Shader/crystal.vs","Resource/Shader/crystal.fs"),IsAttacking(false),startPos(glm::vec3(0.0f)),Position(glm::vec3(0.0f)),TargetPos(glm::vec3(0.0f)),direction(glm::vec3(0.0f,1.0f,0.0f)),velocity(glm::vec3(0.0f))
+    Bullet(PhysicsEngine* physicsEngine):
+        startPos(glm::vec3(0.0f)), direction(glm::vec3(0.0f,1.0f,0.0f)), 
+        Position(glm::vec3(0.0f)), TargetPos(glm::vec3(0.0f)),
+        velocity(glm::vec3(0.0f)), shader("Resource/Shader/crystal.vs","Resource/Shader/crystal.fs"),
+        IsAttacking(false)
     {
         this->physicsEngine = physicsEngine;
         lastTime=0.0f;
