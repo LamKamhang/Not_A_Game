@@ -14,6 +14,7 @@
 #include "Header/skybox.h"
 #include "Header/config.h"
 #include "Header/Crystal.h"
+#include "Header/bullet.h"
 #include "Header/UI.h"
 #include "Header/util.h"
 #include "Header/Room.h"
@@ -45,6 +46,9 @@ GLint main(GLvoid)
 
 	Shader modelShader("Resource/Shader/model.vs", "Resource/Shader/model.fs", nullptr, nullptr, "Resource/Shader/model.gs");
 	Model Nanosuit("Resource/Model/nanosuit/nanosuit.obj");
+
+	Shader ganShader("Resource/Shader/gan.vs", "Resource/Shader/gan.fs");
+	Model SKgan("Resource/Model/SKgan/ SK.obj");
 
 	// create test box
     std::vector<float> cubicVertex = GenCubeVertices();
@@ -85,15 +89,34 @@ GLint main(GLvoid)
 	glUseProgram(0);
 
 
-	// // !!!!! UI !!!!!
-	// UI myUI;
+	// !!!!! UI !!!!!
+	UI myUI;
 
-	// // !!!!! crystal !!!!!
-	// CrystalSystem crystalsystem(camera.physicsEngine);
-	// crystalsystem.addCrystal(glm::vec3(0.0f,0.0f,-9.0f),2.5f,0);//position, height, type
-	// crystalsystem.addCrystal(glm::vec3(10.0f,0.0f,-9.0f),2.5f,0);
-	// crystalsystem.addCrystal(glm::vec3(10.0f,0.0f,0.0f),2.5f,1);
-	// crystalsystem.addCrystal(glm::vec3(0.0f,0.0f,9.0f),2.5f,1);
+	// !!!!! crystal !!!!!
+	CrystalSystem crystalsystem(camera.physicsEngine);
+	crystalsystem.addCrystal(glm::vec3(0.0f,100.0f,-9.0f),2.5f,0);//position, height, type
+	crystalsystem.addCrystal(glm::vec3(10.0f,100.0f,-9.0f),2.5f,0);
+	crystalsystem.addCrystal(glm::vec3(10.0f,100.0f,0.0f),2.5f,1);
+	crystalsystem.addCrystal(glm::vec3(0.0f,100.0f,9.0f),2.5f,1);
+
+	// test demo
+	std::vector<glm::vec3>cubeposition;
+	// cubeposition.push_back(glm::vec3(0.0f,1.0f,0.0f));
+	cubeposition.push_back(glm::vec3(10.0f,2.5f,0.0f));
+	cubeposition.push_back(glm::vec3(10.0f,5.0f,10.0f));
+	cubeposition.push_back(glm::vec3(-10.0f,2.5f,10.0f));
+	cubeposition.push_back(glm::vec3(-10.0f,5.0f,-10.0f));
+	cubeposition.push_back(glm::vec3(0.0f,1.0f,10.0f));
+
+	// camera.SetinnerBound(glm::vec3(-1.0f,0.0f,-1.0f),glm::vec3(1.0f,2.0f,1.0f));
+	camera.SetinnerBound(glm::vec3(9.0f,1.5f,-1.0f),glm::vec3(11.0f,3.5f,1.0f));
+	camera.SetinnerBound(glm::vec3(9.0f,4.0f,9.0f),glm::vec3(11.0f,6.0f,11.0f));
+	camera.SetinnerBound(glm::vec3(-11.0f,1.5f,9.0f),glm::vec3(-9.0f,3.5f,11.0f));
+	camera.SetinnerBound(glm::vec3(-11.0f,4.0f,-11.0f),glm::vec3(-9.0f,6.0f,-9.0f));
+	camera.SetinnerBound(glm::vec3(-1.0f,0.0f,9.0f),glm::vec3(1.0f,2.0f,11.0f));
+
+	// bullet!
+	Bullet heroBullet(camera.physicsEngine);
 
 	// explode
 	modelShader.use();
@@ -101,7 +124,7 @@ GLint main(GLvoid)
 ////////////////////////////////////////////////////////////////////////////////////
     // view/projection transformations
     camera.SetOuterBound(glm::vec4(-500.0f,-500.0f,500.0f,500.0f));
-	int closeEnough,damage,bullet;
+	int closeEnough=0,damage=0,bullet=0;
 	// render loop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -109,10 +132,11 @@ GLint main(GLvoid)
 		GLfloat currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
-		
+		std::cout<<"time="<<currentFrame<<std::endl;
 		// input
 		processInput(window);
-
+		crystalsystem.generateCrystal(glm::vec3(0.0f,100.0f,0.0f),30.0f,0.1f,0.3f,currentFrame);
+		
 		// render
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -131,16 +155,27 @@ GLint main(GLvoid)
 			skybox.draw(skyboxShader);
 		glUseProgram(0);
 		
-		// // step2 : draw crystal
-		// crystalsystem.updateAll(camera.GetPosition(),deltaTime);
-		// crystalsystem.updateHeroState(camera.GetPosition(),closeEnough,damage,bullet);
-		// crystalsystem.drawAll(projection,view,camera.GetPosition(),skybox.getTextId(),deltaTime);
+		// step2 : draw crystal
+		crystalsystem.updateAll(camera.GetPosition(),deltaTime);
+		crystalsystem.updateHeroState(camera.GetPosition(),closeEnough,damage,bullet);
+		crystalsystem.drawAll(projection,view,camera.GetPosition(),skybox.getTextId(),deltaTime);
 		
-        // std::cout<<"damage="<<damage<<std::endl;
-        // std::cout<<"bullet="<<bullet<<std::endl;
+		// step3: draw bullet !!
+		if(cur_button_mode == left){
+			if(!heroBullet.IsAttacking){
+				heroBullet.SetDirection(camera.GetEyeFront());
+				heroBullet.SetStartPos(camera.GetPosition());
+				heroBullet.Attack();
+			}
+		}
+		heroBullet.updatePosition(deltaTime,currentFrame);
+        heroBullet.draw(projection,view,camera.GetPosition(),skybox.getTextId(),deltaTime);
 
+		std::cout<<"mousebutton="<<cur_button_mode<<std::endl;
+        std::cout<<"damage="<<damage<<std::endl;
+        std::cout<<"bullet="<<bullet<<std::endl;
 
-		// step3 : draw test cube
+		// step4 : draw test cube
 		glBindVertexArray(VAOcube);
 		cubeShader.use();
 			cubeShader.setMat4("projection",projection);
@@ -149,16 +184,17 @@ GLint main(GLvoid)
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.getTextId());
 			cubeShader.setInt("skybox",0);
-			model=glm::mat4(1.0f);
-			model=glm::translate(model,glm::vec3(3.5,1.0,0.0));
-			model=glm::scale(model,glm::vec3(2.0f,2.0f,2.0f));
-			cubeShader.setMat4("model", model);
-			glDrawArrays(GL_TRIANGLES,0,cubicVertex.size()/8);
+			for(int i=0;i<cubeposition.size();i++){
+				model=glm::mat4(1.0f);
+				model=glm::translate(model,cubeposition[i]);
+				model=glm::scale(model,glm::vec3(2.0f,2.0f,2.0f));
+				cubeShader.setMat4("model", model);
+				glDrawArrays(GL_TRIANGLES,0,cubicVertex.size()/8);
+			}
 		glUseProgram(0);
 		glBindVertexArray(0);
 
-
-		// step3 : draw models
+		// step5 : draw test model
 		// be sure to activate shader when setting uniforms/drawing objects
 		modelShader.use();
 			if(explode && explode_first)
@@ -178,7 +214,8 @@ GLint main(GLvoid)
 			modelShader.setMat4("model", model);
 			Nanosuit.Draw(modelShader);
 		glUseProgram(0);
-
+		
+		// step6 : draw rooms
 		roomShader.use();
 			roomShader.setVec3("viewPos", camera.GetPosition());
 			roomShader.setMat4("projection", projection);
@@ -189,10 +226,32 @@ GLint main(GLvoid)
 			roomShader.setBool("phong", phong);
 			room1.Draw(roomShader);
 		
+		//!!!!!! hero's gan !!!!!!!
+		ganShader.use();
+			ganShader.setVec3("viewPos", camera.GetPosition());
+			ganShader.setMat4("projection", projection);
+			ganShader.setMat4("view", view);
+			model=glm::mat4(1.0f);
+			glm::vec3 HeroEyeFront = camera.GetEyeFront();
+			glm::vec3 HeroEyeUp = camera.GetUp();
+			glm::vec3 HeroEyeRight =camera.GetRight();
+			glm::vec3 HeroEyePos = camera.GetPosition();
 
-		// //step final: draw UI
-		// myUI.updateAlpha(closeEnough,currentFrame);
-		// myUI.draw();
+			model = glm::translate(model,2.9f * HeroEyeFront);
+			model = glm::translate(model,0.6f * HeroEyeRight);
+			model = glm::translate(model,-1.5f * HeroEyeUp);
+			model = glm::translate(model,glm::vec3(HeroEyePos.x,HeroEyePos.y,HeroEyePos.z));
+			model=glm::rotate(model,(float)PI/13.0f,HeroEyeUp);
+			glm::mat4 GanRotateMatrix = glm::mat4(glm::vec4(-1.0f * HeroEyeFront,0.0f),glm::vec4(HeroEyeUp,0.0f),glm::vec4(-1.0f*HeroEyeRight,0.0f),glm::vec4(0.0f,0.0f,0.0f,1.0f));
+			model = model * GanRotateMatrix;
+			model = glm::scale(model, glm::vec3(0.2, 0.2, 0.2));
+			ganShader.setMat4("model", model);
+			SKgan.Draw(ganShader);
+		glUseProgram(0);
+
+		//step final: draw UI
+		myUI.updateAlpha(closeEnough,currentFrame);
+		myUI.draw();
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		glfwSwapBuffers(window);

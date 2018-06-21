@@ -1,14 +1,21 @@
 #include "Header/Crystal.h"
-
+#include <cstdlib>
 Crystal::Crystal(PhysicsEngine* physicsEngine, glm::vec3 position, GLfloat height,int type)
 :Position(position),TargetPos(position),velocity(0.0f),acceler(0.0f)
 {
-    IsDead = 0;
     firstupdate = 1;
+    
+    IsDead = 0;
+    age = 0.0f;
     this->type=type;
-    this->physicsEngine = physicsEngine;
     this->height=height;
     this->radius=height*HRrate;
+    
+    this->physicsEngine = physicsEngine;
+    VertVelocity = glm::vec3(0.0f);
+    accelerUp = glm::vec3(0.0f);
+    isJumping = false;
+
     vertexs.clear();
     GLfloat theta1=0.0f,theta2=0.0f;
     // create crystal vertexs
@@ -67,6 +74,16 @@ Crystal::Crystal(PhysicsEngine* physicsEngine, glm::vec3 position, GLfloat heigh
     glBindVertexArray(0);
 }
 
+void Crystal::jump()
+{
+    if(!isJumping){
+        VertVelocity = glm::vec3(0.0f, JumpInitialSpeed, 0.0f);
+        accelerUp.y = 0.0f;
+        isJumping = true;
+    }
+}
+
+
 void Crystal::draw()
 {
     glBindVertexArray(VAO);
@@ -78,37 +95,74 @@ void Crystal::updatePosition(const glm::vec3 cameraPos, const GLfloat deltaTime)
 {
     glm::vec3 direc=cameraPos - Position;
     float distance = glm::length(glm::vec3(direc.x,0.0f,direc.z));
-    if(distance < 3.0f * radius){
-        if(!type)velocity = glm::normalize( glm::vec3(direc.x,0.0f,direc.z) ) * -1.5f * CRYSTAL_SPEED * deltaTime;
+
+    if(firstupdate)velocity = glm::vec3(0.0f,0.0f,-1.0f) * CRYSTAL_SPEED * deltaTime;
+    else if(distance < RaiusRate * radius){
+        if(!type)velocity = glm::normalize( glm::vec3(direc.x,0.0f,direc.z) ) * -1.8f * CRYSTAL_SPEED * deltaTime;
         else velocity = glm::normalize( glm::vec3(direc.x,0.0f,direc.z) ) * CRYSTAL_SPEED * deltaTime;
     }
-    else if(distance < 0.5f * CloseEnough){
-        if(!type)velocity = glm::normalize( glm::vec3(direc.x,0.0f,direc.z) ) * 1.1f * CRYSTAL_SPEED * deltaTime;
+    else if(distance < CloseRate * CloseEnough){
+        if(!type)velocity = glm::normalize( glm::vec3(direc.x,0.0f,direc.z) ) * 1.8f * CRYSTAL_SPEED * deltaTime;
         else velocity = glm::normalize( glm::vec3(direc.x,0.0f,direc.z) ) * CRYSTAL_SPEED * deltaTime;
     }
     else if(distance < CloseEnough){
         velocity = glm::normalize( glm::vec3(direc.x,0.0f,direc.z) ) * CRYSTAL_SPEED * deltaTime;
     }
     else{
-        if(firstupdate)velocity = glm::vec3(0.0f,0.0f,-1.0f) * CRYSTAL_SPEED * deltaTime;
-        else{
-            acceler = glm::normalize(glm::vec3(velocity.z,0.0f,-velocity.x)) * AccelerFactor * CRYSTAL_SPEED * deltaTime;
-            velocity += acceler;
-            velocity=glm::normalize(velocity) * CRYSTAL_SPEED * deltaTime;
-        }
+        acceler = glm::normalize(glm::vec3(velocity.z,0.0f,-velocity.x)) * AccelerFactor * CRYSTAL_SPEED * deltaTime;
+        velocity += acceler;
+        velocity=glm::normalize(velocity) * CRYSTAL_SPEED * deltaTime;
     }
+    
     Position += velocity;
     TargetPos = Position + 10.0f * velocity;
 
-    physicsEngine->outCollisionTest(Position, TargetPos);
-    physicsEngine->inCollisionTest(Position, TargetPos);
-    
+    // eyePos for collision
+    glm::vec3 eyePos = glm::vec3(Position.x, Position.y + height, Position.z);
+    glm::vec3 eyeTarg= glm::vec3(TargetPos.x, TargetPos.y + height, TargetPos.z);
+    physicsEngine->outCollisionTest(eyePos, eyeTarg);
+    physicsEngine->inCollisionTest(eyePos, eyeTarg, height);
+    physicsEngine->updateCameraVertMovement(eyePos,eyeTarg,VertVelocity,accelerUp,isJumping,height,deltaTime);
+	
+    Position = glm::vec3(eyePos.x, eyePos.y - height, eyePos.z);
+    TargetPos= glm::vec3(eyeTarg.x, eyeTarg.y - height, eyeTarg.z);
+    if(Position.y < 0.0f)
+	{
+		Position.y = 0.0f;
+		isJumping=false;
+	}
     if(firstupdate)firstupdate=0;
 }
 
-
-
 //###################### CrystalSystem ######################
+
+void CrystalSystem::generateCrystal(glm::vec3 centerPos,float areaRadius,float frequency,float goodRate,float curTime)
+{
+    if( curTime - lastTime > 1.0f / frequency){
+        lastTime = curTime;
+
+        float theta = (float)(rand()%180)/180.0f * PI;
+        float r=(float)(rand()%15)/15.0f * areaRadius;
+        int type = 0;
+        if(rand()%100 < goodRate*100)type = 1;
+        glm::vec3 position;
+        position.x = centerPos.x + r * sin(theta);
+        position.y = centerPos.y;
+        position.z = centerPos.z + r * cos(theta);
+        addCrystal(position, 2.5f, type);
+
+        std::map<int,Crystal>::iterator p;
+        for(p=GoodCrystals.begin();p!=GoodCrystals.end();p++){
+            p->second.ageIncrease( 1.0f / frequency );
+            if(p->second.getAge() > LifeTime)p->second.die();
+        }
+        for(p=BadCrystals.begin();p!=BadCrystals.end();p++){
+            p->second.ageIncrease( 1.0f / frequency );
+            if(p->second.getAge() > LifeTime)p->second.die();
+        }
+    }
+}
+
 
 void CrystalSystem::addCrystal(glm::vec3 position, GLfloat height, int type)
 {
@@ -118,9 +172,47 @@ void CrystalSystem::addCrystal(glm::vec3 position, GLfloat height, int type)
 
 void CrystalSystem::updateAll(const glm::vec3 cameraPos, const GLfloat deltaTime)
 {
-    std::map<int,Crystal>::iterator p;
-    for(p=GoodCrystals.begin();p!=GoodCrystals.end();p++)p->second.updatePosition(cameraPos,deltaTime);
-    for(p=BadCrystals.begin();p!=BadCrystals.end();p++)p->second.updatePosition(cameraPos,deltaTime);
+    std::map<int,Crystal>::iterator p,o;
+    for(p=GoodCrystals.begin();p!=GoodCrystals.end();p++){
+        if(rand()%200<5)p->second.jump();
+        p->second.updatePosition(cameraPos,deltaTime);
+        
+        // crystals 之间的碰撞
+        for(o=GoodCrystals.begin();o!=GoodCrystals.end();o++)if(o!=p){
+            glm::vec3 direc = p->second.Position - o->second.Position;
+            float dist = glm::length(direc);
+            if(dist < 1.0f*(p->second.getRadius()+o->second.getRadius())){
+                p->second.Position += glm::normalize(direc) * CRYSTAL_SPEED * deltaTime;
+            }
+        }
+        for(o=BadCrystals.begin();o!=BadCrystals.end();o++)if(o!=p){
+            glm::vec3 direc = p->second.Position - o->second.Position;
+            float dist = glm::length(direc);
+            if(dist < 1.0f*(p->second.getRadius()+o->second.getRadius())){
+                p->second.Position += glm::normalize(direc) * CRYSTAL_SPEED * deltaTime;
+            }
+        }
+    }
+    for(p=BadCrystals.begin();p!=BadCrystals.end();p++){
+        if(rand()%200<5)p->second.jump();
+        p->second.updatePosition(cameraPos,deltaTime);
+        
+        // crystals 之间的碰撞
+        for(o=GoodCrystals.begin();o!=GoodCrystals.end();o++)if(o!=p){
+            glm::vec3 direc = p->second.Position - o->second.Position;
+            float dist = glm::length(direc);
+            if(dist < 1.0f*(p->second.getRadius()+o->second.getRadius())){
+                p->second.Position += glm::normalize(direc) * CRYSTAL_SPEED * deltaTime;
+            }
+        }
+        for(o=BadCrystals.begin();o!=BadCrystals.end();o++)if(o!=p){
+            glm::vec3 direc = p->second.Position - o->second.Position;
+            float dist = glm::length(direc);
+            if(dist < 1.0f*(p->second.getRadius()+o->second.getRadius())){
+                p->second.Position += glm::normalize(direc) * CRYSTAL_SPEED * deltaTime;
+            }
+        }
+    }
 }
 
 void CrystalSystem::drawAll(const glm::mat4 &projection,const glm::mat4 &view,const glm::vec3 &cameraPos,const unsigned int skyboxID,float deltaTime)
@@ -155,16 +247,16 @@ void CrystalSystem::updateHeroState(const glm::vec3 &cameraPos,int &closeEnough,
 {
     closeEnough = 0;
     std::map<int,Crystal>::iterator p;
-    for(p=BadCrystals.begin();p!=BadCrystals.end();p++){
-        glm::vec3 direc = glm::vec3(cameraPos.x,cameraPos.y-HeroHeight,cameraPos.z) - p->second.Position;
-        if(glm::length(direc) < CloseEnough)
+    for(p=BadCrystals.begin();p!=BadCrystals.end();p++)if(p->second.IsOk()){
+        glm::vec3 direc = glm::vec3(cameraPos.x,cameraPos.y - HeroHeight,cameraPos.z) - p->second.Position;
+        if(glm::length(direc) < BloodViewRate * CloseEnough)
             closeEnough = 1;// enable blood view
-        if(glm::length(direc) < 2.0f * p->second.getRadius())
+        if(glm::length(direc) < RaiusRate * p->second.getRadius())
             damage++;// be attacked and loss blood
     }
-    for(p=GoodCrystals.begin();p!=GoodCrystals.end();p++){
-        glm::vec3 direc=glm::vec3(cameraPos.x,cameraPos.y-HeroHeight,cameraPos.z) - p->second.Position;
-        if(glm::length(direc) < 2.0f * p->second.getRadius()){
+    for(p=GoodCrystals.begin();p!=GoodCrystals.end();p++)if(p->second.IsOk()){
+        glm::vec3 direc=glm::vec3(cameraPos.x,cameraPos.y - HeroHeight,cameraPos.z) - p->second.Position;
+        if(glm::length(direc) < RaiusRate * p->second.getRadius()){
             bullet++;// get bullets
             p->second.die();
         }

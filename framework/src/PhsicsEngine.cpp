@@ -1,11 +1,7 @@
 #include "Header/PhysicsEngine.h"
 
 PhysicsEngine::PhysicsEngine() {
-    velocity = glm::vec3(0.f, 0.f, 0.f);
     gravity = glm::vec3(0.f, GravityAcceler, 0.f);
-    accelerUp = glm::vec3(0.f, 0.f, 0.f);
-
-    isJumping = false;
 }
 
 PhysicsEngine::~PhysicsEngine() {
@@ -34,11 +30,11 @@ void PhysicsEngine::setSceneInnerBoundary(float x1, float y1, float z1, float x2
     innerBoundaryMax.push_back(value);
 }
 
-void PhysicsEngine::outCollisionTest(glm::vec3 & cameraPos, glm::vec3 & targetPos) {
-    outCollisionTestXZ(outerBoundary[0], outerBoundary[1], outerBoundary[2], outerBoundary[3], cameraPos, targetPos);
+bool PhysicsEngine::outCollisionTest(glm::vec3 & cameraPos, glm::vec3 & targetPos) {
+    return outCollisionTestXZ(outerBoundary[0], outerBoundary[1], outerBoundary[2], outerBoundary[3], cameraPos, targetPos);
 }
 
-void PhysicsEngine::outCollisionTestXZ(float x1, float z1, float x2, float z2, glm::vec3 & cameraPos, glm::vec3 & targetPos) {
+bool PhysicsEngine::outCollisionTestXZ(float x1, float z1, float x2, float z2, glm::vec3 & cameraPos, glm::vec3 & targetPos) {
 	//先设置包围盒：比空间外部边缘小一点	
     x1 += 2;z1 += 2;
     x2 -= 2;z2 -= 2;
@@ -48,12 +44,9 @@ void PhysicsEngine::outCollisionTestXZ(float x1, float z1, float x2, float z2, g
 	if (targetPos[0] < x1 || targetPos[0] > x2 || targetPos[2] < z1 || targetPos[2] > z2) {
 		targetPos-=delta;
         cameraPos-=delta;
+		return true;
 	}
-}
-
-void PhysicsEngine::jumpAndUpdateVelocity() {
-	velocity = glm::vec3(0.f, JumpInitialSpeed, 0.f);
-	accelerUp.y = 0.f;
+	return false;
 }
 
 //判断在xz平面，相机位置是否位于碰撞体内部
@@ -71,7 +64,7 @@ bool insideTheCollider(glm::vec3 _cameraPos, glm::vec3 _innerMin, glm::vec3 _inn
 		return false;
 }
 
-void PhysicsEngine::updateCameraVertMovement(glm::vec3 & cameraPos, glm::vec3 & targetPos,GLfloat deltaTime) 
+void PhysicsEngine::updateCameraVertMovement(glm::vec3 & cameraPos, glm::vec3 & targetPos, glm::vec3 & velocity, glm::vec3 &accelerUp, bool &isJumping, const float HeroHeight, GLfloat deltaTime)
 {
 	glm::vec3 acceleration = gravity + accelerUp;
 	velocity += acceleration * GravityFactor * deltaTime;
@@ -106,19 +99,23 @@ void PhysicsEngine::updateCameraVertMovement(glm::vec3 & cameraPos, glm::vec3 & 
 	}
 }
 
-void PhysicsEngine::inCollisionTest(glm::vec3 & cameraPos, glm::vec3 & targetPos) {
+bool PhysicsEngine::inCollisionTest(glm::vec3 & cameraPos, glm::vec3 & targetPos, float HeroHeight) {
 	//后面可以在这里添加：预处理，排除当前肯定不会产生碰撞的物体
+	bool flag=0;
 	for (unsigned int i = 0; i < innerBoundaryMin.size(); i++) {
-		inCollisionTestWithHeight(innerBoundaryMin[i][0], innerBoundaryMin[i][1], innerBoundaryMin[i][2],
-			innerBoundaryMax[i][0], innerBoundaryMax[i][1], innerBoundaryMax[i][2], cameraPos, targetPos);
+		bool tmp = inCollisionTestWithHeight(innerBoundaryMin[i][0], innerBoundaryMin[i][1], innerBoundaryMin[i][2],
+			innerBoundaryMax[i][0], innerBoundaryMax[i][1], innerBoundaryMax[i][2], cameraPos, targetPos, HeroHeight);
+		if(tmp)flag=1;
 	}
+	return flag;
 }
 
-void PhysicsEngine::inCollisionTestWithHeight(float x1, float y1, float z1, float x2, float y2, float z2, glm::vec3 & cameraPos, glm::vec3 & targetPos) {
+bool PhysicsEngine::inCollisionTestWithHeight(float x1, float y1, float z1, float x2, float y2, float z2, glm::vec3 & cameraPos, glm::vec3 & targetPos, float HeroHeight) {
 	//当身体处于碰撞体垂直区域范围内，才进行XZ平面的碰撞检测
 	if (!(cameraPos[1] <= y1 || cameraPos[1] - HeroHeight >= y2)) {
-		inCollisionTestXZ(x1, z1, x2, z2, cameraPos, targetPos);
+		return inCollisionTestXZ(x1, z1, x2, z2, cameraPos, targetPos);
 	}
+    return false;
 }
 double Direction(dot pi, dot pj, dot pk) {
 	return (pk.x - pi.x)*(pj.y - pi.y) - (pj.x - pi.x)*(pk.y - pi.y);
@@ -153,7 +150,7 @@ bool SegmentIntersect(dot p1, dot p2, dot p3, dot p4) {
 		return false;
 }
 
-void PhysicsEngine::inCollisionTestXZ(float x1, float z1, float x2, float z2, glm::vec3 & cameraPos, glm::vec3 & targetPos) {
+bool PhysicsEngine::inCollisionTestXZ(float x1, float z1, float x2, float z2, glm::vec3 & cameraPos, glm::vec3 & targetPos) {
 	//float tarX = targetPos[0], camX = cameraPos[0], tarZ = targetPos[2], camZ = cameraPos[2];
 	//float len = sqrt((camX - tarX)*(camX - tarX) + (camZ - tarZ)*(camZ - tarZ));
     glm::vec3 delta = 0.11f*(targetPos - cameraPos);
@@ -175,6 +172,7 @@ void PhysicsEngine::inCollisionTestXZ(float x1, float z1, float x2, float z2, gl
             targetPos-=glm::vec3(0.0f,0.0f,delta.z);
             cameraPos-=glm::vec3(0.0f,0.0f,delta.z);
 		}
+		return true;
 	}
 	else if (SegmentIntersect(d1, d2, d5, d6)) {
 		if (targetPos[0]<cameraPos[0]) {
@@ -187,6 +185,7 @@ void PhysicsEngine::inCollisionTestXZ(float x1, float z1, float x2, float z2, gl
             targetPos-=glm::vec3(delta.x,0.0f,0.0f);
             cameraPos-=glm::vec3(delta.x,0.0f,0.0f);
 		}
+		return true;
 	}
 	else if (SegmentIntersect(d1, d2, d3, d5)) {
 		if (targetPos[2] > cameraPos[2]) {
@@ -199,6 +198,7 @@ void PhysicsEngine::inCollisionTestXZ(float x1, float z1, float x2, float z2, gl
             targetPos-=glm::vec3(0.0f,0.0f,delta.z);
             cameraPos-=glm::vec3(0.0f,0.0f,delta.z);
 		}
+		return true;
 	}
 	else if (SegmentIntersect(d1, d2, d3, d4)) {
 		if (targetPos[0] > cameraPos[0]) {
@@ -211,5 +211,7 @@ void PhysicsEngine::inCollisionTestXZ(float x1, float z1, float x2, float z2, gl
             targetPos-=glm::vec3(delta.x,0.0f,0.0f);
             cameraPos-=glm::vec3(delta.x,0.0f,0.0f);
 		}
+		return true;
 	}
+	return false;
 }

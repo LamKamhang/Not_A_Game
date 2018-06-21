@@ -6,11 +6,17 @@ Camera::Camera(glm::vec3 position, glm::vec3 up,
 				GLfloat yaw, GLfloat pitch,
 				GLfloat movementSpeed, GLfloat mouseSensitivity, 
 				GLfloat scrollSensitivity, GLfloat fov) :
+	// bullet(physicsEngine),
 	Position(position), Up(up), Yaw(yaw), Pitch(pitch), 
 	MovementSpeed(movementSpeed),MouseSensitivity(mouseSensitivity), 
 	ScrollSensitivity(scrollSensitivity), Fov(fov)
 {
 	physicsEngine=new PhysicsEngine;
+	// bullet=new Bullet;
+	// bullet->setPhysicsEngine(physicsEngine);
+	VertVelocity=glm::vec3(0.0f);
+	accelerUp=glm::vec3(0.0f);
+	isJumping=false;
 	UpdateCameraVectors();
 }
 
@@ -19,15 +25,22 @@ Camera::Camera(GLfloat posX, GLfloat posY, GLfloat posZ,
 				GLfloat yaw, GLfloat pitch,
 				GLfloat movementSpeed, GLfloat mouseSensitivity, 
 				GLfloat scrollSensitivity, GLfloat fov) :
+	// bullet(physicsEngine),
 	Position(posX, posY, posZ), Up(upX, upY, upZ), Yaw(yaw), Pitch(pitch),
 	MovementSpeed(movementSpeed), MouseSensitivity(mouseSensitivity), 
 	ScrollSensitivity(scrollSensitivity) ,Fov(fov)
 {
 	physicsEngine=new PhysicsEngine;
+	// bullet=new Bullet;
+	// bullet->setPhysicsEngine(physicsEngine);
+	VertVelocity=glm::vec3(0.0f);
+	accelerUp=glm::vec3(0.0f);
+	isJumping=false;
 	UpdateCameraVectors();
 }
 
 Camera::Camera():
+	// bullet(physicsEngine),
 	Position(glm::vec3(0.0f, 0.0f, 0.0f)), 
 	Up(glm::vec3(0.0f, 1.0f, 0.0f)), 
 	Yaw(__INIT_YAW), Pitch(__INIT_PITCH), 
@@ -35,12 +48,25 @@ Camera::Camera():
 	ScrollSensitivity(__INIT_SCROLL_SENSITIVITY) ,Fov(__INIT_FOV)
 {
 	physicsEngine=new PhysicsEngine;
+	// bullet=new Bullet;
+	// bullet->setPhysicsEngine(physicsEngine);
+	VertVelocity=glm::vec3(0.0f);
+	accelerUp=glm::vec3(0.0f);
+	isJumping=false;
 	UpdateCameraVectors();
 }
 Camera::~Camera()
 {
 	delete physicsEngine;
+//    delete bullet;
 }
+
+void Camera::jumpAndUpdateVelocity() {
+	VertVelocity = glm::vec3(0.f, JumpInitialSpeed, 0.f);
+	accelerUp.y = 0.f;
+	isJumping = true;
+}
+
 
 // Update the camera's position corresponding to the keyboard event.
 // deltatime just to eliminate the performance among different PCs.
@@ -57,10 +83,9 @@ GLvoid Camera::ProcessKeyboard(Camera_Movement direction, GLfloat deltaTime)
 	if (direction == RIGHT)
 		dx = velocity;
 	if (direction == JUMP){
-		if (!physicsEngine->isJumping) {
-			physicsEngine->jumpAndUpdateVelocity();
+		if (!isJumping) {
+			jumpAndUpdateVelocity();
 		}
-		physicsEngine->isJumping = true;
 	}
 
 	if(!dx || !dz){
@@ -68,17 +93,29 @@ GLvoid Camera::ProcessKeyboard(Camera_Movement direction, GLfloat deltaTime)
 		TargetPos = Position + 10.0f * (dz * BodyFront + dx * BodyRight);
 		
 		physicsEngine->outCollisionTest(Position, TargetPos);
-		physicsEngine->inCollisionTest(Position, TargetPos);
+		physicsEngine->inCollisionTest(Position, TargetPos, HeroHeight);
 	}
 }
 
+
+// GLvoid Camera::ProcessMouseButton(Mouse_Button button, GLfloat deltaTime)
+// {
+// 	if(button == MB_LEFT){
+		// if(!bullet.IsAttacking){
+		// 	bullet.SetStartPos(Position);
+		// 	bullet.SetDirection(EyeFront);
+		// 	bullet.Attack();
+		// }
+// 	}
+// }
+
 GLvoid Camera::LoopFunction(GLfloat deltaTime)
 {
-	physicsEngine->updateCameraVertMovement(Position,TargetPos,deltaTime);
-	if(Position.y-HeroHeight<0.0f)
+	physicsEngine->updateCameraVertMovement(Position,TargetPos,VertVelocity,accelerUp,isJumping,HeroHeight,deltaTime);
+	if(Position.y - HeroHeight < 0.0f)
 	{
-		Position.y=HeroHeight;
-		physicsEngine->isJumping=false;
+		Position.y = HeroHeight;
+		isJumping=false;
 	}
 }
 
