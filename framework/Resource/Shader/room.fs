@@ -1,10 +1,13 @@
 #version 330 core
 out vec4 FragColor;
 
+#define NUM_POINT_LIGHTS 7
+
 in vs{
     vec3 position;
     vec3 normal;
     vec2 texCoord;
+    vec3 point_light_pos[NUM_POINT_LIGHTS];
 }_in;
 
 struct Material{
@@ -21,10 +24,7 @@ struct PointLight{
 	float specular;
 };
 
-#define NUM_POINT_LIGHTS 9
 uniform PointLight point_light;
-uniform vec3 point_light_pos[NUM_POINT_LIGHTS];
-
 uniform Material floor_material;
 uniform Material ceil_material;
 uniform Material wall_material;
@@ -33,6 +33,9 @@ uniform vec3 viewPos;
 
 // 0 --> floor, 1 --> wall
 uniform bool floor_wall;
+
+// 0 --> bilinn, 1 --> phong
+uniform bool phong;
 
 // function prototypes
 vec3 CalcPointLight(vec3 pos, vec3 normal, vec3 fragPos, vec3 viewDir, Material material);
@@ -48,7 +51,7 @@ void main()
     {
         for (int i = 0; i < NUM_POINT_LIGHTS; ++i)
         {
-            result += CalcPointLight(point_light_pos[i], norm, _in.position, viewDir, wall_material);
+            result += CalcPointLight(_in.point_light_pos[i], norm, _in.position, viewDir, wall_material);
         }
     }
     else
@@ -57,14 +60,14 @@ void main()
         {
             for (int i = 0; i < NUM_POINT_LIGHTS; ++i)
             {
-                result += CalcPointLight(point_light_pos[i], norm, _in.position, viewDir, floor_material);
+                result += CalcPointLight(_in.point_light_pos[i], norm, _in.position, viewDir, floor_material);
             }
         }
         else
         {
             for (int i = 0; i < NUM_POINT_LIGHTS; ++i)
             {
-                result += CalcPointLight(point_light_pos[i], norm, _in.position, viewDir, ceil_material);
+                result += CalcPointLight(_in.point_light_pos[i], norm, _in.position, viewDir, ceil_material);
             }
         }
         
@@ -90,22 +93,43 @@ dist    constant    linear      quardure
 */
 vec3 CalcPointLight(vec3 pos, vec3 normal, vec3 fragPos, vec3 viewDir, Material material)
 {
-    vec3 lightDir = normalize(pos - fragPos);
+    if (phong)
+    {
+        vec3 lightDir = normalize(pos - fragPos);
+        // phong algorithm to calculate this
+        // diffuse
+        float diff = max(dot(normal, lightDir), 0.0);
+        //specular
+        vec3 reflectDir = reflect(-lightDir, normal);
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+        // attenuation
+        float dist = length(pos - fragPos);
+        float attenuation = 1.0 / (1.0 + 0.07*dist + 0.017*dist*dist);
 
-    // phong algorithm to calculate this
-    // diffuse
-    float diff = max(dot(normal, lightDir), 0.0);
-    //specular
-    vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-    // attenuation
-    float dist = length(pos - fragPos);
-    float attenuation = 1.0 / (1.0 + 0.07*dist + 0.017*dist*dist);
+        // combine them
+        vec3 ambient = point_light.ambient*point_light.color*material.ambient;
+        vec3 diffuse = point_light.diffuse*point_light.color*material.diffuse*diff;
+        vec3 specular = point_light.specular*point_light.color*material.specular*spec;
+        
+        return attenuation*(ambient + diffuse + specular);
+    }else{
+        vec3 lightDir = normalize(pos - fragPos);
+        vec3 halfDir = normalize(lightDir + viewDir);
+        // Blinn-phong algorithm to calculate this
+        // diffuse
+        float diff = max(dot(normal, lightDir), 0.0);
+        //specular
+        float spec = pow(max(dot(normal, halfDir), 0.0), material.shininess);
+        // attenuation
+        float dist = length(pos - fragPos);
+        float attenuation = 1.0 / (1.0 + 0.07*dist + 0.017*dist*dist);
 
-    // combine them
-    vec3 ambient = point_light.ambient*point_light.color*material.ambient;
-    vec3 diffuse = point_light.diffuse*point_light.color*material.diffuse*diff;
-    vec3 specular = point_light.specular*point_light.color*material.specular*spec;
+        // combine them
+        vec3 ambient = point_light.ambient*point_light.color*material.ambient;
+        vec3 diffuse = point_light.diffuse*point_light.color*material.diffuse*diff;
+        vec3 specular = point_light.specular*point_light.color*material.specular*spec;
+        
+        return attenuation*(ambient + diffuse + specular);
+    }
     
-    return attenuation*(ambient + diffuse + specular);
 }
