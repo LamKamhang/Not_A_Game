@@ -10,3 +10,6 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
+map_Kd SK_Material_BaseColor.png
+map_Bump SK_Material_Normal.png
+map_Ks SK_Material_Metallic.png
