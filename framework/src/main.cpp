@@ -319,7 +319,8 @@ GLint main(GLvoid)
 
 			model = glm::translate(model,2.9f * HeroEyeFront);
 			model = glm::translate(model,0.6f * HeroEyeRight);
-			model = glm::translate(model,glm::vec3(HeroEyePos.x,HeroEyePos.y - 3.0f * HeroHeight / 5.0f,HeroEyePos.z));
+			model = glm::translate(model,-1.5f * HeroEyeUp);
+			model = glm::translate(model,glm::vec3(HeroEyePos.x,HeroEyePos.y,HeroEyePos.z));
 			model=glm::rotate(model,(float)PI/13.0f,HeroEyeUp);
 			glm::mat4 GanRotateMatrix = glm::mat4(glm::vec4(-1.0f * HeroEyeFront,0.0f),glm::vec4(HeroEyeUp,0.0f),glm::vec4(-1.0f*HeroEyeRight,0.0f),glm::vec4(0.0f,0.0f,0.0f,1.0f));
 			model = model * GanRotateMatrix;
