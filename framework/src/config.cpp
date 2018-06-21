@@ -4,6 +4,8 @@ namespace settings{
     // setting
     const GLuint SCR_WIDTH = 1200;
     const GLuint SCR_HEIGHT = 900;
+    extern const GLfloat PROJECT_NEAR = 0.1f;
+    extern const GLfloat PROJECT_FAR = 500.0f;
 
     enum button_mode cur_button_mode;
 

@@ -11,6 +11,8 @@ namespace settings{
     // settings
     extern const GLuint SCR_WIDTH;
     extern const GLuint SCR_HEIGHT;
+    extern const GLfloat PROJECT_NEAR;
+    extern const GLfloat PROJECT_FAR;
     extern bool explode;
     extern bool phong;
 

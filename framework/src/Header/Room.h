@@ -64,6 +64,7 @@ private:
     PointLight point_light;
     std::string directory;
 
+    glm::mat4 ModelMatrix;
     inline void bindVAO();
     inline void initRoom(Camera &camera);
     inline void setMaterial(Shader &shader, const std::string &name, Material &value);
@@ -71,20 +72,21 @@ private:
     inline void setPointLightPos(Shader &shader, const std::string &name);
 public:
     Room() = default;
-    Room(Camera &camera);
+    Room(Camera &camera,glm::mat4 &model);
     Room(const std::vector<float> &_wall, const std::vector<float> &_floor, 
         const Material &wall_material, const Material &floor_material, const Material &ceil_material, const std::vector<glm::vec3> &point_light_pos, const PointLight &point_light);
     ~Room() = default;
 
     inline const std::vector<glm::vec3>& GetLightPos();
+
     void Draw(Shader &materialShader);
 };
 
-void GetVertexByRules(std::vector<float> &vertices, Camera &camera, const std::vector<RoomRule::Rule> &rules);
+void GetVertexByRules(std::vector<float> &vertices, Camera &camera, const std::vector<RoomRule::Rule> &rules, const glm::mat4& ModelMatrix=glm::mat4(1.0f));
 
 // default setting
-std::vector<float> GetFirstFloorDefaultGround(Camera &camera);
-std::vector<float> GetFirstFloorDefaultWall(Camera &camera);
+std::vector<float> GetFirstFloorDefaultGround(Camera &camera, const glm::mat4& ModelMatrix=glm::mat4(1.0f));
+std::vector<float> GetFirstFloorDefaultWall(Camera &camera, const glm::mat4& ModelMatrix=glm::mat4(1.0f));
 std::vector<glm::vec3> GetFirstFloorDefaultLightPos();
 PointLight GetFirstFloorDefaultPointLight();
 Material GetFirstFloorDefaultWallMaterial();

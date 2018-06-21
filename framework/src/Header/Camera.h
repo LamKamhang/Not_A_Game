@@ -106,8 +106,8 @@ public:
 	const GLfloat GetFov();
 
 	// Set Physics Engine
-	GLvoid SetOuterBound(const glm::vec4 &outBound);
-	GLvoid SetinnerBound(const glm::vec3 &b1,const glm::vec3 &b2);
+	GLvoid SetOuterBound(const glm::vec4 &outBound,const glm::mat4& model=glm::mat4(1.0f));
+	GLvoid SetinnerBound(const glm::vec3 &b1,const glm::vec3 &b2,const glm::mat4& model=glm::mat4(1.0f));
 
 	// Set Camera's Attributes
 	GLvoid SetPosition(const glm::vec3 &position);

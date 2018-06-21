@@ -210,14 +210,14 @@ const GLfloat Camera::GetFov()
 }
 
 // Set Physics Engine's Attributes
-GLvoid Camera::SetOuterBound(const glm::vec4 &outBound)
+GLvoid Camera::SetOuterBound(const glm::vec4 &outBound,const glm::mat4& model)
 {
-	physicsEngine->setSceneOuterBoundary(outBound[0],outBound[1],outBound[2],outBound[3]);
+	physicsEngine->setSceneOuterBoundary(outBound[0],outBound[1],outBound[2],outBound[3],model);
 }
 
-GLvoid Camera::SetinnerBound(const glm::vec3 &b1,const glm::vec3 &b2)
+GLvoid Camera::SetinnerBound(const glm::vec3 &b1,const glm::vec3 &b2,const glm::mat4& model)
 {
-	physicsEngine->setSceneInnerBoundary(b1[0],b1[1],b1[2],b2[0],b2[1],b2[2]);
+	physicsEngine->setSceneInnerBoundary(b1[0],b1[1],b1[2],b2[0],b2[1],b2[2],model);
 }
 
 // Set Camera's Attributes

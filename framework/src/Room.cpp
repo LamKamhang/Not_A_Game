@@ -1,9 +1,10 @@
 #include "Header/Room.h"
 using namespace RoomRule;
 
-Room::Room(Camera &camera):
+Room::Room(Camera &camera, glm::mat4 &model):
     directory("Resource/Texture")
 {
+    ModelMatrix = model;
     initRoom(camera);
     bindVAO();
 }
@@ -31,6 +32,8 @@ void Room::Draw(Shader &materialShader)
     setMaterial(materialShader, "floor_material", floor_material);
     // set ceil_material
     setMaterial(materialShader, "ceil_material", ceil_material);
+    
+    materialShader.setMat4("model",ModelMatrix);//set model matrix !!!
     glBindVertexArray(floor_VAO);
         glDrawArrays(GL_TRIANGLES, 0, floor_vertices.size()>>3);
     
@@ -109,8 +112,8 @@ inline void Room::bindVAO()
 
 inline void Room::initRoom(Camera &camera)
 {
-    floor_vertices = GetFirstFloorDefaultGround(camera);
-    wall_vertices = GetFirstFloorDefaultWall(camera);
+    floor_vertices = GetFirstFloorDefaultGround(camera,ModelMatrix);
+    wall_vertices = GetFirstFloorDefaultWall(camera,ModelMatrix);
     point_light_pos = GetFirstFloorDefaultLightPos();
     point_light = GetFirstFloorDefaultPointLight();
     wall_material = GetFirstFloorDefaultWallMaterial();
@@ -120,10 +123,8 @@ inline void Room::initRoom(Camera &camera)
 
 //|||||||||||||||||||||||||||||||||||||||||||||||||||||
 // public function
-void GetVertexByRules(std::vector<float> &vertices, Camera &camera, const std::vector<Rule> &rules)
+void GetVertexByRules(std::vector<float> &vertices, Camera &camera, const std::vector<Rule> &rules, const glm::mat4& ModelMatrix)
 {
-    // world coordinate.
-    float mx = -5, my = 0, mz = -3;
     auto size = rules.size();
     std::vector<float> temp_wall;
     float p1, p2, cx, cy, cz;
@@ -138,38 +139,38 @@ void GetVertexByRules(std::vector<float> &vertices, Camera &camera, const std::v
 		{
 			case _back: 
 				temp_wall = GenCubeBackVertices(p1, p2, cx, cy, cz);
-				camera.SetinnerBound(glm::vec3(cx-p1/2+mx, cy-p2/2+my, cz+mz), 
-								    glm::vec3(cx+p1/2+mx, cy+p2/2+my, cz+mz));
+                camera.SetinnerBound(glm::vec3(cx-p1/2, cy-p2/2, cz), 
+								    glm::vec3(cx+p1/2, cy+p2/2, cz),ModelMatrix);
 				vertices.insert(vertices.end(), temp_wall.begin(), temp_wall.end());
 				break;
 			case _left:
 				temp_wall = GenCubeLeftVertices(p1, p2, cx, cy, cz);
-				camera.SetinnerBound(glm::vec3(cx+mx, cy-p2/2+my, cz-p1/2+mz), 
-								    glm::vec3(cx+mx, cy+p2/2+my, cz+p1/2+mz));
+				camera.SetinnerBound(glm::vec3(cx, cy-p2/2, cz-p1/2), 
+								    glm::vec3(cx, cy+p2/2, cz+p1/2),ModelMatrix);
 				vertices.insert(vertices.end(), temp_wall.begin(), temp_wall.end());
 				break;
 			case _front:
 				temp_wall = GenCubeFrontVertices(p1, p2, cx, cy, cz);
-				camera.SetinnerBound(glm::vec3(cx-p1/2+mx, cy-p2/2+my, cz+mz), 
-								    glm::vec3(cx+p1/2+mx, cy+p2/2+my, cz+mz));
+				camera.SetinnerBound(glm::vec3(cx-p1/2, cy-p2/2, cz),
+								    glm::vec3(cx+p1/2, cy+p2/2, cz),ModelMatrix);
 				vertices.insert(vertices.end(), temp_wall.begin(), temp_wall.end());
 				break;
 			case _right:
 				temp_wall = GenCubeRightVertices(p1, p2, cx, cy, cz);
-				camera.SetinnerBound(glm::vec3(cx+mx, cy-p2/2+my, cz-p1/2+mz), 
-								    glm::vec3(cx+mx, cy+p2/2+my, cz+p1/2+mz));
+				camera.SetinnerBound(glm::vec3(cx, cy-p2/2, cz-p1/2), 
+								    glm::vec3(cx, cy+p2/2, cz+p1/2),ModelMatrix);
 				vertices.insert(vertices.end(), temp_wall.begin(), temp_wall.end());
 				break;
             case _buttom:
                 temp_wall = GenCubeButtomVertices(p1, p2, cx, cy, cz); 
-                camera.SetinnerBound(glm::vec3(cx-p1/2+mx, cy+my, cz-p2/2+mz),
-                                    glm::vec3(cx+p1/2+mx, cy+my, cz+p2/2+mz));
+                camera.SetinnerBound(glm::vec3(cx-p1/2, cy, cz-p2/2),
+                                    glm::vec3(cx+p1/2, cy, cz+p2/2),ModelMatrix);
                 vertices.insert(vertices.end(), temp_wall.begin(), temp_wall.end());
                 break;
             case _top:
                 temp_wall = GenCubeTopVertices(p1, p2, cx, cy, cz); 
-                camera.SetinnerBound(glm::vec3(cx-p1/2+mx, cy+my, cz-p2/2+mz),
-                                    glm::vec3(cx+p1/2+mx, cy+my, cz+p2/2+mz));
+                camera.SetinnerBound(glm::vec3(cx-p1/2, cy, cz-p2/2),
+                                    glm::vec3(cx+p1/2, cy, cz+p2/2),ModelMatrix);
                 vertices.insert(vertices.end(), temp_wall.begin(), temp_wall.end());
                 break;
 			default:break;
@@ -178,7 +179,7 @@ void GetVertexByRules(std::vector<float> &vertices, Camera &camera, const std::v
 }
 //||||||||||||||||||||||||||||||||||||||||||||||||||
 // first floor
-std::vector<float> GetFirstFloorDefaultGround(Camera &camera)
+std::vector<float> GetFirstFloorDefaultGround(Camera &camera,const glm::mat4 &ModelMatrix)
 {
     float cy = 0, ce = 10;
     std::vector<float> vertices;
@@ -194,11 +195,11 @@ std::vector<float> GetFirstFloorDefaultGround(Camera &camera)
         Rule(_buttom, 40, 60, 40+20, ce, 15+30),//3
         Rule(_buttom, 10, 45, 80+5, ce, 15+22.5),//4
     };
-    GetVertexByRules(vertices, camera, rules);
+    GetVertexByRules(vertices, camera, rules, ModelMatrix);
     return vertices;
 }
 
-std::vector<float> GetFirstFloorDefaultWall(Camera &camera)
+std::vector<float> GetFirstFloorDefaultWall(Camera &camera,const glm::mat4 &ModelMatrix)
 {
     
     float wall_height = 10, door_height = 7.5, wall_width = 1.5, cy = wall_height/2, dy = (door_height+wall_height)/2;
@@ -285,7 +286,7 @@ std::vector<float> GetFirstFloorDefaultWall(Camera &camera)
        Rule(_left, 3, wall_height-door_height, 40, dy, 52+1.5),//7
        Rule(_buttom, wall_width, 3, 40-wall_width/2, door_height, 52+1.5),//7
     };
-    GetVertexByRules(vertices, camera, rules);
+    GetVertexByRules(vertices, camera, rules, ModelMatrix);
     return vertices;
 }
 

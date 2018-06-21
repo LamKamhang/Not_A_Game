@@ -37,8 +37,11 @@ GLint main(GLvoid)
 	// some settings for room
 	//Shader roomShader("Resource/Shader/test.vs", "Resource/Shader/test.fs");
 	Shader roomShader("Resource/Shader/room.vs", "Resource/Shader/room.fs");
-	 
-	 Room room1(camera);
+
+	glm::mat4 RoomModelMatrix(1.0f); 
+	RoomModelMatrix = glm::translate(RoomModelMatrix,glm::vec3(-10,0,-10));
+	RoomModelMatrix = glm::scale(RoomModelMatrix,glm::vec3(2.0f,2.0f,2.0f));
+	Room room1(camera,RoomModelMatrix);
 
 	Shader modelShader("Resource/Shader/model.vs", "Resource/Shader/model.fs", nullptr, nullptr, "Resource/Shader/model.gs");
 	Model Nanosuit("Resource/Model/nanosuit/nanosuit.obj");
@@ -115,7 +118,7 @@ GLint main(GLvoid)
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		view = camera.GetViewMatrix();
-		projection = glm::perspective(glm::radians(camera.GetFov()), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+		projection = glm::perspective(glm::radians(camera.GetFov()), (float)SCR_WIDTH / (float)SCR_HEIGHT, PROJECT_NEAR, PROJECT_FAR);
 		
 		//step1: draw skybox
 		skyboxShader.use();
@@ -180,9 +183,9 @@ GLint main(GLvoid)
 			roomShader.setVec3("viewPos", camera.GetPosition());
 			roomShader.setMat4("projection", projection);
 			roomShader.setMat4("view", view);
-			model = glm::mat4(1.0);
-			model = glm::translate(model, glm::vec3(-5, 0, -3));
-			roomShader.setMat4("model", model);
+			// model = glm::mat4(1.0);
+			// model = glm::translate(model, glm::vec3(-5, 0, -3));
+			// roomShader.setMat4("model", model);
 			roomShader.setBool("phong", phong);
 			room1.Draw(roomShader);
 		

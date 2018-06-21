@@ -11,14 +11,25 @@ PhysicsEngine::PhysicsEngine() {
 PhysicsEngine::~PhysicsEngine() {
 }
 
-void PhysicsEngine::setSceneOuterBoundary(float x1, float z1, float x2, float z2) {
-    outerBoundary = glm::vec4(x1, z1, x2, z2);
+void PhysicsEngine::setSceneOuterBoundary(float x1, float z1, float x2, float z2, const glm::mat4 &model) {
+    glm::vec4 v1(x1,1.0f,z1,1.0f);
+	glm::vec4 v2(x2,1.0f,z2,1.0f);
+	v1 = model * v1;
+	v2 = model * v2;
+	outerBoundary = glm::vec4(v1.x/v1.w, v1.z/v1.w, v2.x/v2.w, v2.z/v2.w);
 }
 
-void PhysicsEngine::setSceneInnerBoundary(float x1, float y1, float z1, float x2, float y2, float z2) {
+void PhysicsEngine::setSceneInnerBoundary(float x1, float y1, float z1, float x2, float y2, float z2, const glm::mat4 &model) {
     glm::vec3 key(x1 - BoundaryGap, y1 - BoundaryGap, z1 - BoundaryGap);
     glm::vec3 value(x2 + BoundaryGap, y2 + BoundaryGap, z2 + BoundaryGap);
-
+	
+	glm::vec4 v1(key, 1.0f);
+	glm::vec4 v2(value, 1.0f);
+	v1 = model * v1;
+	v2 = model * v2;
+	key = glm::vec3(v1.x/v1.w,v1.y/v1.w,v1.z/v1.w);
+	value = glm::vec3(v2.x/v2.w,v2.y/v2.w,v2.z/v2.w);
+	
     innerBoundaryMin.push_back(key);
     innerBoundaryMax.push_back(value);
 }

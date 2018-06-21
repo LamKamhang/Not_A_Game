@@ -29,11 +29,11 @@ public:
     ~PhysicsEngine();  
 
     //设置空间外部边缘  
-    void setSceneOuterBoundary(float x1, float z1, float x2, float z2);
+    void setSceneOuterBoundary(float x1, float z1, float x2, float z2,const glm::mat4 &model=glm::mat4(1.0f));
     //外部碰撞检测
     void outCollisionTest(glm::vec3 & cameraPos, glm::vec3 & targetPos);
     //设置空间内部边缘
-    void setSceneInnerBoundary(float x1, float y1, float z1, float x2, float y2, float z2);
+    void setSceneInnerBoundary(float x1, float y1, float z1, float x2, float y2, float z2,const glm::mat4 &model=glm::mat4(1.0f));
     //内部碰撞检测
     void inCollisionTest(glm::vec3 & cameraPos, glm::vec3 & targetPos);
 
