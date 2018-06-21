@@ -225,7 +225,7 @@ GLint main(GLvoid)
 			// roomShader.setMat4("model", model);
 			roomShader.setBool("phong", phong);
 			room1.Draw(roomShader);
-		
+
 		//!!!!!! hero's gan !!!!!!!
 		ganShader.use();
 			ganShader.setVec3("viewPos", camera.GetPosition());
