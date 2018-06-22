@@ -1,16 +1,20 @@
 #include "Header/Crystal.h"
 #include <cstdlib>
-Crystal::Crystal(PhysicsEngine* physicsEngine, glm::vec3 position, GLfloat height,int type)
-:TargetPos(position),velocity(0.0f),acceler(0.0f), Position(position)
+
+Crystal::Crystal(PhysicsEngine* physicsEngine, Bullet*heroBullet, glm::vec3 position, GLfloat height,int type)
+:Position(position),TargetPos(position),velocity(0.0f),acceler(0.0f)
 {
     firstupdate = 1;
-    
+    explode_first = 1;
+    explodeStartTime=0.0f;
     IsDead = 0;
+    explode = 0;
     age = 0.0f;
     this->type=type;
     this->height=height;
     this->radius=height*HRrate;
     
+    this->heroBullet=heroBullet;
     this->physicsEngine = physicsEngine;
     VertVelocity = glm::vec3(0.0f);
     accelerUp = glm::vec3(0.0f);
@@ -91,6 +95,17 @@ void Crystal::draw()
     glBindVertexArray(0);
 }
 
+void Crystal::updateState()
+{
+    glm::vec3 sp = glm::vec3(Position.x,Position.y + height/2.0f,Position.z) - heroBullet->startPos;
+    float spdotd=glm::dot(sp,heroBullet->direction);
+    float lensp=glm::length(sp);
+    float dist2=lensp*lensp-spdotd*spdotd;
+    if(heroBullet->IsAttack() || heroBullet->Hitted){
+        if(dist2 < RaiusRate * radius)explode = 1;
+    }
+}
+
 void Crystal::updatePosition(const glm::vec3 cameraPos, const GLfloat deltaTime)
 {
     glm::vec3 direc=cameraPos - Position;
@@ -166,8 +181,8 @@ void CrystalSystem::generateCrystal(glm::vec3 centerPos,float areaRadius,float f
 
 void CrystalSystem::addCrystal(glm::vec3 position, GLfloat height, int type)
 {
-    if(type)GoodCrystals.insert(std::make_pair(goodCnt++,Crystal(physicsEngine,position,height,1)));
-    else BadCrystals.insert(std::make_pair(badCnt++,Crystal(physicsEngine,position,height,0)));
+    if(type)GoodCrystals.insert(std::make_pair(goodCnt++,Crystal(physicsEngine,heroBullet,position,height,1)));
+    else BadCrystals.insert(std::make_pair(badCnt++,Crystal(physicsEngine,heroBullet,position,height,0)));
 }
 
 void CrystalSystem::updateAll(const glm::vec3 cameraPos, const GLfloat deltaTime)
@@ -176,7 +191,8 @@ void CrystalSystem::updateAll(const glm::vec3 cameraPos, const GLfloat deltaTime
     for(p=GoodCrystals.begin();p!=GoodCrystals.end();p++){
         if(rand()%200<5)p->second.jump();
         p->second.updatePosition(cameraPos,deltaTime);
-        
+        p->second.updateState();
+
         // crystals 之间的碰撞
         for(o=GoodCrystals.begin();o!=GoodCrystals.end();o++)if(o!=p){
             glm::vec3 direc = p->second.Position - o->second.Position;
@@ -196,7 +212,8 @@ void CrystalSystem::updateAll(const glm::vec3 cameraPos, const GLfloat deltaTime
     for(p=BadCrystals.begin();p!=BadCrystals.end();p++){
         if(rand()%200<5)p->second.jump();
         p->second.updatePosition(cameraPos,deltaTime);
-        
+        p->second.updateState();
+
         // crystals 之间的碰撞
         for(o=GoodCrystals.begin();o!=GoodCrystals.end();o++)if(o!=p){
             glm::vec3 direc = p->second.Position - o->second.Position;
@@ -215,7 +232,7 @@ void CrystalSystem::updateAll(const glm::vec3 cameraPos, const GLfloat deltaTime
     }
 }
 
-void CrystalSystem::drawAll(const glm::mat4 &projection,const glm::mat4 &view,const glm::vec3 &cameraPos,const unsigned int skyboxID,float deltaTime)
+void CrystalSystem::drawAll(const glm::mat4 &projection,const glm::mat4 &view,const glm::vec3 &cameraPos,const unsigned int skyboxID,float curTime,float deltaTime,int &score)
 {
     std::map<int,Crystal>::iterator p;
     CryShader.use();
@@ -225,9 +242,25 @@ void CrystalSystem::drawAll(const glm::mat4 &projection,const glm::mat4 &view,co
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxID);
         CryShader.setInt("skybox",0);
+        CryShader.setFloat("time", curTime);
         CryShader.setVec3("color",glm::vec3(0.0f,0.0f,0.5f));//good color blue
         for(p=GoodCrystals.begin();p!=GoodCrystals.end();p++)if(p->second.IsOk()){
-            
+            if(p->second.IsExploding() && p->second.explode_first)
+			{
+				p->second.explode_first = false;
+                p->second.explodeStartTime = curTime;// explode start time
+				CryShader.setFloat("initTime", curTime);
+			}else if (!p->second.IsExploding()){
+				p->second.explode_first = true;
+			}
+            if(curTime - p->second.explodeStartTime > EXPLODE_TIME){
+                p->second.explode=0;
+                if(!p->second.explode_first){
+                    p->second.die();
+                    score--;//shoot good one, score decrease!
+                }
+            }
+            CryShader.setBool("explode_now", p->second.IsExploding());
             glm::mat4 model=glm::mat4(1.0f);
             model=glm::translate(model,p->second.Position);
             CryShader.setMat4("model", model);
@@ -235,12 +268,30 @@ void CrystalSystem::drawAll(const glm::mat4 &projection,const glm::mat4 &view,co
         }
         CryShader.setVec3("color",glm::vec3(0.8f,0.0f,0.0f));//good color blue
         for(p=BadCrystals.begin();p!=BadCrystals.end();p++)if(p->second.IsOk()){
+            if(p->second.IsExploding() && p->second.explode_first)
+			{
+				p->second.explode_first = false;
+                p->second.explodeStartTime = curTime;// explode start time
+				CryShader.setFloat("initTime", curTime);
+			}else if (!p->second.IsExploding()){
+				p->second.explode_first = true;
+			}
+            if(curTime - p->second.explodeStartTime > EXPLODE_TIME){
+                p->second.explode=0;
+                if(!p->second.explode_first){
+                    p->second.die();
+                    score++;//shoot bad one, score increase!
+                }
+            }
+            CryShader.setBool("explode_now", p->second.IsExploding());
             glm::mat4 model=glm::mat4(1.0f);
             model=glm::translate(model,p->second.Position);
             CryShader.setMat4("model", model);
             p->second.draw();//draw
         }
     glUseProgram(0);
+    
+    deleteAllDead();
 }
 
 void CrystalSystem::updateHeroState(const glm::vec3 &cameraPos,int &closeEnough,int &damage,int &bullet)
@@ -260,5 +311,26 @@ void CrystalSystem::updateHeroState(const glm::vec3 &cameraPos,int &closeEnough,
             bullet++;// get bullets
             p->second.die();
         }
+    }
+}
+
+
+void CrystalSystem::deleteAllDead()
+{
+    std::map<int,Crystal>::iterator p,tmp;
+    for(p=BadCrystals.begin();p!=BadCrystals.end();){
+        if(!p->second.IsOk()){
+            tmp = p++;
+            BadCrystals.erase(tmp);
+        }
+        else p++;
+    }
+    
+    for(p=GoodCrystals.begin();p!=GoodCrystals.end();){
+        if(!p->second.IsOk()){
+            tmp = p++;
+            GoodCrystals.erase(tmp);
+        }
+        else p++;
     }
 }

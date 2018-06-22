@@ -11,13 +11,10 @@
 #define HRrate 0.2886751345948129
 #define PI 3.14159265358979323846
 #define EdgeNum 6
-#define BULLET_SPEED 30.0f
+#define BULLET_SPEED 45.0f
 
 class Bullet{
 private:
-    glm::vec3 startPos;
-    glm::vec3 direction;
-
     glm::vec3 Position;
     glm::vec3 TargetPos;
     std::vector<float> vertexs;
@@ -33,14 +30,22 @@ private:
     unsigned int bulletVAO,bulletVBO;
     Shader shader;
 public:
+    glm::vec3 startPos;
+    glm::vec3 direction;
+    
     bool IsAttacking;
+    bool Hitted;
 
     Bullet(PhysicsEngine* physicsEngine):
-        startPos(glm::vec3(0.0f)), direction(glm::vec3(0.0f,1.0f,0.0f)), 
-        Position(glm::vec3(0.0f)), TargetPos(glm::vec3(0.0f)),
-        velocity(glm::vec3(0.0f)), shader("Resource/Shader/crystal.vs","Resource/Shader/crystal.fs"),
-        IsAttacking(false)
+    shader("Resource/Shader/bullet.vs","Resource/Shader/bullet.fs"),
+    IsAttacking(false),
+    startPos(glm::vec3(0.0f)),
+    Position(glm::vec3(0.0f)),
+    TargetPos(glm::vec3(0.0f)),
+    direction(glm::vec3(0.0f,1.0f,0.0f)),
+    velocity(glm::vec3(0.0f))
     {
+        Hitted = 0;
         this->physicsEngine = physicsEngine;
         lastTime=0.0f;
         height=0.3f;
@@ -104,6 +109,14 @@ public:
         glBindVertexArray(0);
     }
     
+    glm::vec3 getPosition(){
+        return Position;
+    }
+
+    bool IsAttack(){
+        return IsAttacking;
+    }
+
     void setPhysicsEngine(PhysicsEngine* pE){
         physicsEngine = pE;
     }
@@ -117,6 +130,7 @@ public:
     void Attack(){
         IsAttacking=true;
         Position = startPos;
+        Hitted = 0;
     }
     void ShutDown(){
         IsAttacking=false;
@@ -125,6 +139,7 @@ public:
     {
         if(!IsAttacking){
             lastTime = curTime;
+            Hitted = 0;
         }
         if(IsAttacking){
             velocity = glm::normalize(direction) * BULLET_SPEED * deltaTime;
@@ -136,7 +151,10 @@ public:
             IsHit = physicsEngine->outCollisionTest(Position, TargetPos);
             IsHit = physicsEngine->inCollisionTest(Position, TargetPos, height/2.0f);
             
-            if( IsHit || curTime - lastTime > 1.0f )IsAttacking = false;
+            if( IsHit || curTime - lastTime > 2.0f ){
+                IsAttacking = false;
+                Hitted = true;
+            }
         }
     }
     void draw(const glm::mat4 &projection,const glm::mat4 &view,const glm::vec3 &cameraPos,const unsigned int skyboxID,float deltaTime)
