@@ -7,6 +7,7 @@
 #include "PhysicsEngine.h"
 #include "Camera.h"
 #include "Shader.h"
+#include "Bullet.h"
 
 // 1/(2*sqrt(3))
 #define HRrate 0.2886751345948129
@@ -19,6 +20,7 @@
 #define BloodViewRate 0.25f  //过近警报
 #define CloseRate 0.5f  //加速距离
 #define LifeTime 40.0f //寿命
+#define EXPLODE_TIME 0.5f//爆炸时间间隔
 
 class Crystal{
 private:
@@ -40,12 +42,21 @@ private:
     float age;
     bool IsDead;
     int type;// good 1, bad 0
-    
+    Bullet *heroBullet;
+
     bool firstupdate;
 public:
-    glm::vec3 Position;//position
+    bool explode;
+    bool explode_first;
+    float explodeStartTime;
 
-    Crystal(PhysicsEngine* physicsEngine, glm::vec3 position=glm::vec3(0.0f), GLfloat height=2.5f,int type=0);
+    glm::vec3 Position;//position
+    Crystal(PhysicsEngine* physicsEngine, Bullet*heroBullet,glm::vec3 position=glm::vec3(0.0f), GLfloat height=2.5f,int type=0);
+    ~Crystal(){
+        heroBullet = NULL;
+        physicsEngine = NULL;
+        vertexs.clear();
+    }
     GLuint getVAO(){return VAO;}
     GLuint getVBO(){return VBO;}
     GLfloat getHeight(){return height;}
@@ -54,9 +65,11 @@ public:
     void ageIncrease(float da){age += da;}
     float getAge(){return age;}
     bool IsOk(){return !IsDead;}
+    bool IsExploding(){return explode;}
     void jump();
 
     void draw();
+    void updateState();
     void updatePosition(const glm::vec3 cameraPos, const GLfloat deltaTime);
 };
 
@@ -70,15 +83,18 @@ private:
     PhysicsEngine* physicsEngine;
     Shader CryShader;
     float lastTime;
+    Bullet *heroBullet;
+
 public:
-    CrystalSystem(PhysicsEngine* pE)
-    :CryShader("Resource/Shader/crystal.vs","Resource/Shader/crystal.fs")
+    CrystalSystem(PhysicsEngine* pE,Bullet *hB)
+    :CryShader("Resource/Shader/crystal.vs","Resource/Shader/crystal.fs",nullptr,nullptr,"Resource/Shader/crystal.gs")
     {
         goodCnt=badCnt=0;
         lastTime = 0.0f;
         GoodCrystals.clear();
         BadCrystals.clear();
         physicsEngine=pE;
+        heroBullet=hB;
     }
     // randomly generate crystal
     void generateCrystal(glm::vec3 centerPos,float areaRadius,float frequency,float goodRate,float curTime);
@@ -93,5 +109,7 @@ public:
     void updateHeroState(const glm::vec3 &cameraPos,int &closeEnough,int &damage,int &bullet);
 
     // draw all crystal
-    void drawAll(const glm::mat4 &projection,const glm::mat4 &view,const glm::vec3 &cameraPos,const unsigned int skyboxID,float deltaTime);
+    void drawAll(const glm::mat4 &projection,const glm::mat4 &view,const glm::vec3 &cameraPos,const unsigned int skyboxID,float curTime,float deltaTime,int &score);
+
+    void deleteAllDead();
 };

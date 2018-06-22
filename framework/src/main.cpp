@@ -92,12 +92,15 @@ GLint main(GLvoid)
 	// !!!!! UI !!!!!
 	UI myUI;
 
+	// bullet!
+	Bullet heroBullet(camera.physicsEngine);
+
 	// !!!!! crystal !!!!!
-	CrystalSystem crystalsystem(camera.physicsEngine);
-	crystalsystem.addCrystal(glm::vec3(0.0f,100.0f,-9.0f),2.5f,0);//position, height, type
-	crystalsystem.addCrystal(glm::vec3(10.0f,100.0f,-9.0f),2.5f,0);
-	crystalsystem.addCrystal(glm::vec3(10.0f,100.0f,0.0f),2.5f,1);
-	crystalsystem.addCrystal(glm::vec3(0.0f,100.0f,9.0f),2.5f,1);
+	CrystalSystem crystalsystem(camera.physicsEngine, &heroBullet);
+	crystalsystem.addCrystal(glm::vec3(0.0f,0.0f,-9.0f),2.5f,0);//position, height, type
+	crystalsystem.addCrystal(glm::vec3(10.0f,0.0f,-9.0f),2.5f,0);
+	crystalsystem.addCrystal(glm::vec3(10.0f,0.0f,0.0f),2.5f,1);
+	crystalsystem.addCrystal(glm::vec3(0.0f,0.0f,9.0f),2.5f,1);
 
 	// test demo
 	std::vector<glm::vec3>cubeposition;
@@ -115,16 +118,13 @@ GLint main(GLvoid)
 	camera.SetinnerBound(glm::vec3(-11.0f,4.0f,-11.0f),glm::vec3(-9.0f,6.0f,-9.0f));
 	camera.SetinnerBound(glm::vec3(-1.0f,0.0f,9.0f),glm::vec3(1.0f,2.0f,11.0f));
 
-	// bullet!
-	Bullet heroBullet(camera.physicsEngine);
-
 	// explode
 	modelShader.use();
 	bool explode_first = true;
 ////////////////////////////////////////////////////////////////////////////////////
     // view/projection transformations
     camera.SetOuterBound(glm::vec4(-500.0f,-500.0f,500.0f,500.0f));
-	int closeEnough=0,damage=0,bullet=0;
+	int closeEnough=0,damage=0,bullet=0,score=0;
 	// render loop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -135,7 +135,7 @@ GLint main(GLvoid)
 		std::cout<<"time="<<currentFrame<<std::endl;
 		// input
 		processInput(window);
-		crystalsystem.generateCrystal(glm::vec3(0.0f,100.0f,0.0f),30.0f,0.1f,0.3f,currentFrame);
+		crystalsystem.generateCrystal(glm::vec3(0.0f,0.0f,0.0f),30.0f,0.1f,0.3f,currentFrame);
 		
 		// render
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -158,7 +158,7 @@ GLint main(GLvoid)
 		// step2 : draw crystal
 		crystalsystem.updateAll(camera.GetPosition(),deltaTime);
 		crystalsystem.updateHeroState(camera.GetPosition(),closeEnough,damage,bullet);
-		crystalsystem.drawAll(projection,view,camera.GetPosition(),skybox.getTextId(),deltaTime);
+		crystalsystem.drawAll(projection,view,camera.GetPosition(),skybox.getTextId(),currentFrame,deltaTime,score);
 		
 		// step3: draw bullet !!
 		if(cur_button_mode == left){
@@ -174,6 +174,7 @@ GLint main(GLvoid)
 		std::cout<<"mousebutton="<<cur_button_mode<<std::endl;
         std::cout<<"damage="<<damage<<std::endl;
         std::cout<<"bullet="<<bullet<<std::endl;
+		std::cout<<"score="<<score<<std::endl;
 
 		// step4 : draw test cube
 		glBindVertexArray(VAOcube);
