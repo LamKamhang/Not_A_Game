@@ -15,6 +15,7 @@ namespace settings{
     extern const GLfloat PROJECT_FAR;
     extern bool explode;
     extern bool phong;
+    extern bool flashlight_on;
 
     enum button_mode {
         none, left, middle, right,

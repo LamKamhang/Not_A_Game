@@ -7,7 +7,7 @@ uniform mat4 projection;
 uniform mat4 view;
 uniform mat4 model;
 
-#define NUM_POINT_LIGHTS 7
+#define NUM_POINT_LIGHTS 9
 uniform vec3 point_light_pos[NUM_POINT_LIGHTS];
 
 out vs{

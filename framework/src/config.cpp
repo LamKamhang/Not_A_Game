@@ -17,6 +17,7 @@ namespace settings{
     GLfloat lastFrame = 0.0f;
     bool explode = false;
     bool phong = false;
+    bool flashlight_on = false;
 
     // API
     GLuint init_setting(GLFWwindow *&window)
@@ -87,6 +88,11 @@ namespace settings{
             phong = true;
         if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
             phong = false;
+        if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
+            flashlight_on = true;
+        if (glfwGetKey(window, GLFW_KEY_F) == GLFW_RELEASE)
+            flashlight_on = false;
+        std::cout << flashlight_on << std::endl;
 
         if(cur_button_mode == left)
             ;// camera.ProcessMouseButton(MB_LEFT,deltaTime);

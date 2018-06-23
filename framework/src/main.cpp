@@ -32,7 +32,7 @@ GLint main(GLvoid)
 	glm::mat4 model;
 	glm::mat4 view;
 	glm::mat4 projection;
-	GLuint testLOAD = loadTexture("SK_Material_BaseColor.png", "Resource/Model/SKgan");
+	//GLuint testLOAD = loadTexture("SK_Material_BaseColor.png", "Resource/Model/SKgan");
 	// build and compile our shader zprogram
 
 	// some settings for room
@@ -41,8 +41,8 @@ GLint main(GLvoid)
 
 	glm::mat4 RoomModelMatrix(1.0f); 
 	RoomModelMatrix = glm::translate(RoomModelMatrix,glm::vec3(-10,0,-10));
-	RoomModelMatrix = glm::scale(RoomModelMatrix,glm::vec3(2.0f,2.0f,2.0f));
-	Room room1(camera,RoomModelMatrix);
+	RoomModelMatrix = glm::scale(RoomModelMatrix,glm::vec3(1.2f,1.2f,1.2f));
+	Room room1(camera, RoomModelMatrix);
 
 	Shader modelShader("Resource/Shader/model.vs", "Resource/Shader/model.fs", nullptr, nullptr, "Resource/Shader/model.gs");
 	Model Nanosuit("Resource/Model/nanosuit/nanosuit.obj");
@@ -109,11 +109,11 @@ GLint main(GLvoid)
 	cubeposition.push_back(glm::vec3(0.0f,1.0f,10.0f));
 
 	// camera.SetinnerBound(glm::vec3(-1.0f,0.0f,-1.0f),glm::vec3(1.0f,2.0f,1.0f));
-	camera.SetinnerBound(glm::vec3(9.0f,1.5f,-1.0f),glm::vec3(11.0f,3.5f,1.0f));
-	camera.SetinnerBound(glm::vec3(9.0f,4.0f,9.0f),glm::vec3(11.0f,6.0f,11.0f));
-	camera.SetinnerBound(glm::vec3(-11.0f,1.5f,9.0f),glm::vec3(-9.0f,3.5f,11.0f));
-	camera.SetinnerBound(glm::vec3(-11.0f,4.0f,-11.0f),glm::vec3(-9.0f,6.0f,-9.0f));
-	camera.SetinnerBound(glm::vec3(-1.0f,0.0f,9.0f),glm::vec3(1.0f,2.0f,11.0f));
+	// camera.SetinnerBound(glm::vec3(9.0f,1.5f,-1.0f),glm::vec3(11.0f,3.5f,1.0f));
+	// camera.SetinnerBound(glm::vec3(9.0f,4.0f,9.0f),glm::vec3(11.0f,6.0f,11.0f));
+	// camera.SetinnerBound(glm::vec3(-11.0f,1.5f,9.0f),glm::vec3(-9.0f,3.5f,11.0f));
+	// camera.SetinnerBound(glm::vec3(-11.0f,4.0f,-11.0f),glm::vec3(-9.0f,6.0f,-9.0f));
+	// camera.SetinnerBound(glm::vec3(-1.0f,0.0f,9.0f),glm::vec3(1.0f,2.0f,11.0f));
 
 	// bullet!
 	Bullet heroBullet(camera.physicsEngine);
@@ -176,23 +176,23 @@ GLint main(GLvoid)
   //       std::cout<<"bullet="<<bullet<<std::endl;
 
 		// step4 : draw test cube
-		glBindVertexArray(VAOcube);
-		cubeShader.use();
-			cubeShader.setMat4("projection",projection);
-			cubeShader.setMat4("view",view);
-			cubeShader.setVec3("cameraPos",camera.GetPosition());
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.getTextId());
-			cubeShader.setInt("skybox",0);
-			for(size_t i=0;i<cubeposition.size();i++){
-				model=glm::mat4(1.0f);
-				model=glm::translate(model,cubeposition[i]);
-				model=glm::scale(model,glm::vec3(2.0f,2.0f,2.0f));
-				cubeShader.setMat4("model", model);
-				glDrawArrays(GL_TRIANGLES,0,cubicVertex.size()/8);
-			}
-		glUseProgram(0);
-		glBindVertexArray(0);
+		// glBindVertexArray(VAOcube);
+		// cubeShader.use();
+		// 	cubeShader.setMat4("projection",projection);
+		// 	cubeShader.setMat4("view",view);
+		// 	cubeShader.setVec3("cameraPos",camera.GetPosition());
+		// 	glActiveTexture(GL_TEXTURE0);
+		// 	glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.getTextId());
+		// 	cubeShader.setInt("skybox",0);
+		// 	for(size_t i=0;i<cubeposition.size();i++){
+		// 		model=glm::mat4(1.0f);
+		// 		model=glm::translate(model,cubeposition[i]);
+		// 		model=glm::scale(model,glm::vec3(2.0f,2.0f,2.0f));
+		// 		cubeShader.setMat4("model", model);
+		// 		glDrawArrays(GL_TRIANGLES,0,cubicVertex.size()/8);
+		// 	}
+		// glUseProgram(0);
+		// glBindVertexArray(0);
 
 		// step5 : draw test model
 		// be sure to activate shader when setting uniforms/drawing objects
@@ -220,10 +220,21 @@ GLint main(GLvoid)
 			roomShader.setVec3("viewPos", camera.GetPosition());
 			roomShader.setMat4("projection", projection);
 			roomShader.setMat4("view", view);
-			// model = glm::mat4(1.0);
-			// model = glm::translate(model, glm::vec3(-5, 0, -3));
-			// roomShader.setMat4("model", model);
+			roomShader.setBool("flash", flashlight_on);
 			roomShader.setBool("phong", phong);
+			if (flashlight_on)
+			{
+				roomShader.setVec3("spot_light.position",  camera.GetPosition());
+				roomShader.setVec3("spot_light.direction", camera.GetEyeFront());
+				roomShader.setVec3("spot_light.color", glm::vec3(1.0, 0, 0));
+				roomShader.setFloat("spot_light.ambient", 1);
+				roomShader.setFloat("spot_light.diffuse", 8);
+				roomShader.setFloat("spot_light.specular",5);
+			}else{
+				roomShader.setFloat("spot_light.ambient", 0);
+				roomShader.setFloat("spot_light.diffuse", 0);
+				roomShader.setFloat("spot_light.specular",0);
+			}
 			room1.Draw(roomShader);
 
 		//!!!!!! hero's gan !!!!!!!

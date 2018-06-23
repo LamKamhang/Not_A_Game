@@ -11,10 +11,10 @@ Room::Room(Camera &camera, glm::mat4 &model):
 
 Room::Room(const std::vector<float> &_wall, const std::vector<float> &_floor, 
         const Material &wall_material, const Material &floor_material, const Material &ceil_material,
-        const std::vector<glm::vec3> &point_light_pos, const PointLight &point_light):
+        const std::vector<glm::vec3> &point_light_pos, const PointLight &point_light, const DirLight &dir_light):
         wall_vertices(_wall), floor_vertices(_floor), point_light_pos(point_light_pos), 
         wall_material(wall_material), floor_material(floor_material), ceil_material(ceil_material),
-         point_light(point_light), 
+         point_light(point_light), dir_light(dir_light),
         directory("Resource/Texture")
 {
     bindVAO();
@@ -23,19 +23,22 @@ Room::Room(const std::vector<float> &_wall, const std::vector<float> &_floor,
 void Room::Draw(Shader &materialShader)
 {
     // set up point light
+    setDirLight(materialShader, "dir_light", dir_light);
     setPointLight(materialShader, "point_light", point_light);
     setPointLightPos(materialShader, "point_light_pos");
+
+    materialShader.setMat4("model",ModelMatrix);//set model matrix !!!
 
     // first draw the floor
     materialShader.setBool("floor_wall", 0);
     // set floor_material
     setMaterial(materialShader, "floor_material", floor_material);
+    glBindVertexArray(floor_VAO);
+        glDrawArrays(GL_TRIANGLES, 0, floor_vertices.size()>>4);
     // set ceil_material
     setMaterial(materialShader, "ceil_material", ceil_material);
-    
-    materialShader.setMat4("model",ModelMatrix);//set model matrix !!!
-    glBindVertexArray(floor_VAO);
-        glDrawArrays(GL_TRIANGLES, 0, floor_vertices.size()>>3);
+        glDrawArrays(GL_TRIANGLES, floor_vertices.size()>>4, floor_vertices.size()>>4);
+
     
     // second, draw the wall
     materialShader.setBool("floor_wall", 1);
@@ -50,14 +53,45 @@ void Room::Draw(Shader &materialShader)
 
 inline void Room::setMaterial(Shader &shader, const std::string &name, Material &value)
 {
-    shader.setVec3(name + ".ambient", value.ambient);
-    shader.setVec3(name + ".diffuse", value.diffuse);
-    shader.setVec3(name + ".specular", value.specular);
+    if (value.diffuse_tex_color)
+    {
+        // bind diffuse map
+        shader.setBool(name + ".diffuse_tex_color", true);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, value.diffuse_tex);
+        shader.setInt(name + ".diffuse_tex", 0);
+    }else
+    {
+        shader.setBool(name + ".diffuse_tex_color", false);
+        shader.setVec3(name + ".ambient", value.ambient);
+        shader.setVec3(name + ".diffuse", value.diffuse);
+    }
+    if (value.specular_tex_color)
+    {
+        // bind specular map
+        shader.setBool(name + ".specular_tex_color", true);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, value.specular_tex);
+        shader.setInt(name + ".specular_tex", 1);
+    }else
+    {
+        shader.setBool(name + ".specular_tex_color", false);
+        shader.setVec3(name + ".specular", value.specular);
+    }
     shader.setFloat(name + ".shininess", value.shininess);
 }
 
 inline void Room::setPointLight(Shader &shader, const std::string &name, PointLight &value)
 {
+    shader.setVec3(name + ".color", value.color);
+    shader.setFloat(name + ".ambient", value.ambient);
+    shader.setFloat(name + ".diffuse", value.diffuse);
+    shader.setFloat(name + ".specular", value.specular);
+}
+
+inline void Room::setDirLight(Shader &shader, const std::string &name, DirLight &value)
+{
+    shader.setVec3(name + ".dir", value.dir);
     shader.setVec3(name + ".color", value.color);
     shader.setFloat(name + ".ambient", value.ambient);
     shader.setFloat(name + ".diffuse", value.diffuse);
@@ -112,13 +146,14 @@ inline void Room::bindVAO()
 
 inline void Room::initRoom(Camera &camera)
 {
-    floor_vertices = GetFirstFloorDefaultGround(camera,ModelMatrix);
-    wall_vertices = GetFirstFloorDefaultWall(camera,ModelMatrix);
+    floor_vertices = GetFirstFloorDefaultGround(camera, ModelMatrix);
+    wall_vertices = GetFirstFloorDefaultWall(camera, ModelMatrix);
     point_light_pos = GetFirstFloorDefaultLightPos();
     point_light = GetFirstFloorDefaultPointLight();
     wall_material = GetFirstFloorDefaultWallMaterial();
     floor_material = GetFirstFloorDefaultFloorMaterial();
     ceil_material = GetFirstFloorDefaultCeilMaterial();
+    dir_light = GetFirstFloorDefaultDirLight();
 }
 
 //|||||||||||||||||||||||||||||||||||||||||||||||||||||
@@ -184,10 +219,10 @@ std::vector<float> GetFirstFloorDefaultGround(Camera &camera,const glm::mat4 &Mo
     float cy = 0, ce = 10;
     std::vector<float> vertices;
     std::vector<Rule> rules{
-        Rule(_buttom, 15, 25, 7.5, cy, 12.5),//1
-        Rule(_buttom, 25, 75, 15+12.5, cy, 37.5),//2
-        Rule(_buttom, 40, 60, 40+20, cy, 15+30),//3
-        Rule(_buttom, 10, 45, 80+5, cy, 15+22.5),//4
+        Rule(_top, 15, 25, 7.5, cy, 12.5),//1
+        Rule(_top, 25, 75, 15+12.5, cy, 37.5),//2
+        Rule(_top, 40, 60, 40+20, cy, 15+30),//3
+        Rule(_top, 10, 45, 80+5, cy, 15+22.5),//4
 
         //ceil
         Rule(_buttom, 15, 25, 7.5, ce, 12.5),//1
@@ -203,29 +238,34 @@ std::vector<float> GetFirstFloorDefaultWall(Camera &camera,const glm::mat4 &Mode
 {
     
     float wall_height = 10, door_height = 7.5, wall_width = 1.5, cy = wall_height/2, dy = (door_height+wall_height)/2;
+    float e = 0.1;
     std::vector<float> vertices;
     std::vector<Rule> rules{
-       Rule(_back, 15, wall_height, 7.5, cy, 25),//1
-       Rule(_back, wall_width, wall_height,  15+wall_width/2, cy, 10),//2
-       Rule(_back, 25, wall_height,  15+12.5, cy, 40),//3
+       Rule(_front, 15, wall_height, 7.5, cy, 25),//1
+       Rule(_front, wall_width, wall_height,  15+wall_width/2, cy, 10),//2
+       Rule(_front, 25, wall_height,  15+12.5, cy, 40),//3
+       Rule(_back, 25-wall_width, wall_height,  15+12.5-wall_width/2, cy, 40+e),//3
        Rule(_back, 28, wall_height,  15+14, cy, 60),//4
-       Rule(_back, 65, wall_height,  15+32.5, cy, 75),//5
+       Rule(_front, 25-wall_width, wall_height,  15+14-wall_width/2, cy, 60-e),//4
+       Rule(_front, 65, wall_height,  15+32.5, cy, 75),//5
        Rule(_back, 22, wall_height,  69-11, cy, 60),//6
-       Rule(_back, 3, wall_height,  40+1.5, cy, 60-wall_width),//7
-       Rule(_back, 3, wall_height,  47+1.5, cy, 60-wall_width),//8
+       Rule(_front, 15, wall_height,  50+7.5, cy, 60-e),//6
+       Rule(_front, 3, wall_height,  40+1.5, cy, 60-wall_width),//7
+       Rule(_front, 3, wall_height,  47+1.5, cy, 60-wall_width),//8
        Rule(_back, 17, wall_height,  90-8.5, cy, 60),//9
-       Rule(_back, 4, wall_height,  65+2, cy, 60-wall_width),//10
-       Rule(_back, 17, wall_height,  90-8.5, cy, 60-wall_width),//11
+       Rule(_front, 4, wall_height,  65+2, cy, 60-wall_width),//10
+       Rule(_front, 17, wall_height,  90-8.5, cy, 60-wall_width),//11
        Rule(_back, 4, wall_height,  65+2, cy, 60-3-wall_width),//12
        Rule(_back, 7, wall_height,  73+3.5, cy, 60-3-wall_width),//13
-       Rule(_back, 4, wall_height,  65+2, cy, 60-3-2*wall_width),//14
-       Rule(_back, 7, wall_height,  73+3.5, cy, 60-3-2*wall_width),//15
-       Rule(_back, wall_width, wall_height,  40-wall_width/2, cy, 55),//16
+       Rule(_front, 4, wall_height,  65+2, cy, 60-3-2*wall_width),//14
+       Rule(_front, 7, wall_height,  73+3.5, cy, 60-3-2*wall_width),//15
+       Rule(_front, wall_width, wall_height,  40-wall_width/2, cy, 55),//16
        Rule(_back, wall_width, wall_height,  40-wall_width/2, cy, 52),//17
        Rule(_back, 6, wall_height,  50+3, cy, 40+wall_width),//18
        Rule(_back, 6, wall_height,  65-3, cy, 40+wall_width),//19
-       Rule(_back, 6, wall_height,  50+3, cy, 40),//20
-       Rule(_back, 31, wall_height,  90-15.5, cy, 40),//21
+       Rule(_front, 6, wall_height,  50+3, cy, 40),//20
+       Rule(_front, 31, wall_height,  90-15.5, cy, 40),//21
+       Rule(_back, 25, wall_height,  90-12.5, cy, 40+e),//21
        Rule(_back, wall_width, wall_height,  65+wall_width/2, cy, 30),//22
        Rule(_back, 50, wall_height,  40+25, cy, 15),//23
        Rule(_back, 31, wall_height,  9+15.5, cy, wall_width),//24
@@ -234,33 +274,37 @@ std::vector<float> GetFirstFloorDefaultWall(Camera &camera,const glm::mat4 &Mode
        Rule(_back, 6, wall_height,  3, cy, 0),//27
        Rule(_back, wall_width, wall_height, 15+wall_width/2, cy, 7),//28
 
-       Rule(_left, 25, wall_height,  0, cy, 12.5),//1
-       Rule(_left, wall_width, wall_height,  6, cy, wall_width/2),//2
+       Rule(_right, 25, wall_height,  0, cy, 12.5),//1
+       Rule(_right, wall_width, wall_height,  6, cy, wall_width/2),//2
        Rule(_left, wall_width, wall_height,  9, cy, wall_width/2),//3
        Rule(_left, 65, wall_height,  15, cy, 10+32.5),//4
        Rule(_left, 7, wall_height,  15, cy, 3.5),//5
-       Rule(_left, 30, wall_height,  15+wall_width, cy, 10+15),//6
-       Rule(_left, 7, wall_height,  15+wall_width, cy, 3.5),//7
+       Rule(_right, 65, wall_height,  15+wall_width, cy, 10+32.5),//6
+       Rule(_right, 7, wall_height,  15+wall_width, cy, 3.5),//7
        Rule(_left, 5, wall_height,  40-wall_width, cy, 60-2.5),//8
        Rule(_left, 12, wall_height,  40-wall_width, cy, 40+6),//9
-       Rule(_left, 5, wall_height,  40, cy, 60-2.5),//10
-       Rule(_left, 12, wall_height,  40, cy, 40+6),//11
+       Rule(_right, 5, wall_height,  40, cy, 60-2.5),//10
+       Rule(_right, 12, wall_height,  40, cy, 40+6),//11
        Rule(_left, 15, wall_height,  40, cy, 7.5),//12
-       Rule(_left, wall_width, wall_height,  43, cy, 60-wall_width/2),//13
+       Rule(_right, wall_width, wall_height,  43, cy, 60-wall_width/2),//13
        Rule(_left, wall_width, wall_height,  47, cy, 60-wall_width/2),//14
        Rule(_left, 20, wall_height,  50, cy, 40+10),//15
-       Rule(_left, wall_width, wall_height,  56, cy, 40+wall_width/2),//16
+       Rule(_right, 20, wall_height,  50+e, cy, 40+10),//15
+       Rule(_right, wall_width, wall_height,  56, cy, 40+wall_width/2),//16
        Rule(_left, wall_width, wall_height,  59, cy, 40+wall_width/2),//17
        Rule(_left, 15, wall_height,  65, cy, 15+7.5),//18
-       Rule(_left, 15, wall_height,  65+wall_width, cy, 15+7.5),//19
+       Rule(_right, 15, wall_height,  65+wall_width, cy, 15+7.5),//19
        Rule(_left, 17-wall_width, wall_height,  65, cy, 40+(17-wall_width)/2),//20
-       Rule(_left, wall_width, wall_height,  69, cy, 60-wall_width-3-wall_width/2),//21
+       Rule(_right, 17-wall_width, wall_height,  65+e, cy, 40+(17-wall_width)/2),//20
+       Rule(_right, wall_width, wall_height,  69, cy, 60-wall_width-3-wall_width/2),//21
        Rule(_left, wall_width, wall_height,  73, cy, 60-wall_width-3-wall_width/2),//22
-       Rule(_left, wall_width, wall_height,  69, cy, 60-wall_width/2),//23
+       Rule(_right, wall_width, wall_height,  69, cy, 60-wall_width/2),//23
        Rule(_left, wall_width, wall_height,  73, cy, 60-wall_width/2),//24
        Rule(_left, 15+wall_width, wall_height,  65, cy, 75-(15+wall_width)/2),//25
+       Rule(_right, 15+wall_width, wall_height,  65+e, cy, 75-(15+wall_width)/2),//25
        Rule(_left, 15, wall_height,  80, cy, 75-7.5),//26
-       Rule(_left, 17-wall_width, wall_height,  80, cy, 40+(17-wall_width)/2),//27
+       Rule(_right, 17-wall_width, wall_height,  80, cy, 40+(17-wall_width)/2),//27
+       Rule(_left, 17-wall_width, wall_height,  80-e, cy, 40+(17-wall_width)/2),//27
        Rule(_left, 45, wall_height,  90, cy, 15+22.5),//28
 
        //door
@@ -279,11 +323,11 @@ std::vector<float> GetFirstFloorDefaultWall(Camera &camera,const glm::mat4 &Mode
        Rule(_back, 4, wall_height-door_height, 69+2, dy, 60),//5
        Rule(_front, 4, wall_height-door_height, 69+2, dy, 60-wall_width),//5
        Rule(_buttom, 4, wall_width, 69+2, door_height, 60-wall_width/2),//5
-       Rule(_right, 3, wall_height-door_height, 15, dy, 7+1.5),//6
-       Rule(_left, 3, wall_height-door_height, 15+wall_width, dy, 7+1.5),//6
+       Rule(_left, 3, wall_height-door_height, 15, dy, 7+1.5),//6
+       Rule(_right, 3, wall_height-door_height, 15+wall_width, dy, 7+1.5),//6
        Rule(_buttom, wall_width, 3, 15+wall_width/2, door_height, 7+1.5),//6
        Rule(_right, 3, wall_height-door_height, 40-wall_width, dy, 52+1.5),//7
-       Rule(_left, 3, wall_height-door_height, 40, dy, 52+1.5),//7
+       Rule(_right, 3, wall_height-door_height, 40, dy, 52+1.5),//7
        Rule(_buttom, wall_width, 3, 40-wall_width/2, door_height, 52+1.5),//7
     };
     GetVertexByRules(vertices, camera, rules, ModelMatrix);
@@ -292,18 +336,19 @@ std::vector<float> GetFirstFloorDefaultWall(Camera &camera,const glm::mat4 &Mode
 
 std::vector<glm::vec3> GetFirstFloorDefaultLightPos()
 {
-    float wall_height = 10, delta = -0.5;
+    float wall_height = 10, delta = 0.1;
     float y = wall_height-delta;
     return std::vector<glm::vec3>{
-        glm::vec3(7.5, y, 20),//1
-        glm::vec3(40, y, 25),//2
-        glm::vec3(20, y, 50),//3
-        glm::vec3(40, y, 67.5),//4
-        glm::vec3(57.5, y, 55),//5
+        glm::vec3(7.5, y, 15),//1
+        glm::vec3(35, y, 25),//2
+        glm::vec3(25, y, 50),//3
+        glm::vec3(25, y, 67.5),//4
+        glm::vec3(55, y, 67.5),//4
+        glm::vec3(57.5, y, 50),//5
         glm::vec3(72.5, y, 68),//6
         //glm::vec3(73, y, 50),//7
         glm::vec3(75, y, 25),//8
-        //glm::vec3(85, y, 60),//9
+        glm::vec3(85, y, 50),//9
     };
 }
 
@@ -317,43 +362,66 @@ struct PointLight{
 */
 PointLight GetFirstFloorDefaultPointLight()
 {
-    return PointLight(glm::vec3(1.0), 0.5, 0.8, 0.7);
+    return PointLight(glm::vec3(1.0), 0.5, 1.5, 1.0);
 }
 
+DirLight GetFirstFloorDefaultDirLight()
+{
+    return DirLight(glm::vec3(0, -1, 1), glm::vec3(1), 0.02, 0.08, 0.5);
+}
 /*
 struct Material{
     glm::vec3 ambient;
     glm::vec3 diffuse;
     glm::vec3 specular;
     float shininess;
+    GLuint diffuse_tex;
+    GLuint specular_tex;
+    bool diffuse_tex_color;
+    bool specular_tex_color;
 };
 */
 Material GetFirstFloorDefaultWallMaterial()
 {
     return Material(
-        glm::vec3(1, 0.933, 0.894),//#ffeee4
-        glm::vec3(1, 0.933, 0.894),//#ffeee4
+        "matrix.jpg",
         glm::vec3(1, 1, 0.953),//#fffff3
         16
     );
+    // return Material(
+    //     glm::vec3(1, 0.933, 0.894),//#ffeee4
+    //     glm::vec3(1, 0.933, 0.894),//#ffeee4
+    //     glm::vec3(1, 1, 0.953),//#fffff3
+    //     16
+    // );
 }
 
 Material GetFirstFloorDefaultFloorMaterial()
 {
     return Material(
-        glm::vec3(0.329, 0.365, 0.384),//#d6ecfa
-        glm::vec3(0.329, 0.365, 0.384),//#d6ecfa
+        "floor.jpg",
         glm::vec3(0.384, 0.392, 0.286),//#fbffb9
         16
     );
+    // return Material(
+    //     glm::vec3(0.329, 0.365, 0.384),//#d6ecfa
+    //     glm::vec3(0.329, 0.365, 0.384),//#d6ecfa
+    //     glm::vec3(0.384, 0.392, 0.286),//#fbffb9
+    //     16
+    // );
 }
 
 Material GetFirstFloorDefaultCeilMaterial()
 {
     return Material(
-        glm::vec3(0.376, 0.361, 0.216),//#f6ea8c
-        glm::vec3(0.376, 0.361, 0.216),//#f6ea8c
+        "ceil.jpg",
         glm::vec3(0.3, 0.3, 0.3),//
-        1
+        2
     );
+    // return Material(
+    //     glm::vec3(0.376, 0.361, 0.216),//#f6ea8c
+    //     glm::vec3(0.376, 0.361, 0.216),//#f6ea8c
+    //     glm::vec3(0.3, 0.3, 0.3),//
+    //     2
+    // );
 }
