@@ -218,7 +218,8 @@ const std::vector<Texture> Model::loadMaterialTextures(const aiMaterial *mat, co
 			std::size_t temp = _min(path.find_last_of('\\'), path.find_last_of('/'));
 			std::size_t start = temp == std::string::npos ? 0 : temp;
 			Texture texture;
-			texture.id = loadTexture(path.substr(start).c_str(), Directory);
+			std::cout << "Directory: " << Directory << "\tPath: " << path.substr(start) << std::endl; 
+			texture.id = loadTexture(path.substr(start), Directory);
 			texture.type = typeName;
 			texture.path = str.C_Str();
 			textures.push_back(texture);

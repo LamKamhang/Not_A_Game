@@ -32,7 +32,7 @@ GLint main(GLvoid)
 	glm::mat4 model;
 	glm::mat4 view;
 	glm::mat4 projection;
-
+	GLuint testLOAD = loadTexture("SK_Material_BaseColor.png", "Resource/Model/SKgan");
 	// build and compile our shader zprogram
 
 	// some settings for room
