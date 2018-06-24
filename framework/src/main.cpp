@@ -18,6 +18,7 @@
 #include "Header/UI.h"
 #include "Header/util.h"
 #include "Header/Room.h"
+#include "Header/ParticleSystem.h"
 
 using namespace settings;
 
@@ -102,6 +103,12 @@ GLint main(GLvoid)
 	crystalsystem.addCrystal(glm::vec3(10.0f,0.0f,0.0f),2.5f,1);
 	crystalsystem.addCrystal(glm::vec3(0.0f,0.0f,9.0f),2.5f,1);
 
+	// !!!!! particle System !!!!!!!
+	ParticleSystem particleSystem;
+	particleSystem.InitFrame(500);
+	Shader flameShader("Resource/Shader/particle.vs", "Resource/Shader/particle.fs", nullptr, nullptr, "Resource/Shader/particle.gs");
+	// Shader flameShader("Resource/Shader/test.vs", "Resource/Shader/test.fs");
+	
 	// test demo
 	std::vector<glm::vec3>cubeposition;
 	// cubeposition.push_back(glm::vec3(0.0f,1.0f,0.0f));
@@ -152,13 +159,13 @@ GLint main(GLvoid)
 			skyboxShader.setMat4("model",model);
 			skyboxShader.setMat4("view",view);
 			skyboxShader.setMat4("projection",projection);
-			skybox.draw(skyboxShader);
+			// skybox.draw(skyboxShader);
 		glUseProgram(0);
 		
 		// step2 : draw crystal
 		crystalsystem.updateAll(camera.GetPosition(),deltaTime);
 		crystalsystem.updateHeroState(camera.GetPosition(),closeEnough,damage,bullet);
-		crystalsystem.drawAll(projection,view,camera.GetPosition(),skybox.getTextId(),currentFrame,deltaTime,score);
+		// crystalsystem.drawAll(projection,view,camera.GetPosition(),skybox.getTextId(),currentFrame,deltaTime,score);
 		
 		// step3: draw bullet !!
 		if(cur_button_mode == left){
@@ -190,7 +197,7 @@ GLint main(GLvoid)
 				model=glm::translate(model,cubeposition[i]);
 				model=glm::scale(model,glm::vec3(2.0f,2.0f,2.0f));
 				cubeShader.setMat4("model", model);
-				glDrawArrays(GL_TRIANGLES,0,cubicVertex.size()/8);
+				// glDrawArrays(GL_TRIANGLES,0,cubicVertex.size()/8);
 			}
 		glUseProgram(0);
 		glBindVertexArray(0);
@@ -213,7 +220,7 @@ GLint main(GLvoid)
 			model=glm::mat4(1.0f);
 			model = glm::scale(model, glm::vec3(0.3, 0.3, 0.3));
 			modelShader.setMat4("model", model);
-			Nanosuit.Draw(modelShader);
+			// Nanosuit.Draw(modelShader);
 		glUseProgram(0);
 		
 		// step6 : draw rooms
@@ -226,6 +233,16 @@ GLint main(GLvoid)
 			// roomShader.setMat4("model", model);
 			roomShader.setBool("phong", phong);
 			room1.Draw(roomShader);
+
+		//step7 : draw flame!
+		particleSystem.updateAll(heroBullet.getPosition(), heroBullet.direction, camera.GetRight(), 1.0f, currentFrame);
+		glEnable(GL_PROGRAM_POINT_SIZE);
+		flameShader.use();
+			flameShader.setMat4("projection",projection);
+			flameShader.setMat4("view",view);
+			particleSystem.drawAllParticle(flameShader,currentFrame);
+		glUseProgram(0);
+		glDisable(GL_PROGRAM_POINT_SIZE);
 
 		//!!!!!! hero's gan !!!!!!!
 		ganShader.use();
@@ -252,7 +269,7 @@ GLint main(GLvoid)
 
 		//step final: draw UI
 		myUI.updateAlpha(closeEnough,currentFrame);
-		myUI.draw();
+		// myUI.draw();
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		glfwSwapBuffers(window);

@@ -10,6 +10,10 @@ out vs{
     
     vec4 position;
     vec3 velocity;
+
+    mat4 model;
+    mat4 view;
+    mat4 projection;
 }_out;
 
 uniform int type;
@@ -27,10 +31,15 @@ void main()
 {
     _out.type = type;
     _out.age=age;
-    _out.alpha.alpha;
+    _out.alpha=alpha;
     _out.size=size;
     _out.lifeTime=lifeTime;
-    // _out.texCoords = aTexCoords;
-    _out.position = projection * view * model * vec4(aPos, 1.0);
     _out.velocity = velocity;
+    
+    _out.model = model;
+    _out.view = view;
+    _out.projection = projection;
+
+    gl_PointSize = size;
+    _out.position = model * vec4(aPos, 1.0);;
 }

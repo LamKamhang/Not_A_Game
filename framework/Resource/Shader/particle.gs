@@ -1,8 +1,8 @@
 #version 330 core
 layout (points) in;
-layout (points,max_vertices = 10) out;
+layout (points, max_vertices = 10) out;
 
-in fs{
+in vs{
     int type;
     float age;
     float alpha;
@@ -11,25 +11,29 @@ in fs{
     
     vec4 position;
     vec3 velocity;
+
+    mat4 model;
+    mat4 view;
+    mat4 projection;
 }_in[];
 
 out gs{
-    int type;
     float age;
     float alpha;
     float size;
     float lifeTime;
     
-    vec4 position;
-    vec3 velocity;
+    // vec4 position;
+    // vec3 velocity;
 }_out;
 
-#define FLAME_LANUCHER 1
-#define FLAME_SHELL 2
+#define FLAME_LANUCHER 0
+#define FLAME_SHELL 1
 
 #define PARTICLE_MAX_LIFE 5.0f
 #define PARTICLE_MIN_LIFE 0.2f
 
+uniform float initTime;
 uniform float time;
 
 float Rand2(float x,float y)
@@ -40,30 +44,22 @@ float Rand2(float x,float y)
 void main()
 {
     if(_in[0].type == FLAME_LANUCHER){
+        gl_PointSize = gl_in[0].gl_PointSize;
+
         // lanucher
-        _out.type = FLAME_LANUCHER;
         _out.age = _in[0].age;
         _out.alpha = _in[0].alpha;
-        
-        gl_PointSize = _out.size;
         _out.size = _in[0].size;
         _out.lifeTime= _in[0].lifeTime;
-        
-        _out.position = _in[0].position;
-        gl_Position = vec4(_out.position,1.0);
-        _out.velocity = _in[0].velocity;
+        gl_Position = _in[0].projection * _in[0].view * _in[0].position;
         EmitVertex();
 
-        _out.type = FLAME_LANUCHER;
-        _out.age = time;
-        _out.alpha = _in[0].alpha;
-        gl_PointSize = _out.size;
-        _out.size = _in[0].size;
-        _out.lifeTime = (PARTICLE_MAX_LIFE-PARTICLE_MIN_LIFE)*Rand2(_in[0].velocity,_in[0].velocity)+PARTICLE_MIN_LIFE;
-        
-        _out.position = _in[0].position + _in[0].velocity * time;
-        gl_Position = vec4(_out.position,1.0);
-        _out.velocity = _in[0].velocity;
+        // _out.age = (time - initTime) * 0.1;
+        // _out.alpha = _in[0].alpha;
+        // _out.size = _in[0].size * 10.0/(time - initTime);
+        // gl_PointSize = _out.size;
+        // _out.lifeTime = (PARTICLE_MAX_LIFE - PARTICLE_MIN_LIFE)*Rand2(time,time)+PARTICLE_MIN_LIFE;
+        gl_Position = _in[0].projection * _in[0].view * vec4(vec3(_in[0].position) + _in[0].velocity * (time-initTime) * 0.05, 1.0);
         EmitVertex();
         EndPrimitive();
     }
