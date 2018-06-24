@@ -1,0 +1,35 @@
+#version 400 core
+
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
+
+layout(triangles, equal_spacing, ccw) out;
+
+in tcs {
+    vec3 position;
+    vec3 normal;
+    vec2 texCoords;
+} _in[];
+
+out tes {
+    vec4 position;
+    vec3 normal;
+    vec2 texCoords;
+} _out;
+
+void main() {
+    vec3 p0 = gl_TessCoord.x * _in[0].position.xyz;
+    vec3 p1 = gl_TessCoord.y * _in[1].position.xyz;
+    vec3 p2 = gl_TessCoord.z * _in[2].position.xyz;
+    vec4 position = vec4(p0 + p1 + p2, 1);
+    _out.position = projection * view * model * position;
+    
+    vec3 n0 = gl_TessCoord.x * _in[0].normal.xyz;
+    vec3 n1 = gl_TessCoord.x * _in[1].normal.xyz;
+    vec3 n2 = gl_TessCoord.x * _in[2].normal.xyz;
+
+    vec3 n = n0 + n1 + n2;
+
+    _out.normal = mat3(transpose(inverse(model)))*n;
+}

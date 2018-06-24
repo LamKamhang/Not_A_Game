@@ -1,0 +1,33 @@
+#version 400 core
+layout(vertices=3) out;
+
+
+in vs {
+    vec3 position;
+    vec3 normal;
+    vec2 texCoords;
+} _in[];
+
+
+out tcs {
+    vec3 position;
+    vec3 normal;
+    vec2 texCoords;
+} _out[];
+
+
+void main() {
+    if (gl_InvocationID == 0)
+    {
+        gl_TessLevelInner[0] = 3;
+        gl_TessLevelInner[1] = 3;
+        gl_TessLevelOuter[0] = 4;
+        gl_TessLevelOuter[1] = 4;
+        gl_TessLevelOuter[2] = 4;
+    }
+
+    _out[gl_InvocationID].position = _in[gl_InvocationID].position;
+    _out[gl_InvocationID].normal = _in[gl_InvocationID].normal;
+    _out[gl_InvocationID].texCoords = _in[gl_InvocationID].texCoords;
+}
+

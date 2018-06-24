@@ -48,7 +48,7 @@ GLint main(GLvoid)
 	Model Nanosuit("Resource/Model/nanosuit/nanosuit.obj");
 
 	Shader ganShader("Resource/Shader/gan.vs", "Resource/Shader/gan.fs");
-	Model SKgan("Resource/Model/SKgan/ SK.obj");
+	Model SKgan("Resource/Model/SKgan/SK.obj");
 
 	// create test box
     std::vector<float> cubicVertex = GenCubeVertices();
@@ -102,7 +102,6 @@ GLint main(GLvoid)
 	crystalsystem.addCrystal(glm::vec3(10.0f,0.0f,0.0f),2.5f,1);
 	crystalsystem.addCrystal(glm::vec3(0.0f,0.0f,9.0f),2.5f,1);
 
-
 	// test demo
 	std::vector<glm::vec3>cubeposition;
 	// cubeposition.push_back(glm::vec3(0.0f,1.0f,0.0f));
@@ -119,16 +118,12 @@ GLint main(GLvoid)
 	// camera.SetinnerBound(glm::vec3(-11.0f,4.0f,-11.0f),glm::vec3(-9.0f,6.0f,-9.0f));
 	// camera.SetinnerBound(glm::vec3(-1.0f,0.0f,9.0f),glm::vec3(1.0f,2.0f,11.0f));
 
-	// bullet!
-	Bullet heroBullet(camera.physicsEngine);
-
 	// explode
 	modelShader.use();
 	bool explode_first = true;
 ////////////////////////////////////////////////////////////////////////////////////
     // view/projection transformations
     camera.SetOuterBound(glm::vec4(-500.0f,-500.0f,500.0f,500.0f));
-	
 	int closeEnough=0,damage=0,bullet=0,score=0;
 	// render loop
 	while (!glfwWindowShouldClose(window))

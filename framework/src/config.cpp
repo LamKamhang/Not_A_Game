@@ -24,8 +24,8 @@ namespace settings{
     {
         // glfw: initialize and configure
         glfwInit();
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     #ifdef __APPLE__
@@ -92,7 +92,6 @@ namespace settings{
             flashlight_on = true;
         if (glfwGetKey(window, GLFW_KEY_F) == GLFW_RELEASE)
             flashlight_on = false;
-        std::cout << flashlight_on << std::endl;
 
         if(cur_button_mode == left)
             ;// camera.ProcessMouseButton(MB_LEFT,deltaTime);
