@@ -18,6 +18,7 @@ namespace settings{
     bool explode = false;
     bool phong = false;
     bool flashlight_on = false;
+    bool Inversion = false;
 
     // API
     GLuint init_setting(GLFWwindow *&window)
@@ -83,7 +84,7 @@ namespace settings{
         if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)
             explode = true;
         if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
-            explode = false;
+            explode = false, Inversion = false;
         if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
             phong = true;
         if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
@@ -92,6 +93,9 @@ namespace settings{
             flashlight_on = true;
         if (glfwGetKey(window, GLFW_KEY_F) == GLFW_RELEASE)
             flashlight_on = false;
+        if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
+            Inversion = true;
+        
 
         if(cur_button_mode == left)
             ;// camera.ProcessMouseButton(MB_LEFT,deltaTime);

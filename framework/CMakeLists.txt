@@ -9,6 +9,7 @@ project(not_a_game)
 # +--------------------------------------------- +
 list(APPEND CMAKE_CXX_FLAGS "-std=c++11")
 add_definitions(-Wall)
+add_compile_options(-O3 -W)
 
 # +----------------------------------------------+
 # | Load third libraries                         |

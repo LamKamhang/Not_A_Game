@@ -16,6 +16,7 @@ namespace settings{
     extern bool explode;
     extern bool phong;
     extern bool flashlight_on;
+    extern bool Inversion;
 
     enum button_mode {
         none, left, middle, right,
