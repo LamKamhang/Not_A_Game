@@ -11,7 +11,7 @@
 #define HRrate 0.2886751345948129
 #define PI 3.14159265358979323846
 #define EdgeNum 6
-#define BULLET_SPEED 65.0f
+#define BULLET_SPEED 128.0f
 
 class Bullet{
 private:
@@ -151,7 +151,7 @@ public:
             IsHit = physicsEngine->outCollisionTest(Position, TargetPos);
             IsHit = physicsEngine->inCollisionTest(Position, TargetPos, height/2.0f);
             
-            if( IsHit || curTime - lastTime > 2.0f ){
+            if( IsHit || curTime - lastTime > 0.5f ){
                 IsAttacking = false;
                 Hitted = true;
             }

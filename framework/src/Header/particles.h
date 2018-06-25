@@ -71,9 +71,9 @@ private:
     }
 public:
 
-    Particlesystem(){
+    Particlesystem(const char* texName = "awesomeface.png"){
         LastUsedParticle = 0;
-        texture0 = loadTexture("awesomeface.png","Resource/Texture");
+        texture0 = loadTexture(texName, "Resource/Texture");
         
         glGenVertexArrays(1,&VAO);
         glBindVertexArray(VAO);
@@ -154,10 +154,10 @@ public:
         std::sort(&ParticlesContainer[0],&ParticlesContainer[MaxParticles]);
     }
 
-    void updateParticlesFountain(GLfloat deltaTime,const glm::vec3 &CameraPosition)
+    void updateParticlesFountain(GLfloat deltaTime,const glm::vec3 &CameraPosition,const glm::vec3 &startPos)
     {
         // add new particles
-        int newparticles = (int)(deltaTime * PARTICLE_GENERATED_PER_DECOND);
+        int newparticles = (int)(0.2f * deltaTime * PARTICLE_GENERATED_PER_DECOND);
         if (newparticles > (int)(MIN_DELTATIME * PARTICLE_GENERATED_PER_DECOND))
             newparticles = (int)(MIN_DELTATIME * PARTICLE_GENERATED_PER_DECOND);
         
@@ -172,7 +172,7 @@ public:
             p.angle = 2.0f * PI * randfloat();
             p.a = 0.5f;p.r = randfloat();p.g = randfloat();p.b = randfloat();
             
-            p.pos = glm::vec3(0.0f,0.0f,0.0f);
+            p.pos = startPos;
             p.cameradistance = glm::length( p.pos - CameraPosition );
             // 喷泉
             p.speed = p.speedrate * glm::normalize(glm::vec3(sin(p.angle),3.0f,cos(p.angle)));
@@ -183,7 +183,7 @@ public:
 
         // update existed particles
         ParticlesCount = 0;
-        for(int i=0; i<MaxParticles; i++){
+        for(int i=0; i< MaxParticles; i++){
             Particle& p = ParticlesContainer[i]; // shortcut
             if(p.life > 0.0f){
                 // Decrease life
@@ -243,6 +243,9 @@ public:
             p.speed = p.speedrate * ( alpha * (cos(p.angle) * n + sin(p.angle) * m) + glm::normalize(BulletDir));
         }
 
+        // sort particles
+        sortParticles();
+
         // update existed particles
         ParticlesCount = 0;
         for(int i=0; i<MaxParticles; i++){
@@ -285,7 +288,7 @@ public:
         const float MaxTime = 0.2f;
 
         // add new particles
-        int newparticles = (int)(deltaTime * PARTICLE_GENERATED_PER_DECOND);
+        int newparticles = (int)(2.0f * deltaTime * PARTICLE_GENERATED_PER_DECOND);
         if (newparticles > (int)(MIN_DELTATIME * PARTICLE_GENERATED_PER_DECOND))
             newparticles = (int)(MIN_DELTATIME * PARTICLE_GENERATED_PER_DECOND);
         
@@ -312,6 +315,9 @@ public:
             float alpha = 0.48f * randfloat();
             p.speed = p.speedrate * ( alpha * (cos(p.angle) * n + sin(p.angle) * m) + glm::normalize(ganDir));
         }
+
+        // sort particles
+        sortParticles();
 
         // update existed particles
         ParticlesCount = 0;

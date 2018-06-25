@@ -119,6 +119,9 @@ GLint main(GLvoid)
 	// gan's fire
 	Particlesystem ganfireParticles;
 	Shader ganfireShader("Resource/Shader/testparticle.vs","Resource/Shader/testparticle.fs");
+	// fountain
+	Particlesystem fountainParticles("water2.jpg");
+	Shader fountainShader("Resource/Shader/waterparticles.vs","Resource/Shader/waterparticles.fs");
 
 	// test demo
 	std::vector<glm::vec3>cubeposition;
@@ -246,9 +249,24 @@ GLint main(GLvoid)
 
 		// step7 : !!!!!!!!!!!! draw all special effects !!!!!!!!!!!!
 		//draw fountain
+		fountainShader.use();
+			fountainShader.setMat4("projection",projection);
+			fountainShader.setMat4("view",view);
+			fountainShader.setVec3("eyeFront",camera.GetEyeFront());
+			fountainShader.setVec3("eyeUp",camera.GetUp());
+			fountainShader.setVec3("eyeRight",camera.GetRight());
+
+			fountainParticles.updateParticlesFountain(deltaTime,camera.GetPosition(),glm::vec3(0.0f,0.0f,0.0f));
+			fountainParticles.updateBuffer();
+			fountainParticles.drawParticles(fountainShader);
+		glUseProgram(0);
+		//draw flame
 		flameShader.use();
 			flameShader.setMat4("projection",projection);
 			flameShader.setMat4("view",view);
+			flameShader.setVec3("eyeFront",camera.GetEyeFront());
+			flameShader.setVec3("eyeUp",camera.GetUp());
+			flameShader.setVec3("eyeRight",camera.GetRight());
 
 			flameParticles.updateParticlesFlame(heroBullet.IsAttacking, deltaTime, heroBullet.getPosition(), heroBullet.direction, camera.GetPosition());
 			flameParticles.updateBuffer();
@@ -258,7 +276,10 @@ GLint main(GLvoid)
 		ganfireShader.use();
 			ganfireShader.setMat4("projection",projection);
 			ganfireShader.setMat4("view",view);
-			std::cout<<SKgan.direction.x<<", "<<SKgan.direction.y<<", "<<SKgan.direction.z<<std::endl;
+			ganfireShader.setVec3("eyeFront",camera.GetEyeFront());
+			ganfireShader.setVec3("eyeUp",camera.GetUp());
+			ganfireShader.setVec3("eyeRight",camera.GetRight());
+
 			ganfireParticles.updateParticlesOpenFire(heroBullet.IsAttacking,deltaTime,currentFrame,SKgan.muzzlePos,SKgan.direction,camera.GetPosition());
 			ganfireParticles.updateBuffer();
 			ganfireParticles.drawParticles(ganfireShader);
