@@ -21,7 +21,7 @@ static const float groundVertexs[]={
     1.0,0.0,1.0, 0.0,1.0,0.0, 1.0,0.0
 };
 
-static const float g_vertex_buffer_data[]={
+static const float grass_vertexs[]={
     -0.5f, -0.5f, 0.0f,
     0.5f, -0.5f, 0.0f,
     -0.5f, 0.5f, 0.0f,
@@ -69,7 +69,7 @@ public:
         //vertex
         glGenBuffers(1, &billboard_vertex_buffer);
         glBindBuffer(GL_ARRAY_BUFFER, billboard_vertex_buffer);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(grass_vertexs), grass_vertexs, GL_STATIC_DRAW);
         //position
         glGenBuffers(1, &grass_position_buffer);
         glBindBuffer(GL_ARRAY_BUFFER, grass_position_buffer);
@@ -92,7 +92,7 @@ public:
         }
         
     }
-    
+
     void draw(Shader &shader)
     {
         glm::mat4 model(1.0f);
