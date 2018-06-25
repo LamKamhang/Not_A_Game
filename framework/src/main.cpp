@@ -122,6 +122,11 @@ GLint main(GLvoid)
 	// fountain
 	Particlesystem fountainParticles("water2.jpg");
 	Shader fountainShader("Resource/Shader/waterparticles.vs","Resource/Shader/waterparticles.fs");
+	// fireworks
+	Particlesystem fireworksParticles;
+	Shader fireworksShader("Resource/Shader/testparticle.vs","Resource/Shader/testparticle.fs");
+
+
 
 	// test demo
 	std::vector<glm::vec3>cubeposition;
@@ -249,17 +254,17 @@ GLint main(GLvoid)
 
 		// step7 : !!!!!!!!!!!! draw all special effects !!!!!!!!!!!!
 		//draw fountain
-		fountainShader.use();
-			fountainShader.setMat4("projection",projection);
-			fountainShader.setMat4("view",view);
-			fountainShader.setVec3("eyeFront",camera.GetEyeFront());
-			fountainShader.setVec3("eyeUp",camera.GetUp());
-			fountainShader.setVec3("eyeRight",camera.GetRight());
+		// fountainShader.use();
+		// 	fountainShader.setMat4("projection",projection);
+		// 	fountainShader.setMat4("view",view);
+		// 	fountainShader.setVec3("eyeFront",camera.GetEyeFront());
+		// 	fountainShader.setVec3("eyeUp",camera.GetUp());
+		// 	fountainShader.setVec3("eyeRight",camera.GetRight());
 
-			fountainParticles.updateParticlesFountain(deltaTime,camera.GetPosition(),glm::vec3(0.0f,0.0f,0.0f));
-			fountainParticles.updateBuffer();
-			fountainParticles.drawParticles(fountainShader);
-		glUseProgram(0);
+		// 	fountainParticles.updateParticlesFountain(deltaTime,camera.GetPosition(),glm::vec3(0.0f,0.0f,0.0f));
+		// 	fountainParticles.updateBuffer();
+		// 	fountainParticles.drawParticles(fountainShader);
+		// glUseProgram(0);
 		//draw flame
 		flameShader.use();
 			flameShader.setMat4("projection",projection);
@@ -283,6 +288,18 @@ GLint main(GLvoid)
 			ganfireParticles.updateParticlesOpenFire(heroBullet.IsAttacking,deltaTime,currentFrame,SKgan.muzzlePos,SKgan.direction,camera.GetPosition());
 			ganfireParticles.updateBuffer();
 			ganfireParticles.drawParticles(ganfireShader);
+		glUseProgram(0);
+		//draw fireworks
+		fireworksShader.use();
+			fireworksShader.setMat4("projection",projection);
+			fireworksShader.setMat4("view",view);
+			fireworksShader.setVec3("eyeFront",camera.GetEyeFront());
+			fireworksShader.setVec3("eyeUp",camera.GetUp());
+			fireworksShader.setVec3("eyeRight",camera.GetRight());
+
+			fireworksParticles.updateParticlesFireworks(deltaTime,camera.GetPosition(),60.0f,heroBullet.getPosition(),heroBullet.IsAttacking);
+			fireworksParticles.updateBuffer();
+			fireworksParticles.drawParticles(fireworksShader);
 		glUseProgram(0);
 
 

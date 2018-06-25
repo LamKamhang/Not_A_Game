@@ -154,6 +154,72 @@ public:
         std::sort(&ParticlesContainer[0],&ParticlesContainer[MaxParticles]);
     }
 
+    void updateParticlesFireworks(GLfloat deltaTime,const glm::vec3 &CameraPosition,float height,const glm::vec3 &bulletPos,bool IsAttacking)
+    {
+        // add new particles
+        int newparticles = (int)(0.2f * deltaTime * PARTICLE_GENERATED_PER_DECOND);
+        if (newparticles > (int)(MIN_DELTATIME * PARTICLE_GENERATED_PER_DECOND))
+            newparticles = (int)(MIN_DELTATIME * PARTICLE_GENERATED_PER_DECOND);
+        
+        newparticles = 0.2f * deltaTime * PARTICLE_GENERATED_PER_DECOND;
+        if(ParticlesCount > 0.01f * PARTICLE_GENERATED_PER_DECOND)newparticles = 0;
+        if(bulletPos.y < height || IsAttacking == 0)newparticles = 0;
+
+        for(int i = 0;i < newparticles; i++){
+            int cur = FindUnusedParticle();
+            Particle& p = ParticlesContainer[cur];
+
+            p.life = 0.8f;
+            p.speedrate = 60.0f;
+            p.size = 0.8f;
+            p.weight = 1.0f;
+            p.angle = 2.0f * PI * randfloat();
+            float theta = 2.0f * PI * randfloat();
+            p.a = 0.5f;p.r = randfloat();p.g = randfloat();p.b = randfloat();
+            
+            p.pos = glm::vec3(bulletPos.x,height,bulletPos.z);
+            p.cameradistance = glm::length( p.pos - CameraPosition );
+            // 烟花
+            p.speed = p.speedrate * glm::vec3(sin(theta)*sin(p.angle),cos(theta),sin(theta)*cos(p.angle));
+        }
+
+        // sort particles
+        sortParticles();
+
+        // update existed particles
+        ParticlesCount = 0;
+        for(int i=0; i< MaxParticles; i++){
+            Particle& p = ParticlesContainer[i]; // shortcut
+            if(p.life > 0.0f){
+                // Decrease life
+                p.life -= deltaTime;
+                if (p.life > 0.0f){
+                    // Simulate simple physics : gravity only, no collisions
+                    // p.speed += glm::vec3(0.0f,-9.81f, 0.0f) * (float)deltaTime * 0.5f;
+                    p.pos += p.speed * (float)deltaTime;
+                    p.cameradistance = glm::length( p.pos - CameraPosition );
+
+                    // Fill the GPU buffer
+                    g_particule_position_size_data[4*ParticlesCount+0] = p.pos.x;
+                    g_particule_position_size_data[4*ParticlesCount+1] = p.pos.y;
+                    g_particule_position_size_data[4*ParticlesCount+2] = p.pos.z;
+
+                    g_particule_position_size_data[4*ParticlesCount+3] = p.size;
+
+                    g_particule_color_data[4*ParticlesCount+0] = p.r;
+                    g_particule_color_data[4*ParticlesCount+1] = p.g;
+                    g_particule_color_data[4*ParticlesCount+2] = p.b;
+                    g_particule_color_data[4*ParticlesCount+3] = p.a;
+
+                }else{
+                    // Particles that just died will be put at the end of the buffer in SortParticles();
+                    p.cameradistance = -10.0f;
+                }
+                ParticlesCount++;
+            }
+        }
+    }
+
     void updateParticlesFountain(GLfloat deltaTime,const glm::vec3 &CameraPosition,const glm::vec3 &startPos)
     {
         // add new particles
