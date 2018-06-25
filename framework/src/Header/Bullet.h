@@ -112,7 +112,10 @@ public:
     glm::vec3 getPosition(){
         return Position;
     }
-
+    glm::vec3 getTargetPos()
+    {
+        return TargetPos;
+    }
     bool IsAttack(){
         return IsAttacking;
     }

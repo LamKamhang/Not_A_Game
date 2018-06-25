@@ -15,6 +15,7 @@ Crystal::Crystal(PhysicsEngine* physicsEngine, Bullet*heroBullet, glm::vec3 posi
     this->radius=height*HRrate;
     
     this->heroBullet=heroBullet;
+    bulletLastPos = glm::vec3(0.0f);
     this->physicsEngine = physicsEngine;
     VertVelocity = glm::vec3(0.0f);
     accelerUp = glm::vec3(0.0f);
@@ -99,19 +100,26 @@ void Crystal::updateState()
 {
     //// new strategy
     if(heroBullet->IsAttack()){
-        glm::vec3 direc = glm::vec3(Position.x,Position.y + height/2.0f,Position.z) - heroBullet->getPosition();
-        float dist = glm::length(direc);
-        if(dist < 3.0f * RaiusRate * radius)explode = 1;
+        glm::vec3 bulletCurPos = heroBullet->getTargetPos();
+        glm::vec3 crystalCenterPos = glm::vec3(Position.x,Position.y + height/2.0f,Position.z);
+        glm::vec3 lc = bulletCurPos - bulletLastPos;
+        glm::vec3 lp = crystalCenterPos - bulletLastPos;
+        float lenlc = glm::length(lc);
+        float lenlp = glm::length(lp);
+        float lpdotlc = glm::dot(lp,lc);
+        float maxR = 1.5f * RaiusRate * radius;
+        if(lenlc < 0.00001f){
+            std::cout << "lenlc small!" << std::endl;
+            float len = glm::length(bulletCurPos-crystalCenterPos);
+            if(len < maxR)explode = 1;
+            return;
+        }
+        float theta = acos(lpdotlc/(lenlc*lenlp));
+        bool b1 = lpdotlc > 0.0f && lpdotlc < glm::dot(lc,lc) && lenlp < maxR / sin(theta);
+        if(b1)explode = 1;
+        bulletLastPos = bulletCurPos;
     }
-    
-    //// old strategy
-    // glm::vec3 sp = glm::vec3(Position.x,Position.y + height/2.0f,Position.z) - heroBullet->startPos;
-    // float spdotd=glm::dot(sp,heroBullet->direction);
-    // float lensp=glm::length(sp);
-    // float dist2=lensp*lensp-spdotd*spdotd;
-    // if(heroBullet->IsAttack() || heroBullet->Hitted){
-    //     if(dist2 < RaiusRate * radius)explode = 1;
-    // }
+    else bulletLastPos = heroBullet->startPos;
 }
 
 void Crystal::updatePosition(const glm::vec3 cameraPos, const GLfloat deltaTime)

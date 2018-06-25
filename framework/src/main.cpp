@@ -182,10 +182,10 @@ GLint main(GLvoid)
 		crystalsystem.drawAll(projection,view,camera.GetPosition(),skybox.getTextId(),currentFrame,deltaTime,score);
 		
 		// step3: draw bullet !!
+		heroBullet.SetDirection(camera.GetEyeFront());
+		heroBullet.SetStartPos(camera.GetPosition());
 		if(cur_button_mode == left){
 			if(!heroBullet.IsAttacking){
-				heroBullet.SetDirection(camera.GetEyeFront());
-				heroBullet.SetStartPos(camera.GetPosition());
 				heroBullet.Attack();
 			}
 		}

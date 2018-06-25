@@ -43,6 +43,7 @@ private:
     bool IsDead;
     int type;// good 1, bad 0
     Bullet *heroBullet;
+    glm::vec3 bulletLastPos;
 
     bool firstupdate;
 public:

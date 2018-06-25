@@ -312,7 +312,7 @@ public:
             p.cameradistance = glm::length( p.pos - CameraPos );
             glm::vec3 n = glm::normalize(glm::cross(glm::vec3(0.0f,1.0f,0.0f),ganDir));
             glm::vec3 m = glm::normalize(glm::cross(ganDir,n));
-            float alpha = 0.48f * randfloat();
+            float alpha = 1.0f * randfloat();
             p.speed = p.speedrate * ( alpha * (cos(p.angle) * n + sin(p.angle) * m) + glm::normalize(ganDir));
         }
 
@@ -327,7 +327,7 @@ public:
                 // Decrease life
                 p.life -= deltaTime;
                 if (p.life > 0.0f){
-                    p.size -= 0.5f * deltaTime;
+                    p.size -= 10.0f * deltaTime;
                     if(p.size < 0.0f)p.size=0.0001f;
                     p.g -= deltaTime;
                     if(p.g<0.0f)p.g = 0.0f;
