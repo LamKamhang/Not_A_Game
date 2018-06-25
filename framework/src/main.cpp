@@ -20,6 +20,7 @@
 #include "Header/Room.h"
 #include "Header/particles.h"
 #include "Header/Gan.h"
+#include "Header/Ground.h"
 using namespace settings;
 
 GLint main(GLvoid)
@@ -126,7 +127,9 @@ GLint main(GLvoid)
 	Particlesystem fireworksParticles;
 	Shader fireworksShader("Resource/Shader/testparticle.vs","Resource/Shader/testparticle.fs");
 
-
+	// Ground !
+	Ground ground;
+	Shader groundShader("Resource/Shader/ground.vs","Resource/Shader/ground.fs");
 
 	// test demo
 	std::vector<glm::vec3>cubeposition;
@@ -306,6 +309,13 @@ GLint main(GLvoid)
 		//!!!!!! hero's gan !!!!!!!
 		SKgan.updateModel(camera,deltaTime);
 		SKgan.draw(projection,view,camera.GetPosition());
+
+		// !!!!!!!!!! ground !!!!!!!!!!
+		groundShader.use();
+			groundShader.setMat4("projection",projection);
+			groundShader.setMat4("view",view);
+			ground.draw(groundShader);
+		glUseProgram(0);
 
 		//step final: draw UI
 		myUI.updateAlpha(closeEnough,currentFrame);
