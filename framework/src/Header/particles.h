@@ -42,8 +42,8 @@ private:
     GLuint particles_position_buffer;
     GLuint particles_color_buffer;
     
-    GLfloat g_particule_position_size_data[MaxParticles];
-    GLfloat g_particule_color_data[MaxParticles];
+    GLfloat g_particule_position_size_data[4 * MaxParticles];
+    GLfloat g_particule_color_data[4 * MaxParticles];
 
     Particle ParticlesContainer[MaxParticles];
     int LastUsedParticle;

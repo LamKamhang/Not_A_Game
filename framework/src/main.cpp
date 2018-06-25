@@ -129,7 +129,6 @@ GLint main(GLvoid)
 
 	// Ground !
 	Ground ground;
-	Shader groundShader("Resource/Shader/ground.vs","Resource/Shader/ground.fs");
 
 	// test demo
 	std::vector<glm::vec3>cubeposition;
@@ -311,11 +310,9 @@ GLint main(GLvoid)
 		SKgan.draw(projection,view,camera.GetPosition());
 
 		// !!!!!!!!!! ground !!!!!!!!!!
-		groundShader.use();
-			groundShader.setMat4("projection",projection);
-			groundShader.setMat4("view",view);
-			ground.draw(groundShader);
-		glUseProgram(0);
+		ground.updateGrass(camera.GetPosition());
+		ground.updateBuffer();
+		ground.draw(projection,view,camera);
 
 		//step final: draw UI
 		myUI.updateAlpha(closeEnough,currentFrame);
