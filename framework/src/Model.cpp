@@ -38,6 +38,26 @@ GLboolean Model::GetGammaCorrection()
 	return GammaCorrection;
 }
 
+GLvoid Model::GetCollisionBox(glm::vec3 &leftbottom,glm::vec3 &rightup)
+{
+	float x1,y1,z1;
+	float x2,y2,z2;
+	x1 = y1 = z1 = Infinity;
+	x2 = y2 = z2 = -Infinity;
+	for(int i=0;i<Meshes.size();i++){
+		Mesh &m = Meshes[i];
+		const std::vector<Vertex>& v = m.GetVertices();
+		for(int j=0;j<v.size();j++){
+			const glm::vec3 &p = v[i].Position;
+			if(p.x<x1)x1=p.x;if(p.x>x2)x2=p.x;
+			if(p.y<y1)y1=p.y;if(p.y>y2)y2=p.y;
+			if(p.z<z1)z1=p.z;if(p.z>z2)z2=p.z;
+		}
+	}
+	leftbottom = glm::vec3(x1,y1,z1);
+	rightup = glm::vec3(x2,y2,z2);
+}
+
 // set model data
 GLvoid Model::SetMeshes(const std::vector<Mesh> &meshes)
 {

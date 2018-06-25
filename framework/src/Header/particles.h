@@ -10,7 +10,7 @@
 #define PI 3.141592653589793238463
 #define PARTICLE_GENERATED_PER_DECOND 10000.0f
 #define MIN_DELTATIME 0.016f
-#define MaxParticles 100000
+#define MaxParticles 20000
 #define MaxTextureNum 100
 float randfloat(){return float(rand()%1000)/1000.0f;}
 
@@ -73,7 +73,7 @@ public:
 
     Particlesystem(){
         LastUsedParticle = 0;
-        texture0 = loadTexture("flame.jpg","Resource/Texture");
+        texture0 = loadTexture("awesomeface.png","Resource/Texture");
         
         glGenVertexArrays(1,&VAO);
         glBindVertexArray(VAO);
@@ -237,7 +237,10 @@ public:
             
             p.pos = BulletPos;
             p.cameradistance = glm::length( p.pos - CameraPos );
-            p.speed = p.speedrate * glm::normalize(BulletDir);
+            glm::vec3 n = glm::normalize(glm::cross(glm::vec3(0.0f,1.0f,0.0f),BulletDir));
+            glm::vec3 m = glm::normalize(glm::cross(BulletDir,n));
+            float alpha = 0.2f * randfloat();
+            p.speed = p.speedrate * ( alpha * (cos(p.angle) * n + sin(p.angle) * m) + glm::normalize(BulletDir));
         }
 
         // update existed particles
@@ -276,6 +279,76 @@ public:
         }
     }
 
+    void updateParticlesOpenFire(bool IsAttacking,float deltaTime,float curTime,const glm::vec3 &ganPos,const glm::vec3 &ganDir,const glm::vec3 &CameraPos)
+    {
+        static float startTime = -1.0f;
+        const float MaxTime = 0.2f;
+
+        // add new particles
+        int newparticles = (int)(deltaTime * PARTICLE_GENERATED_PER_DECOND);
+        if (newparticles > (int)(MIN_DELTATIME * PARTICLE_GENERATED_PER_DECOND))
+            newparticles = (int)(MIN_DELTATIME * PARTICLE_GENERATED_PER_DECOND);
+        
+        if(!IsAttacking){newparticles = 0;startTime = -1.0f;}
+        else if(startTime == -1.0f)startTime = curTime;
+        if(curTime - startTime > MaxTime)newparticles = 0;
+
+        for(int i = 0;i < newparticles; i++){
+            int cur = FindUnusedParticle();
+            Particle& p = ParticlesContainer[cur];
+
+            p.life = 1.0f;
+            p.speedrate = 10.0f;
+            p.size = 0.2f;
+            p.weight = 1.0f;
+            p.angle = 2.0f * PI * randfloat();
+            // flame color
+            p.r = 0.8f;p.g = 0.5f;p.b = 0.1f;p.a = 0.5f;
+            
+            p.pos = ganPos;
+            p.cameradistance = glm::length( p.pos - CameraPos );
+            glm::vec3 n = glm::normalize(glm::cross(glm::vec3(0.0f,1.0f,0.0f),ganDir));
+            glm::vec3 m = glm::normalize(glm::cross(ganDir,n));
+            float alpha = 0.48f * randfloat();
+            p.speed = p.speedrate * ( alpha * (cos(p.angle) * n + sin(p.angle) * m) + glm::normalize(ganDir));
+        }
+
+        // update existed particles
+        ParticlesCount = 0;
+        for(int i=0; i<MaxParticles; i++){
+            Particle& p = ParticlesContainer[i]; // shortcut
+            if(p.life > 0.0f){
+                // Decrease life
+                p.life -= deltaTime;
+                if (p.life > 0.0f){
+                    p.size -= 0.5f * deltaTime;
+                    if(p.size < 0.0f)p.size=0.0001f;
+                    p.g -= deltaTime;
+                    if(p.g<0.0f)p.g = 0.0f;
+                    
+                    // p.speed += glm::vec3(0.0f,4.9f,0.0f)* deltaTime;
+                    p.pos += p.speed * (float)deltaTime;
+                    p.cameradistance = glm::length( p.pos - CameraPos );
+
+                    // Fill the GPU buffer
+                    g_particule_position_size_data[4*ParticlesCount+0] = p.pos.x;
+                    g_particule_position_size_data[4*ParticlesCount+1] = p.pos.y;
+                    g_particule_position_size_data[4*ParticlesCount+2] = p.pos.z;
+
+                    g_particule_position_size_data[4*ParticlesCount+3] = p.size;
+
+                    g_particule_color_data[4*ParticlesCount+0] = p.r;
+                    g_particule_color_data[4*ParticlesCount+1] = p.g;
+                    g_particule_color_data[4*ParticlesCount+2] = p.b;
+                    g_particule_color_data[4*ParticlesCount+3] = p.a;
+                }else{
+                    // Particles that just died will be put at the end of the buffer in SortParticles();
+                    p.cameradistance = -10.0f;
+                }
+                ParticlesCount++;
+            }
+        }
+    }
 
     void drawParticles(Shader &shader)
     {

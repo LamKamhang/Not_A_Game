@@ -8,5 +8,6 @@ uniform sampler2D texture0;
 
 void main()
 {
-    FragColor = frag_color;// * texture(texture0, TexCoords);
+    float intensity = 1.0 - pow(length(vec2(TexCoords.x-0.5,TexCoords.y-0.5)), 4.0);
+    FragColor = frag_color * intensity;// * texture(texture0, TexCoords);
 }

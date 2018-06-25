@@ -19,6 +19,7 @@
 #include "Header/util.h"
 #include "Header/Room.h"
 #include "Header/particles.h"
+#include "Header/Gan.h"
 using namespace settings;
 
 GLint main(GLvoid)
@@ -44,11 +45,20 @@ GLint main(GLvoid)
 	RoomModelMatrix = glm::scale(RoomModelMatrix,glm::vec3(2.0f,2.0f,2.0f));
 	Room room1(camera,RoomModelMatrix);
 
+	// nanosuit model with collision detection !!
 	Shader modelShader("Resource/Shader/model.vs", "Resource/Shader/model.fs", nullptr, nullptr, "Resource/Shader/model.gs");
 	Model Nanosuit("Resource/Model/nanosuit/nanosuit.obj");
+	glm::vec3 nanolb;
+	glm::vec3 nanoru;
+	glm::mat4 nanoModel;
+	nanoModel = glm::mat4(1.0f);
+	nanoModel = glm::scale(nanoModel, glm::vec3(0.3, 0.3, 0.3));
+	Nanosuit.GetCollisionBox(nanolb,nanoru);
+	camera.SetinnerBound(nanolb,nanoru,nanoModel);
 
-	Shader ganShader("Resource/Shader/gan.vs", "Resource/Shader/gan.fs");
-	Model SKgan("Resource/Model/SKgan/ SK.obj");
+
+	// hero's gan
+	Gan SKgan("Resource/Model/SKgan/ SK.obj");
 
 	// create test box
     std::vector<float> cubicVertex = GenCubeVertices();
@@ -103,12 +113,12 @@ GLint main(GLvoid)
 	crystalsystem.addCrystal(glm::vec3(0.0f,0.0f,9.0f),2.5f,1);
 
 	// !!!!! particle System !!!!!!!
-	// ParticleSystem particleSystem;
-	// particleSystem.InitFrame(500);
-	// Shader flameShader("Resource/Shader/particle.vs", "Resource/Shader/particle.fs", nullptr, nullptr, "Resource/Shader/particle.gs");
-	// Shader flameShader("Resource/Shader/test.vs", "Resource/Shader/test.fs");
-	Particlesystem particleSystem;
-	Shader fountainShader("Resource/Shader/testparticle.vs","Resource/Shader/testparticle.fs");
+	// bullet's flame
+	Particlesystem flameParticles;
+	Shader flameShader("Resource/Shader/testparticle.vs","Resource/Shader/testparticle.fs");
+	// gan's fire
+	Particlesystem ganfireParticles;
+	Shader ganfireShader("Resource/Shader/testparticle.vs","Resource/Shader/testparticle.fs");
 
 	// test demo
 	std::vector<glm::vec3>cubeposition;
@@ -218,9 +228,8 @@ GLint main(GLvoid)
 			modelShader.setVec3("viewPos", camera.GetPosition());
 			modelShader.setMat4("projection", projection);
 			modelShader.setMat4("view", view);
-			model=glm::mat4(1.0f);
-			model = glm::scale(model, glm::vec3(0.3, 0.3, 0.3));
-			modelShader.setMat4("model", model);
+			
+			modelShader.setMat4("model", nanoModel);
 			Nanosuit.Draw(modelShader);
 		glUseProgram(0);
 		
@@ -235,50 +244,30 @@ GLint main(GLvoid)
 			roomShader.setBool("phong", phong);
 			room1.Draw(roomShader);
 
-		//step7 : draw flame!
-		// particleSystem.updateAll(heroBullet.getPosition(), heroBullet.direction, camera.GetRight(), 1.0f, currentFrame);
-		// glEnable(GL_PROGRAM_POINT_SIZE);
-		// flameShader.use();
-		// 	flameShader.setMat4("projection",projection);
-		// 	flameShader.setMat4("view",view);
-		// 	particleSystem.drawAllParticle(flameShader,currentFrame);
-		// glUseProgram(0);
-		// glDisable(GL_PROGRAM_POINT_SIZE);
-
+		// step7 : !!!!!!!!!!!! draw all special effects !!!!!!!!!!!!
 		//draw fountain
-		fountainShader.use();
-			fountainShader.setMat4("projection",projection);
-			fountainShader.setMat4("view",view);
+		flameShader.use();
+			flameShader.setMat4("projection",projection);
+			flameShader.setMat4("view",view);
 
-			//particleSystem.updateParticlesFountain(deltaTime,camera.GetPosition());
-			particleSystem.updateParticlesFlame(heroBullet.IsAttacking, deltaTime, heroBullet.getPosition(), heroBullet.direction, camera.GetPosition());
-			particleSystem.updateBuffer();
-			particleSystem.drawParticles(fountainShader);
+			flameParticles.updateParticlesFlame(heroBullet.IsAttacking, deltaTime, heroBullet.getPosition(), heroBullet.direction, camera.GetPosition());
+			flameParticles.updateBuffer();
+			flameParticles.drawParticles(flameShader);
+		glUseProgram(0);
+		//draw gan fire
+		ganfireShader.use();
+			ganfireShader.setMat4("projection",projection);
+			ganfireShader.setMat4("view",view);
+			std::cout<<SKgan.direction.x<<", "<<SKgan.direction.y<<", "<<SKgan.direction.z<<std::endl;
+			ganfireParticles.updateParticlesOpenFire(heroBullet.IsAttacking,deltaTime,currentFrame,SKgan.muzzlePos,SKgan.direction,camera.GetPosition());
+			ganfireParticles.updateBuffer();
+			ganfireParticles.drawParticles(ganfireShader);
 		glUseProgram(0);
 
 
 		//!!!!!! hero's gan !!!!!!!
-		ganShader.use();
-			ganShader.setVec3("viewPos", camera.GetPosition());
-			ganShader.setMat4("projection", projection);
-			ganShader.setMat4("view", view);
-			model=glm::mat4(1.0f);
-			glm::vec3 HeroEyeFront = camera.GetEyeFront();
-			glm::vec3 HeroEyeUp = camera.GetUp();
-			glm::vec3 HeroEyeRight =camera.GetRight();
-			glm::vec3 HeroEyePos = camera.GetPosition();
-
-			model = glm::translate(model,2.9f * HeroEyeFront);
-			model = glm::translate(model,0.6f * HeroEyeRight);
-			model = glm::translate(model,-1.5f * HeroEyeUp);
-			model = glm::translate(model,glm::vec3(HeroEyePos.x,HeroEyePos.y,HeroEyePos.z));
-			model=glm::rotate(model,(float)PI/13.0f,HeroEyeUp);
-			glm::mat4 GanRotateMatrix = glm::mat4(glm::vec4(-1.0f * HeroEyeFront,0.0f),glm::vec4(HeroEyeUp,0.0f),glm::vec4(-1.0f*HeroEyeRight,0.0f),glm::vec4(0.0f,0.0f,0.0f,1.0f));
-			model = model * GanRotateMatrix;
-			model = glm::scale(model, glm::vec3(0.2, 0.2, 0.2));
-			ganShader.setMat4("model", model);
-			SKgan.Draw(ganShader);
-		glUseProgram(0);
+		SKgan.updateModel(camera,deltaTime);
+		SKgan.draw(projection,view,camera.GetPosition());
 
 		//step final: draw UI
 		myUI.updateAlpha(closeEnough,currentFrame);

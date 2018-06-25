@@ -97,13 +97,21 @@ void Crystal::draw()
 
 void Crystal::updateState()
 {
-    glm::vec3 sp = glm::vec3(Position.x,Position.y + height/2.0f,Position.z) - heroBullet->startPos;
-    float spdotd=glm::dot(sp,heroBullet->direction);
-    float lensp=glm::length(sp);
-    float dist2=lensp*lensp-spdotd*spdotd;
-    if(heroBullet->IsAttack() || heroBullet->Hitted){
-        if(dist2 < RaiusRate * radius)explode = 1;
+    //// new strategy
+    if(heroBullet->IsAttack()){
+        glm::vec3 direc = glm::vec3(Position.x,Position.y + height/2.0f,Position.z) - heroBullet->getPosition();
+        float dist = glm::length(direc);
+        if(dist < 3.0f * RaiusRate * radius)explode = 1;
     }
+    
+    //// old strategy
+    // glm::vec3 sp = glm::vec3(Position.x,Position.y + height/2.0f,Position.z) - heroBullet->startPos;
+    // float spdotd=glm::dot(sp,heroBullet->direction);
+    // float lensp=glm::length(sp);
+    // float dist2=lensp*lensp-spdotd*spdotd;
+    // if(heroBullet->IsAttack() || heroBullet->Hitted){
+    //     if(dist2 < RaiusRate * radius)explode = 1;
+    // }
 }
 
 void Crystal::updatePosition(const glm::vec3 cameraPos, const GLfloat deltaTime)
