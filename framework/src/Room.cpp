@@ -216,13 +216,14 @@ void GetVertexByRules(std::vector<float> &vertices, Camera &camera, const std::v
 // first floor
 std::vector<float> GetFirstFloorDefaultGround(Camera &camera,const glm::mat4 &ModelMatrix)
 {
-    float cy = 0, ce = 10;
+    float cy = -0.11, ce = 10;
     std::vector<float> vertices;
     std::vector<Rule> rules{
         Rule(_top, 15, 25, 7.5, cy, 12.5),//1
         Rule(_top, 25, 75, 15+12.5, cy, 37.5),//2
         Rule(_top, 40, 60, 40+20, cy, 15+30),//3
-        Rule(_top, 10, 45, 80+5, cy, 15+22.5),//4
+        // Rule(_top, 10, 45, 80+5, cy, 15+22.5),//4
+        Rule(_top, 500, 500, 0, -0.1, 0),
 
         //ceil
         Rule(_buttom, 15, 25, 7.5, ce, 12.5),//1
@@ -367,7 +368,7 @@ PointLight GetFirstFloorDefaultPointLight()
 
 DirLight GetFirstFloorDefaultDirLight()
 {
-    return DirLight(glm::vec3(0, -1, 1), glm::vec3(1), 0.02, 0.08, 0.5);
+    return DirLight(glm::vec3(0, 0, 1), glm::vec3(1), 0.2, 0.8, 0.5);
 }
 /*
 struct Material{

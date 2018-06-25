@@ -37,13 +37,13 @@ public:
     bool Hitted;
 
     Bullet(PhysicsEngine* physicsEngine):
-    shader("Resource/Shader/bullet.vs","Resource/Shader/bullet.fs"),
-    IsAttacking(false),
-    startPos(glm::vec3(0.0f)),
     Position(glm::vec3(0.0f)),
     TargetPos(glm::vec3(0.0f)),
+    velocity(glm::vec3(0.0f)),
+    shader("Resource/Shader/bullet.vs","Resource/Shader/bullet.fs"),
+    startPos(glm::vec3(0.0f)),
     direction(glm::vec3(0.0f,1.0f,0.0f)),
-    velocity(glm::vec3(0.0f))
+    IsAttacking(false)
     {
         Hitted = 0;
         this->physicsEngine = physicsEngine;

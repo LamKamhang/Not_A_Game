@@ -116,14 +116,14 @@ public:
 	const glm::vec3& GetRight();
 	
 	// Get Camera's Euler Angle
-	const GLfloat GetYaw();
-	const GLfloat GetPitch();
+	GLfloat GetYaw();
+	GLfloat GetPitch();
 
 	// Get Camera's options
-	const GLfloat GetMovementSpeed();
-	const GLfloat GetMouseSensitivity();
-	const GLfloat GetScrollSensitivity();
-	const GLfloat GetFov();
+	GLfloat GetMovementSpeed();
+	GLfloat GetMouseSensitivity();
+	GLfloat GetScrollSensitivity();
+	GLfloat GetFov();
 
 	// Set Physics Engine
 	GLvoid SetOuterBound(const glm::vec4 &outBound,const glm::mat4& model=glm::mat4(1.0f));

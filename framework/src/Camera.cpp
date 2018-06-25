@@ -215,33 +215,33 @@ const glm::vec3& Camera::GetRight()
 }
 
 // Get Camera's Euler Angle
-const GLfloat Camera::GetYaw()
+GLfloat Camera::GetYaw()
 {
 	return Yaw;
 }
 
-const GLfloat Camera::GetPitch()
+GLfloat Camera::GetPitch()
 {
 	return Pitch;
 }
 
 // Get Camera's options
-const GLfloat Camera::GetMovementSpeed()
+GLfloat Camera::GetMovementSpeed()
 {
 	return MovementSpeed;
 }
 
-const GLfloat Camera::GetMouseSensitivity()
+GLfloat Camera::GetMouseSensitivity()
 {
 	return MouseSensitivity;
 }
 
-const GLfloat Camera::GetScrollSensitivity()
+GLfloat Camera::GetScrollSensitivity()
 {
 	return ScrollSensitivity;
 }
 
-const GLfloat Camera::GetFov()
+GLfloat Camera::GetFov()
 {
 	return Fov;
 }

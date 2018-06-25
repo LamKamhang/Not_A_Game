@@ -8,6 +8,7 @@ in vs{
     vec3 normal;
     vec2 texCoord;
     vec3 point_light_pos[NUM_POINT_LIGHTS];
+    vec4 FragPosLightSpace;
 }_in;
 
 struct Material{
@@ -48,7 +49,7 @@ struct SpotLight{
     float specular;
 };
 
-
+uniform sampler2D shadowMap;
 uniform SpotLight spot_light;
 uniform DirLight dir_light;
 uniform PointLight point_light;
@@ -70,7 +71,7 @@ uniform bool phong;
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, Material material);
 vec3 CalcPointLight(vec3 pos, vec3 normal, vec3 fragPos, vec3 viewDir, Material material);
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir, Material material);
-
+float ShadowCalculation();
 
 void main()
 {   
@@ -110,7 +111,6 @@ void main()
         }
         
     }
-
 
     FragColor = vec4(result, 1.0);
 }
@@ -215,8 +215,10 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, Material material)
     {
         vec3 specular = light.specular*light.color*material.specular*spec;
     }
-    
-    return ambient + diffuse + specular;
+
+    // 计算阴影
+    float shadow = ShadowCalculation();
+    return ambient + (1.0 - shadow)*(diffuse + specular);
 }
 
 
@@ -287,58 +289,16 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir, Mat
     return attenuation * intensity * (ambient + diffuse + specular);
 }
 
-// vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir, Material material)
-// {
-//     vec3 lightDir = normalize(light.position - fragPos);
-//     // spotlight intensity
-//     float theta = dot(lightDir, normalize(-light.direction)); 
-    
-//     if(theta > light.cutOff)
-//     {  
+float ShadowCalculation()
+{
+    // 执行透视除法
+    vec3 projCoords = (_in.FragPosLightSpace.xyz / _in.FragPosLightSpace.w)*0.5+0.5;
+    // 取得最近点的深度(使用[0,1]范围下的fragPosLight当坐标)
+    float closestDepth = texture(shadowMap, projCoords.xy).r; 
+    // 取得当前片元在光源视角下的深度
+    float currentDepth = projCoords.z;
+    // 检查当前片元是否在阴影中
+    float shadow = currentDepth > closestDepth  ? 1.0 : 0.0;
 
-//         // diffuse
-//         float diff = max(dot(normal, lightDir), 0.0);
-//         float spec;
-//         if (phong)
-//         {
-//             // phong algorithm to calculate this
-//             //specular
-//             vec3 reflectDir = reflect(-lightDir, normal);
-//             float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-//         }else{
-//             vec3 halfDir = normalize(lightDir + viewDir);
-//             // Blinn-phong algorithm to calculate this
-//             //specular
-//             float spec = pow(max(dot(normal, halfDir), 0.0), material.shininess);
-//         }
-//         // attenuation
-//         float dist = length(light.position - fragPos);
-//         float attenuation = 1.0 / (1.0 + 0.7 * dist + 1.8 * (dist * dist)); 
-        
-//         // combine them
-//         vec3 ambient, diffuse, specular;
-//         if (material.diffuse_tex_color)
-//         {
-//             ambient = vec3(texture(material.diffuse_tex, _in.texCoord))*light.ambient*light.color;
-//             diffuse = vec3(texture(material.diffuse_tex, _in.texCoord))*light.diffuse*light.color*diff;
-//         }
-//         else
-//         {
-//             ambient = light.ambient*light.color*material.ambient;
-//             diffuse = light.diffuse*light.color*material.diffuse*diff;
-//         }
-
-//         if (material.specular_tex_color)
-//         {
-//             specular = vec3(texture(material.specular_tex, _in.texCoord))*light.specular*light.color*spec;
-//         }
-//         else
-//         {
-//             vec3 specular = light.specular*light.color*material.specular*spec;
-//         }
-        
-//         return attenuation * (ambient + diffuse + specular);
-//     }
-//     else
-//         return vec3(0,0,0);
-// }
+    return shadow;
+}

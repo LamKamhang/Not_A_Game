@@ -2,7 +2,7 @@
 #include <cstdlib>
 
 Crystal::Crystal(PhysicsEngine* physicsEngine, Bullet*heroBullet, glm::vec3 position, GLfloat height,int type)
-:Position(position),TargetPos(position),velocity(0.0f),acceler(0.0f)
+:TargetPos(position),velocity(0.0f),acceler(0.0f),Position(position)
 {
     firstupdate = 1;
     explode_first = 1;
