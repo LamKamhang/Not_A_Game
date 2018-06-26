@@ -42,9 +42,10 @@ GLint main(GLvoid)
 	Shader roomShader("Resource/Shader/room.vs", "Resource/Shader/room.fs");
 
 	glm::mat4 RoomModelMatrix(1.0f); 
+	glm::vec3 roombound1,roombound2;
 	RoomModelMatrix = glm::translate(RoomModelMatrix,glm::vec3(-10,0,-10));
 	RoomModelMatrix = glm::scale(RoomModelMatrix,glm::vec3(2.0f,2.0f,2.0f));
-	Room room1(camera,RoomModelMatrix);
+	Room room1(camera,RoomModelMatrix,roombound1,roombound2);
 
 	// nanosuit model with collision detection !!
 	Shader modelShader("Resource/Shader/model.vs", "Resource/Shader/model.fs", nullptr, nullptr, "Resource/Shader/model.gs");
@@ -56,7 +57,6 @@ GLint main(GLvoid)
 	nanoModel = glm::scale(nanoModel, glm::vec3(0.3, 0.3, 0.3));
 	Nanosuit.GetCollisionBox(nanolb,nanoru);
 	camera.SetinnerBound(nanolb,nanoru,nanoModel);
-
 
 	// hero's gan
 	Gan SKgan("Resource/Model/SKgan/ SK.obj");
@@ -129,7 +129,9 @@ GLint main(GLvoid)
 
 	// Ground !
 	Ground ground;
-
+	ground.setRoomBound(roombound1,roombound2);
+	std::cout<<"roombound1 = "<<roombound1.x<<", "<<roombound1.y<<", "<<roombound1.z<<std::endl;
+	std::cout<<"roombound2 = "<<roombound2.x<<", "<<roombound2.y<<", "<<roombound2.z<<std::endl;
 	// test demo
 	std::vector<glm::vec3>cubeposition;
 	// cubeposition.push_back(glm::vec3(0.0f,1.0f,0.0f));

@@ -1,11 +1,11 @@
 #include "Header/Room.h"
 using namespace RoomRule;
 
-Room::Room(Camera &camera, glm::mat4 &model):
+Room::Room(Camera &camera, glm::mat4 &model,glm::vec3 &leftbottom,glm::vec3 &rightup):
     directory("Resource/Texture")
 {
     ModelMatrix = model;
-    initRoom(camera);
+    initRoom(camera,leftbottom,rightup);
     bindVAO();
 }
 
@@ -110,9 +110,9 @@ inline void Room::bindVAO()
 	glBindVertexArray(0);
 }
 
-inline void Room::initRoom(Camera &camera)
+inline void Room::initRoom(Camera &camera,glm::vec3 &leftbottom,glm::vec3 &rightup)
 {
-    floor_vertices = GetFirstFloorDefaultGround(camera,ModelMatrix);
+    floor_vertices = GetFirstFloorDefaultGround(camera,ModelMatrix,leftbottom,rightup);
     wall_vertices = GetFirstFloorDefaultWall(camera,ModelMatrix);
     point_light_pos = GetFirstFloorDefaultLightPos();
     point_light = GetFirstFloorDefaultPointLight();
@@ -179,7 +179,7 @@ void GetVertexByRules(std::vector<float> &vertices, Camera &camera, const std::v
 }
 //||||||||||||||||||||||||||||||||||||||||||||||||||
 // first floor
-std::vector<float> GetFirstFloorDefaultGround(Camera &camera,const glm::mat4 &ModelMatrix)
+std::vector<float> GetFirstFloorDefaultGround(Camera &camera,const glm::mat4 &ModelMatrix,glm::vec3 &leftbottom,glm::vec3 &rightup)
 {
     float cy = 0, ce = 10;
     std::vector<float> vertices;
@@ -196,6 +196,18 @@ std::vector<float> GetFirstFloorDefaultGround(Camera &camera,const glm::mat4 &Mo
         Rule(_buttom, 10, 45, 80+5, ce, 15+22.5),//4
     };
     GetVertexByRules(vertices, camera, rules, ModelMatrix);
+    leftbottom = glm::vec3(Infinity);
+    rightup = glm::vec3(-Infinity);
+    for(int i=0;i< vertices.size()/6 ;i++){
+        if(vertices[i*3] < leftbottom.x)leftbottom.x=vertices[i*3];
+        if(vertices[i*3] > rightup.x)rightup.x=vertices[i*3];
+        if(vertices[i*3 + 1] < leftbottom.y)leftbottom.y=vertices[i*3 + 1];
+        if(vertices[i*3 + 1] > rightup.y)rightup.y=vertices[i*3 + 1];
+        if(vertices[i*3 + 2] < leftbottom.z)leftbottom.z=vertices[i*3 + 2];
+        if(vertices[i*3 + 2] > rightup.z)rightup.z=vertices[i*3 + 2];
+    }
+    leftbottom = glm::vec3(ModelMatrix * glm::vec4(leftbottom,1.0f));
+    rightup = glm::vec3(ModelMatrix * glm::vec4(rightup,1.0f));
     return vertices;
 }
 

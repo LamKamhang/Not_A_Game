@@ -48,6 +48,7 @@ private:
     bool Initialed;
     Shader groundShader;
     Shader grassShader;
+    glm::vec3 roombound1,roombound2;
 public:
     Ground(const char *groundTex="ground.jpeg",const char *grassTex="grass.png"):
     groundShader("Resource/Shader/ground.vs","Resource/Shader/ground.fs"),
@@ -88,6 +89,12 @@ public:
         camera.SetinnerBound(glm::vec3(-GROUND_SIZE,-10.0f,-GROUND_SIZE),glm::vec3(GROUND_SIZE,YGap,GROUND_SIZE));
     }
 
+    void setRoomBound(const glm::vec3 &roombound1,const glm::vec3 &roombound2)
+    {
+        this->roombound1=roombound1;
+        this->roombound2=roombound2;
+    }
+
     void updateGrass(const glm::vec3 &cameraPos)
     {
         if(!Initialed){
@@ -95,6 +102,11 @@ public:
                 Grass &g = grassContainer[i];
                 g.size = 4.0f * myrandfloat() + 5.0f;
                 g.position = GROUND_SIZE * glm::vec3(2.0f* myrandfloat()-1.0f, 0.0f, 2.0f*myrandfloat()-1.0f) + glm::vec3(0.0f,YGap + 0.5f * g.size,0.0f);
+                bool inside = (g.position.x>roombound1.x&&g.position.x<roombound2.x)&&(g.position.z>roombound1.z&&g.position.z<roombound2.z);
+                while(inside){
+                    g.position = GROUND_SIZE * glm::vec3(2.0f* myrandfloat()-1.0f, 0.0f, 2.0f*myrandfloat()-1.0f) + glm::vec3(0.0f,YGap + 0.5f * g.size,0.0f);    
+                    inside = (g.position.x>roombound1.x&&g.position.x<roombound2.x)&&(g.position.z>roombound1.z&&g.position.z<roombound2.z);
+                }
                 g.cameradistance = glm::length(g.position - cameraPos);
             }
             Initialed = 1;
