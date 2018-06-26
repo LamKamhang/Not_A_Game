@@ -8,7 +8,7 @@ in vs{
     vec3 normal;
     vec2 texCoord;
     vec3 point_light_pos[NUM_POINT_LIGHTS];
-    vec4 FragPosLightSpace;
+    //vec4 FragPosLightSpace;
 }_in;
 
 struct Material{
@@ -49,7 +49,7 @@ struct SpotLight{
     float specular;
 };
 
-uniform sampler2D shadowMap;
+//uniform sampler2D shadowMap;
 uniform SpotLight spot_light;
 uniform DirLight dir_light;
 uniform PointLight point_light;
@@ -71,7 +71,7 @@ uniform bool phong;
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, Material material);
 vec3 CalcPointLight(vec3 pos, vec3 normal, vec3 fragPos, vec3 viewDir, Material material);
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir, Material material);
-float ShadowCalculation();
+//float ShadowCalculation();
 
 void main()
 {   
@@ -217,8 +217,9 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, Material material)
     }
 
     // 计算阴影
-    float shadow = ShadowCalculation();
-    return ambient + (1.0 - shadow)*(diffuse + specular);
+    //float shadow = ShadowCalculation();
+    //return ambient + (1.0 - shadow)*(diffuse + specular);
+    return ambient + diffuse + specular;
 }
 
 
@@ -289,16 +290,16 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir, Mat
     return attenuation * intensity * (ambient + diffuse + specular);
 }
 
-float ShadowCalculation()
-{
-    // 执行透视除法
-    vec3 projCoords = (_in.FragPosLightSpace.xyz / _in.FragPosLightSpace.w)*0.5+0.5;
-    // 取得最近点的深度(使用[0,1]范围下的fragPosLight当坐标)
-    float closestDepth = texture(shadowMap, projCoords.xy).r; 
-    // 取得当前片元在光源视角下的深度
-    float currentDepth = projCoords.z;
-    // 检查当前片元是否在阴影中
-    float shadow = currentDepth > closestDepth  ? 1.0 : 0.0;
+// float ShadowCalculation()
+// {
+//     // 执行透视除法
+//     vec3 projCoords = (_in.FragPosLightSpace.xyz / _in.FragPosLightSpace.w)*0.5+0.5;
+//     // 取得最近点的深度(使用[0,1]范围下的fragPosLight当坐标)
+//     float closestDepth = texture(shadowMap, projCoords.xy).r; 
+//     // 取得当前片元在光源视角下的深度
+//     float currentDepth = projCoords.z;
+//     // 检查当前片元是否在阴影中
+//     float shadow = currentDepth > closestDepth  ? 1.0 : 0.0;
 
-    return shadow;
-}
+//     return shadow;
+// }

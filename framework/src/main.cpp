@@ -51,6 +51,30 @@ GLint main(GLvoid)
 
 	Shader ganShader("Resource/Shader/gan.vs", "Resource/Shader/gan.fs");
 	Model SKgan("Resource/Model/SKgan/SK.obj");
+	
+	// draw platform
+	Shader pfShader("Resource/Shader/platform.vs", "Resource/Shader/platform.fs");
+	std::vector<float> pfvertex = GenCubeTopVertices(500, 500, 0, -0.1, 0);
+	GLuint pfVAO, pfVBO;
+	glGenVertexArrays(1, &pfVAO);
+		glBindVertexArray(pfVAO);
+		glGenBuffers(1, &pfVBO);
+			glBindBuffer(GL_ARRAY_BUFFER, pfVBO);
+			glBufferData(GL_ARRAY_BUFFER, pfvertex.size() * sizeof(float), &pfvertex[0], GL_STATIC_DRAW);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (GLvoid *)(0));
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,8*sizeof(float),(GLvoid*)(3*sizeof(float)));
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(2,2,GL_FLOAT,GL_FALSE,8*sizeof(float),(GLvoid*)(6*sizeof(float)));
+			glEnableVertexAttribArray(2);
+		glBindBuffer(GL_ARRAY_BUFFER,0);
+	glBindVertexArray(0);
+	Material floor_material(
+		"test.jpg",
+        glm::vec3(0.384, 0.392, 0.286),//#fbffb9
+        16
+	);
+	DirLight dir_light(glm::vec3(0, -1, 1), glm::vec3(1), 0.3, 0.8, 0.5);
 
 	// create test box
     std::vector<float> cubicVertex = GenCubeVertices();
@@ -126,23 +150,25 @@ Shader depthShader("Resource/Shader/depth.vs", "Resource/Shader/depth.fs");
 Shader debugDepthShader("Resource/Shader/debugD.vs", "Resource/Shader/debugD.fs");
 GLuint depthMapFBO;
 glGenFramebuffers(1, &depthMapFBO);
-const GLuint SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+const GLuint SHADOW_WIDTH = 8192, SHADOW_HEIGHT = 8192;
 GLuint depthMap;
 glGenTextures(1, &depthMap);
 	glBindTexture(GL_TEXTURE_2D, depthMap);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	GLfloat borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
 	glDrawBuffer(GL_NONE);
 	glReadBuffer(GL_NONE);
 glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-GLfloat near_plane = -50.0f, far_plane = 15.0f;
-glm::mat4 lightProjection = glm::ortho(-100.0f, 50.0f, -50.0f, 50.0f, near_plane, far_plane);
+GLfloat near_plane = -50.0f, far_plane = 100.0f;
+glm::mat4 lightProjection = glm::ortho(-120.0f, 20.0f, -100.0f, 100.0f, near_plane, far_plane);
 
 glm::mat4 lightView = glm::lookAt(glm::vec3(0.0f, 1.0f, -1.0f), glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
 
@@ -194,6 +220,10 @@ glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 				depthShader.setMat4("model", model);
 				glDrawArrays(GL_TRIANGLES,0,cubicVertex.size()>>3);
 			}
+		glBindVertexArray(pfVAO);
+			depthShader.setMat4("model", glm::mat4(1.0));
+			glDrawArrays(GL_TRIANGLES, 0, pfvertex.size()>>3);
+		glBindVertexArray(0);
 
 /*+-----------------------------------------------------------------+
  *+                        second stage                             +
@@ -285,12 +315,13 @@ glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 		// step6 : draw rooms
 		roomShader.use();
 			roomShader.setVec3("viewPos", camera.GetPosition());
-			roomShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
 			roomShader.setMat4("projection", projection);
 			roomShader.setMat4("view", view);
 			roomShader.setBool("flash", flashlight_on);
 			roomShader.setBool("phong", phong);
-			roomShader.setInt("shadowMap", depthMap);
+        	glActiveTexture(GL_TEXTURE2);
+        	glBindTexture(GL_TEXTURE_2D, depthMap);
+        	roomShader.setInt("shadowMap", 2);
 			if (flashlight_on)
 			{
 				roomShader.setVec3("spot_light.position",  camera.GetPosition());
@@ -305,6 +336,24 @@ glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 				roomShader.setFloat("spot_light.specular",0);
 			}
 			room1.Draw(roomShader);
+
+		pfShader.use();
+		glBindVertexArray(pfVAO);
+			pfShader.setVec3("viewPos", camera.GetPosition());
+			pfShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+			pfShader.setMat4("projection", projection);
+			pfShader.setMat4("view", view);
+			pfShader.setMat4("model", glm::mat4(1.0));
+			pfShader.setBool("phong", phong);
+			pfShader.setVec3("viewPos", camera.GetPosition());
+			setDirLight(pfShader, "dir_light", dir_light);
+			setMaterial(pfShader, "floor_material", floor_material);
+			glActiveTexture(GL_TEXTURE2);
+        	glBindTexture(GL_TEXTURE_2D, depthMap);
+        	pfShader.setInt("shadowMap", 2);
+			glDrawArrays(GL_TRIANGLES, 0, pfvertex.size()>>3);
+		glBindVertexArray(0);
+
 
 		//!!!!!! hero's gan !!!!!!!
 		ganShader.use();

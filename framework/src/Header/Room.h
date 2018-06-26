@@ -102,10 +102,6 @@ private:
     glm::mat4 ModelMatrix;
     inline void bindVAO();
     inline void initRoom(Camera &camera);
-    inline void setMaterial(Shader &shader, const std::string &name, Material &value);
-    inline void setDirLight(Shader &shader, const std::string &name, DirLight &value);
-    inline void setPointLight(Shader &shader, const std::string &name, PointLight &value);
-    inline void setPointLightPos(Shader &shader, const std::string &name);
 public:
     Room() = default;
     Room(Camera &camera,glm::mat4 &model);
@@ -129,3 +125,9 @@ PointLight GetFirstFloorDefaultPointLight();
 Material GetFirstFloorDefaultWallMaterial();
 Material GetFirstFloorDefaultFloorMaterial();
 Material GetFirstFloorDefaultCeilMaterial();
+
+// function tool
+void setMaterial(Shader &shader, const std::string &name, const Material &value);
+void setDirLight(Shader &shader, const std::string &name, const DirLight &value);
+void setPointLight(Shader &shader, const std::string &name, const PointLight &value);
+void setPointLightPos(Shader &shader, const std::string &name, const std::vector<glm::vec3> &value);

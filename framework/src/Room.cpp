@@ -25,7 +25,7 @@ void Room::Draw(Shader &materialShader)
     // set up point light
     setDirLight(materialShader, "dir_light", dir_light);
     setPointLight(materialShader, "point_light", point_light);
-    setPointLightPos(materialShader, "point_light_pos");
+    setPointLightPos(materialShader, "point_light_pos", point_light_pos);
 
     materialShader.setMat4("model",ModelMatrix);//set model matrix !!!
 
@@ -51,7 +51,7 @@ void Room::Draw(Shader &materialShader)
     glBindVertexArray(0);
 }
 
-inline void Room::setMaterial(Shader &shader, const std::string &name, Material &value)
+void setMaterial(Shader &shader, const std::string &name, const Material &value)
 {
     if (value.diffuse_tex_color)
     {
@@ -81,7 +81,7 @@ inline void Room::setMaterial(Shader &shader, const std::string &name, Material 
     shader.setFloat(name + ".shininess", value.shininess);
 }
 
-inline void Room::setPointLight(Shader &shader, const std::string &name, PointLight &value)
+void setPointLight(Shader &shader, const std::string &name, const PointLight &value)
 {
     shader.setVec3(name + ".color", value.color);
     shader.setFloat(name + ".ambient", value.ambient);
@@ -89,7 +89,7 @@ inline void Room::setPointLight(Shader &shader, const std::string &name, PointLi
     shader.setFloat(name + ".specular", value.specular);
 }
 
-inline void Room::setDirLight(Shader &shader, const std::string &name, DirLight &value)
+void setDirLight(Shader &shader, const std::string &name, const DirLight &value)
 {
     shader.setVec3(name + ".dir", value.dir);
     shader.setVec3(name + ".color", value.color);
@@ -98,13 +98,13 @@ inline void Room::setDirLight(Shader &shader, const std::string &name, DirLight 
     shader.setFloat(name + ".specular", value.specular);
 }
 
-inline void Room::setPointLightPos(Shader &shader, const std::string &name)
+void setPointLightPos(Shader &shader, const std::string &name, const std::vector<glm::vec3> &value)
 {
     std::string num;
-    for (size_t i = 0; i < point_light_pos.size(); ++i)
+    for (size_t i = 0; i < value.size(); ++i)
     {
         num = std::to_string(i);
-        shader.setVec3(name + "[" + num + "]", point_light_pos[i]);
+        shader.setVec3(name + "[" + num + "]", value[i]);
     }
 }
 
@@ -216,14 +216,13 @@ void GetVertexByRules(std::vector<float> &vertices, Camera &camera, const std::v
 // first floor
 std::vector<float> GetFirstFloorDefaultGround(Camera &camera,const glm::mat4 &ModelMatrix)
 {
-    float cy = -0.11, ce = 10;
+    float cy = -0.05, ce = 10;
     std::vector<float> vertices;
     std::vector<Rule> rules{
         Rule(_top, 15, 25, 7.5, cy, 12.5),//1
         Rule(_top, 25, 75, 15+12.5, cy, 37.5),//2
         Rule(_top, 40, 60, 40+20, cy, 15+30),//3
-        // Rule(_top, 10, 45, 80+5, cy, 15+22.5),//4
-        Rule(_top, 500, 500, 0, -0.1, 0),
+        Rule(_top, 10, 45, 80+5, cy, 15+22.5),//4
 
         //ceil
         Rule(_buttom, 15, 25, 7.5, ce, 12.5),//1
@@ -364,11 +363,12 @@ struct PointLight{
 PointLight GetFirstFloorDefaultPointLight()
 {
     return PointLight(glm::vec3(1.0), 0.5, 1.5, 1.0);
+    // return PointLight(glm::vec3(1.0), 0.0, 0.0, 0.0);
 }
 
 DirLight GetFirstFloorDefaultDirLight()
 {
-    return DirLight(glm::vec3(0, 0, 1), glm::vec3(1), 0.2, 0.8, 0.5);
+    return DirLight(glm::vec3(0, -1, 1), glm::vec3(1), 0, 0, 0);
 }
 /*
 struct Material{
