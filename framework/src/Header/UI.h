@@ -14,6 +14,7 @@ private:
     float alpha;
     Shader uiShader;
     GLuint crossTexture;
+    GLuint startTexture;
 public:
     UI():uiShader("Resource/Shader/ui.vs","Resource/Shader/ui.fs")
     {
@@ -39,6 +40,7 @@ public:
         glBindVertexArray(0);
 
         crossTexture = loadTexture("crosshair.png","Resource/Texture/");
+        startTexture = loadTexture("start.jpg","Resource/Texture/");
     }
     void updateAlpha(int State, float curTime){
         if(State==0)alpha=0.0f;
@@ -46,15 +48,19 @@ public:
             alpha = (MaxAlpha-MinAlpha) * sin(curTime * UI_SPEED) + MinAlpha;
         }
     }
-    void draw(){
+    void draw(bool start){
         glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glBindVertexArray(uiVAO);
         uiShader.use();
             uiShader.setFloat("alpha",alpha);
             uiShader.setInt("crosshair",0);
+            uiShader.setBool("start",start);
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, crossTexture);
+            uiShader.setInt("startTexture",1);
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, startTexture);
             glDrawArrays(GL_TRIANGLES,0,UIvertexs.size()/3);
 		glUseProgram(0);
 		glBindVertexArray(0);

@@ -2,6 +2,8 @@
 
 namespace settings{
     // setting
+    bool starting = 1;
+    bool restart = 1;
     const GLuint SCR_WIDTH = 1200;
     const GLuint SCR_HEIGHT = 900;
     extern const GLfloat PROJECT_NEAR = 0.1f;

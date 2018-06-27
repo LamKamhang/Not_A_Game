@@ -20,6 +20,7 @@
 		1042322120D25DA5006F3043 /* stb_image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1042322020D25DA5006F3043 /* stb_image.cpp */; };
 		1042322320D25DB2006F3043 /* glad.c in Sources */ = {isa = PBXBuildFile; fileRef = 1042322220D25DB2006F3043 /* glad.c */; };
 		1097E63620D91422004EBA4E /* Crystal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1097E63520D91422004EBA4E /* Crystal.cpp */; };
+		10CCFEDB20E3A56A00826A71 /* libfreetype.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 10CCFEDA20E3A56A00826A71 /* libfreetype.6.dylib */; };
 		10F940C720CAAF2C00691D27 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 10F940C620CAAF2C00691D27 /* OpenGL.framework */; };
 		10F940C920CAAF3800691D27 /* libglfw.3.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 10F940C820CAAF3800691D27 /* libglfw.3.2.dylib */; };
 		10F940CB20CAAF4200691D27 /* libassimp.4.1.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 10F940CA20CAAF4200691D27 /* libassimp.4.1.0.dylib */; };
@@ -53,6 +54,7 @@
 		1042322220D25DB2006F3043 /* glad.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glad.c; path = ../framework/OpenGL/glad.c; sourceTree = "<group>"; };
 		1042322E20D260BC006F3043 /* Header */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Header; path = src/Header; sourceTree = "<group>"; };
 		1097E63520D91422004EBA4E /* Crystal.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Crystal.cpp; path = src/Crystal.cpp; sourceTree = "<group>"; };
+		10CCFEDA20E3A56A00826A71 /* libfreetype.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfreetype.6.dylib; path = ../../../../../../../usr/local/Cellar/freetype/2.9/lib/libfreetype.6.dylib; sourceTree = "<group>"; };
 		10F940BB20CAAF2400691D27 /* NotAGame_mac */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = NotAGame_mac; sourceTree = BUILT_PRODUCTS_DIR; };
 		10F940C620CAAF2C00691D27 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		10F940C820CAAF3800691D27 /* libglfw.3.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglfw.3.2.dylib; path = ../../../../usr/local/Cellar/glfw/3.2.1/lib/libglfw.3.2.dylib; sourceTree = "<group>"; };
@@ -65,6 +67,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				10CCFEDB20E3A56A00826A71 /* libfreetype.6.dylib in Frameworks */,
 				10F940CD20CAAF5200691D27 /* libGLEW.2.1.0.dylib in Frameworks */,
 				10F940CB20CAAF4200691D27 /* libassimp.4.1.0.dylib in Frameworks */,
 				10F940C920CAAF3800691D27 /* libglfw.3.2.dylib in Frameworks */,
@@ -117,6 +120,7 @@
 		10F940C520CAAF2B00691D27 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				10CCFEDA20E3A56A00826A71 /* libfreetype.6.dylib */,
 				10F940CC20CAAF5200691D27 /* libGLEW.2.1.0.dylib */,
 				10F940CA20CAAF4200691D27 /* libassimp.4.1.0.dylib */,
 				10F940C820CAAF3800691D27 /* libglfw.3.2.dylib */,
@@ -318,6 +322,7 @@
 					/usr/local/Cellar/glfw/3.2.1/lib,
 					/usr/local/Cellar/assimp/4.1.0/lib,
 					/usr/local/Cellar/glew/2.1.0/lib,
+					/usr/local/Cellar/freetype/2.9/lib,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -337,6 +342,7 @@
 					/usr/local/Cellar/glfw/3.2.1/lib,
 					/usr/local/Cellar/assimp/4.1.0/lib,
 					/usr/local/Cellar/glew/2.1.0/lib,
+					/usr/local/Cellar/freetype/2.9/lib,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

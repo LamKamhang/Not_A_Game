@@ -324,7 +324,7 @@ void CrystalSystem::updateHeroState(const glm::vec3 &cameraPos,int &closeEnough,
     for(p=GoodCrystals.begin();p!=GoodCrystals.end();p++)if(p->second.IsOk()){
         glm::vec3 direc=glm::vec3(cameraPos.x,cameraPos.y - HeroHeight,cameraPos.z) - p->second.Position;
         if(glm::length(direc) < RaiusRate * p->second.getRadius()){
-            bullet++;// get bullets
+            bullet += 10;// get bullets
             p->second.die();
         }
     }

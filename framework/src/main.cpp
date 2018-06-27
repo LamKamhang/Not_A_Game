@@ -21,6 +21,7 @@
 #include "Header/particles.h"
 #include "Header/Gan.h"
 #include "Header/Ground.h"
+#include "Header/Font.h"
 using namespace settings;
 
 GLint main(GLvoid)
@@ -132,6 +133,10 @@ GLint main(GLvoid)
 	ground.setRoomBound(roombound1,roombound2);
 	std::cout<<"roombound1 = "<<roombound1.x<<", "<<roombound1.y<<", "<<roombound1.z<<std::endl;
 	std::cout<<"roombound2 = "<<roombound2.x<<", "<<roombound2.y<<", "<<roombound2.z<<std::endl;
+
+	// !!!!!!! word !!!!!!!!
+	Font typewritter;
+
 	// test demo
 	std::vector<glm::vec3>cubeposition;
 	// cubeposition.push_back(glm::vec3(0.0f,1.0f,0.0f));
@@ -154,7 +159,10 @@ GLint main(GLvoid)
 ////////////////////////////////////////////////////////////////////////////////////
     // view/projection transformations
     camera.SetOuterBound(glm::vec4(-500.0f,-500.0f,500.0f,500.0f));
-	int closeEnough=0,damage=0,bullet=0,score=0;
+	int closeEnough=0,damage=0,bullet=10,score=0,lastscore=0;
+	bool nolackBullet = true;
+	char str_score[100],str_blood[10];
+	char str_bullet[10];
 	// render loop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -165,7 +173,7 @@ GLint main(GLvoid)
 		// std::cout<<"time="<<currentFrame<<std::endl;
 		// input
 		processInput(window);
-		crystalsystem.generateCrystal(glm::vec3(0.0f,0.0f,0.0f),30.0f,0.1f,0.3f,currentFrame);
+		crystalsystem.generateCrystal(glm::vec3(0.0f,0.0f,0.0f),60.0f,0.5f,0.3f,currentFrame);
 		
 		// render
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -186,16 +194,24 @@ GLint main(GLvoid)
 		glUseProgram(0);
 		
 		// step2 : draw crystal
-		crystalsystem.updateAll(camera.GetPosition(),deltaTime);
-		crystalsystem.updateHeroState(camera.GetPosition(),closeEnough,damage,bullet);
-		crystalsystem.drawAll(projection,view,camera.GetPosition(),skybox.getTextId(),currentFrame,deltaTime,score);
+		if(!(starting || restart)){
+			crystalsystem.updateAll(camera.GetPosition(),deltaTime);
+			crystalsystem.updateHeroState(camera.GetPosition(),closeEnough,damage,bullet);
+			crystalsystem.drawAll(projection,view,camera.GetPosition(),skybox.getTextId(),currentFrame,deltaTime,score);
+		}
 		
 		// step3: draw bullet !!
 		heroBullet.SetDirection(camera.GetEyeFront());
 		heroBullet.SetStartPos(camera.GetPosition());
 		if(cur_button_mode == left){
-			if(!heroBullet.IsAttacking){
-				heroBullet.Attack();
+			if(!(starting || restart) && !heroBullet.IsAttacking){
+				heroBullet.Attack(bullet);
+			}
+			if(starting)starting = 0;
+			if(restart){
+				restart = 0;
+				closeEnough=0,damage=0,bullet=10,score=0;
+				nolackBullet = true;
 			}
 		}
 		heroBullet.updatePosition(deltaTime,currentFrame);
@@ -309,16 +325,41 @@ GLint main(GLvoid)
 
 		//!!!!!! hero's gan !!!!!!!
 		SKgan.updateModel(camera,deltaTime);
-		SKgan.draw(projection,view,camera.GetPosition());
+		if( !(starting || restart) )
+			SKgan.draw(projection,view,camera.GetPosition());
 
 		// !!!!!!!!!! ground !!!!!!!!!!
 		ground.updateGrass(camera.GetPosition());
 		ground.updateBuffer();
 		ground.draw(projection,view,camera);
 
+		// !!!!!!!! words !!!!!!!!
+		if(starting){
+			typewritter.RenderText("START NOW",0.4*SCR_WIDTH,0.45*SCR_HEIGHT,1.0,glm::vec3(1.0,0.0,0.0));
+		}
+		else if(!restart)
+		{
+			sprintf(str_score,"%d",score*10);
+			sprintf(str_blood,"%d",200 - damage);
+			sprintf(str_bullet,"%d",bullet);
+			typewritter.RenderText(str_score,0.1*SCR_WIDTH,0.9*SCR_HEIGHT,1.0,glm::vec3(1.0,0.0,0.0));
+			typewritter.RenderText(str_blood,0.9*SCR_WIDTH,0.9*SCR_HEIGHT,1.0,glm::vec3(1.0,0.0,0.0));
+			typewritter.RenderText(str_bullet,0.1*SCR_WIDTH,0.1*SCR_HEIGHT,1.0,glm::vec3(1.0,0.0,0.0));
+			if(bullet <= 0)
+				typewritter.RenderText("Lack Bullet",0.4*SCR_WIDTH,0.15*SCR_HEIGHT,1.0,glm::vec3(1.0,0.0,0.0));
+		}
+		if(200 - damage < 0){
+			typewritter.RenderText("Game Over",0.4*SCR_WIDTH,0.65*SCR_HEIGHT,1.0,glm::vec3(1.0,0.0,0.0));
+			lastscore = score * 10;
+			sprintf(str_score,"Score: %d",lastscore);
+			typewritter.RenderText(str_score,0.4*SCR_WIDTH,0.55*SCR_HEIGHT,1.0,glm::vec3(1.0,0.0,0.0));
+			typewritter.RenderText("RESTART NOW",0.35*SCR_WIDTH,0.45*SCR_HEIGHT,1.0,glm::vec3(1.0,0.0,0.0));
+			restart = 1;
+		}
+
 		//step final: draw UI
 		myUI.updateAlpha(closeEnough,currentFrame);
-		myUI.draw();
+		myUI.draw( starting || restart );
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		glfwSwapBuffers(window);

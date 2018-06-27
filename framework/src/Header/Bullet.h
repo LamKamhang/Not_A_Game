@@ -130,11 +130,16 @@ public:
     void SetDirection(const glm::vec3 direc){
         direction = glm::normalize(direc);
     }
-    void Attack(){
-        IsAttacking=true;
-        Position = startPos;
-        Hitted = 0;
-        velocity = glm::normalize(direction) * BULLET_SPEED;
+    bool Attack(int &bullet){
+        if(bullet > 0){
+            bullet --;
+            IsAttacking=true;
+            Position = startPos;
+            Hitted = 0;
+            velocity = glm::normalize(direction) * BULLET_SPEED;
+            return true;
+        }
+        else return false;
     }
     void ShutDown(){
         IsAttacking=false;

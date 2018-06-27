@@ -9,6 +9,8 @@
 
 namespace settings{
     // settings
+    extern bool starting;
+    extern bool restart;
     extern const GLuint SCR_WIDTH;
     extern const GLuint SCR_HEIGHT;
     extern const GLfloat PROJECT_NEAR;
