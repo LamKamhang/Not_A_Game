@@ -19,6 +19,7 @@
 #include "Header/util.h"
 #include "Header/Room.h"
 #include "Header/Render.h"
+#include "Header/pointShadow.h"
 
 using namespace settings;
 void RenderQuad();
@@ -174,6 +175,11 @@ glm::mat4 lightView = glm::lookAt(glm::vec3(0.0f, 1.0f, -1.0f), glm::vec3(0.0f),
 
 glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 
+//||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+// test pointer shadow
+Shader psShader("Resource/Shader/cubeDepth.vs", "Resource/Shader/cubeDepth.fs", nullptr, nullptr, "Resource/Shader/cubeDepth.gs");
+glm::vec3 pointDir(RoomModelMatrix * glm::vec4(35, 10-0.1, 25, 1.0));
+PointShadow pshadow(pointDir);
 
 //||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 	// explode
@@ -224,6 +230,12 @@ glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 			depthShader.setMat4("model", glm::mat4(1.0));
 			glDrawArrays(GL_TRIANGLES, 0, pfvertex.size()>>3);
 		glBindVertexArray(0);
+
+/*+-----------------------------------------------------------------+
+ *+                        second stage                             +
+ *+-----------------------------------------------------------------+*/
+		
+
 
 /*+-----------------------------------------------------------------+
  *+                        second stage                             +
