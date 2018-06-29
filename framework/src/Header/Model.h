@@ -42,7 +42,9 @@ public:
 	GLvoid SetMeshes(const std::vector<Mesh> &meshes);
 	GLvoid SetGammaCorrection(const GLboolean &gamma);
 	GLvoid SetDirectory(const std::string &directory);
-
+	
+	// get collision box bound !!
+	GLvoid GetCollisionBox(glm::vec3 &leftbottom,glm::vec3 &rightup);
 private:
 	std::vector<Texture> LoadedTextures;
 	std::vector<Mesh> Meshes;

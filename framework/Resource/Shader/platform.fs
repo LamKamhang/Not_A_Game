@@ -132,6 +132,5 @@ float ShadowCalculation(vec3 normal)
         shadow /= 9.0;
     }
     
-
     return shadow;
 }

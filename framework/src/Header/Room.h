@@ -12,6 +12,7 @@
 #include "util.h"
 #include "Texture.h"
 #include "Camera.h"
+#include "config.h"
 
 namespace RoomRule
 {
@@ -56,6 +57,13 @@ struct Material{
         diffuse_tex_color(true), specular_tex_color(true)
     {diffuse_tex = loadTexture(diffuse_tex_name, "Resource/Texture");
      specular_tex = loadTexture(specular_tex_name, "Resource/Texture");};
+
+	// 1, 0
+	Material(const glm::vec3 &specular, const float shininess) :
+		specular(specular), shininess(shininess), 
+		diffuse_tex(0), specular_tex(0),
+		diffuse_tex_color(true), specular_tex_color(false)
+	{};
 };
 
 struct PointLight{
@@ -88,9 +96,11 @@ class Room
 {
 private:
     GLuint wall_VAO, wall_VBO, floor_VAO, floor_VBO;
+	GLuint outer_VAO, outer_VBO;
     //GLuint wall_texID, floor_texID, ceil_texID;
     std::vector<float> wall_vertices;
     std::vector<float> floor_vertices;
+	std::vector<float> outer_vertices;
     std::vector<glm::vec3> point_light_pos;
     Material wall_material;
     Material floor_material;
@@ -101,24 +111,27 @@ private:
 
     glm::mat4 ModelMatrix;
     inline void bindVAO();
-    inline void initRoom(Camera &camera);
+    inline void initRoom(Camera &camera,glm::vec3 &leftbottom,glm::vec3 &rightup);
 public:
     Room() = default;
-    Room(Camera &camera,glm::mat4 &model);
+    // 会给leftbottom和rightup赋值房子地面世界坐标bound
+    Room(Camera &camera,glm::mat4 &model,glm::vec3 &leftbottom,glm::vec3 &rightup);
     Room(const std::vector<float> &_wall, const std::vector<float> &_floor, 
         const Material &wall_material, const Material &floor_material, const Material &ceil_material, const std::vector<glm::vec3> &point_light_pos, const PointLight &point_light, const DirLight &dir_light);
     ~Room() = default;
 
     inline const std::vector<glm::vec3>& GetLightPos();
-
+	void setWallTexture(GLuint ID) { wall_material.diffuse_tex = ID; };
     void Draw(Shader &materialShader);
 };
 
 void GetVertexByRules(std::vector<float> &vertices, Camera &camera, const std::vector<RoomRule::Rule> &rules, const glm::mat4& ModelMatrix=glm::mat4(1.0f));
 
 // default setting
-std::vector<float> GetFirstFloorDefaultGround(Camera &camera, const glm::mat4& ModelMatrix=glm::mat4(1.0f));
+// 会给leftbottom和rightup赋值房子地面世界坐标bound
+std::vector<float> GetFirstFloorDefaultGround(Camera &camera,const glm::mat4 &ModelMatrix,glm::vec3 &leftbottom,glm::vec3 &rightup);
 std::vector<float> GetFirstFloorDefaultWall(Camera &camera, const glm::mat4& ModelMatrix=glm::mat4(1.0f));
+std::vector<float> GetFirstFloorDefaultOuter(Camera &camera, const glm::mat4& ModelMatrix = glm::mat4(1.0f));
 std::vector<glm::vec3> GetFirstFloorDefaultLightPos();
 DirLight GetFirstFloorDefaultDirLight();
 PointLight GetFirstFloorDefaultPointLight();

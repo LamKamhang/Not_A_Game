@@ -8,7 +8,7 @@
 #include "Bullet.h"
 
 #define HeroHeight 2.5f           //玩家视点到脚的高度  
-#define MoveSpeed 5.0f           //玩家移动速度
+#define MoveSpeed 12.0f           //玩家移动速度
 #define JumpInitialSpeed 12.0f    //起跳初速度
 
 enum Camera_Movement {

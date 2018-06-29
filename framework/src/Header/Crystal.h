@@ -22,94 +22,97 @@
 #define LifeTime 40.0f //寿命
 #define EXPLODE_TIME 0.5f//爆炸时间间隔
 
-class Crystal{
+class Crystal {
 private:
-    GLuint VAO,VBO;
-    GLfloat height,radius;
-    std::vector<GLfloat>vertexs;
-    
-    glm::vec3 TargetPos;// move direction target position
-    glm::vec3 velocity;
-    glm::vec3 acceler;//self circle movement
-    PhysicsEngine* physicsEngine;// physicsEngine used
+	GLuint VAO, VBO;
+	GLfloat height, radius;
+	std::vector<GLfloat>vertexs;
 
-    //vert movement
-    glm::vec3 VertVelocity;        //垂直方向速度
+	glm::vec3 TargetPos;// move direction target position
+	glm::vec3 velocity;
+	glm::vec3 acceler;//self circle movement
+	PhysicsEngine* physicsEngine;// physicsEngine used
+
+								 //vert movement
+	glm::vec3 VertVelocity;        //垂直方向速度
 	glm::vec3 accelerUp;       //方向向上的加速度
-	bool isJumping;  
-    
-    // status
-    float age;
-    bool IsDead;
-    int type;// good 1, bad 0
-    Bullet *heroBullet;
+	bool isJumping;
 
-    bool firstupdate;
+	// status
+	float age;
+	bool IsDead;
+	int type;// good 1, bad 0
+	Bullet *heroBullet;
+	glm::vec3 bulletLastPos;
+
+	bool firstupdate;
 public:
-    bool explode;
-    bool explode_first;
-    float explodeStartTime;
+	bool explode;
+	bool explode_first;
+	float explodeStartTime;
 
-    glm::vec3 Position;//position
-    Crystal(PhysicsEngine* physicsEngine, Bullet*heroBullet,glm::vec3 position=glm::vec3(0.0f), GLfloat height=2.5f,int type=0);
-    ~Crystal(){
-        heroBullet = NULL;
-        physicsEngine = NULL;
-        vertexs.clear();
-    }
-    GLuint getVAO(){return VAO;}
-    GLuint getVBO(){return VBO;}
-    GLfloat getHeight(){return height;}
-    GLfloat getRadius(){return radius;}
-    void die(){IsDead = 1;}
-    void ageIncrease(float da){age += da;}
-    float getAge(){return age;}
-    bool IsOk(){return !IsDead;}
-    bool IsExploding(){return explode;}
-    void jump();
+	glm::vec3 Position;//position
+	Crystal(PhysicsEngine* physicsEngine, Bullet*heroBullet, glm::vec3 position = glm::vec3(0.0f), GLfloat height = 2.5f, int type = 0);
+	~Crystal() {
+		heroBullet = NULL;
+		physicsEngine = NULL;
+		vertexs.clear();
+	}
+	GLuint getVAO() { return VAO; }
+	GLuint getVBO() { return VBO; }
+	GLfloat getHeight() { return height; }
+	GLfloat getRadius() { return radius; }
+	void die() { IsDead = 1; }
+	void ageIncrease(float da) { age += da; }
+	float getAge() { return age; }
+	bool IsOk() { return !IsDead; }
+	bool IsExploding() { return explode; }
+	void jump();
 
-    void draw();
-    void updateState();
-    void updatePosition(const glm::vec3 cameraPos, const GLfloat deltaTime);
+	void shadowDraw();
+	void draw();
+	void updateState();
+	void updatePosition(const glm::vec3 cameraPos, const GLfloat deltaTime);
 };
 
 
-class CrystalSystem{
+class CrystalSystem {
 private:
-    std::map<int,Crystal> GoodCrystals;
-    std::map<int,Crystal> BadCrystals;
-    int goodCnt;
-    int badCnt;
-    PhysicsEngine* physicsEngine;
-    Shader CryShader;
-    float lastTime;
-    Bullet *heroBullet;
+	std::map<int, Crystal> GoodCrystals;
+	std::map<int, Crystal> BadCrystals;
+	int goodCnt;
+	int badCnt;
+	PhysicsEngine* physicsEngine;
+	Shader CryShader;
+	float lastTime;
+	Bullet *heroBullet;
 
 public:
-    CrystalSystem(PhysicsEngine* pE,Bullet *hB)
-    :CryShader("Resource/Shader/crystal.vs","Resource/Shader/crystal.fs","Resource/Shader/crystal.tcs","Resource/Shader/crystal.tes","Resource/Shader/crystal.gs")
-    {
-        goodCnt=badCnt=0;
-        lastTime = 0.0f;
-        GoodCrystals.clear();
-        BadCrystals.clear();
-        physicsEngine=pE;
-        heroBullet=hB;
-    }
-    // randomly generate crystal
-    void generateCrystal(glm::vec3 centerPos,float areaRadius,float frequency,float goodRate,float curTime);
-    
-    // add a crystal
-    void addCrystal(glm::vec3 position=glm::vec3(0.0f), GLfloat height=2.5f, int type=0);
-    
-    // update all crystal's position
-    void updateAll(const glm::vec3 cameraPos, const GLfloat deltaTime);
-    
-    // update hero state
-    void updateHeroState(const glm::vec3 &cameraPos,int &closeEnough,int &damage,int &bullet);
+	CrystalSystem(PhysicsEngine* pE, Bullet *hB)
+		:CryShader("Resource/Shader/crystal.vs", "Resource/Shader/crystal.fs", "Resource/Shader/crystal.tcs", "Resource/Shader/crystal.tes", "Resource/Shader/crystal.gs")
+	{
+		goodCnt = badCnt = 0;
+		lastTime = 0.0f;
+		GoodCrystals.clear();
+		BadCrystals.clear();
+		physicsEngine = pE;
+		heroBullet = hB;
+	}
+	// randomly generate crystal
+	void generateCrystal(glm::vec3 centerPos, float areaRadius, float frequency, float goodRate, float curTime);
 
-    // draw all crystal
-    void drawAll(const glm::mat4 &projection,const glm::mat4 &view,const glm::vec3 &cameraPos,const unsigned int skyboxID,float curTime,float deltaTime,int &score);
+	// add a crystal
+	void addCrystal(glm::vec3 position = glm::vec3(0.0f), GLfloat height = 2.5f, int type = 0);
 
-    void deleteAllDead();
+	// update all crystal's position
+	void updateAll(const glm::vec3 cameraPos, const GLfloat deltaTime);
+
+	// update hero state
+	void updateHeroState(const glm::vec3 &cameraPos, int &closeEnough, int &damage, int &bullet);
+
+	// draw all crystal
+	void drawAll(const glm::mat4 &projection, const glm::mat4 &view, const glm::vec3 &cameraPos, const unsigned int skyboxID, float curTime, float deltaTime, int &score);
+	void drawAll(Shader &shader);
+
+	void deleteAllDead();
 };

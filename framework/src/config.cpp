@@ -2,10 +2,12 @@
 
 namespace settings{
     // setting
+    bool starting = 1;
+    bool restart = 1;
     const GLuint SCR_WIDTH = 1200;
     const GLuint SCR_HEIGHT = 900;
-    extern const GLfloat PROJECT_NEAR = 0.1f;
-    extern const GLfloat PROJECT_FAR = 500.0f;
+    const GLfloat PROJECT_NEAR = 0.1f;
+    const GLfloat PROJECT_FAR = 2000.0f;
 
     enum button_mode cur_button_mode;
 
@@ -19,6 +21,8 @@ namespace settings{
     bool phong = false;
     bool flashlight_on = false;
     bool Inversion = false;
+	bool egg = false;
+	bool pointlight_on = true;
 
     // API
     GLuint init_setting(GLFWwindow *&window)
@@ -98,7 +102,14 @@ namespace settings{
             flashlight_on = false;
         if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
             Inversion = true;
-        
+		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+			egg = true;
+		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_RELEASE)
+			egg = false;
+		if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
+			pointlight_on = false;
+		if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS)
+			pointlight_on = true;
 
         if(cur_button_mode == left)
             ;// camera.ProcessMouseButton(MB_LEFT,deltaTime);

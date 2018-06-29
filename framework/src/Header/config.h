@@ -9,6 +9,8 @@
 
 namespace settings{
     // settings
+    extern bool starting;
+    extern bool restart;
     extern const GLuint SCR_WIDTH;
     extern const GLuint SCR_HEIGHT;
     extern const GLfloat PROJECT_NEAR;
@@ -16,7 +18,9 @@ namespace settings{
     extern bool explode;
     extern bool phong;
     extern bool flashlight_on;
+	extern bool pointlight_on;
     extern bool Inversion;
+	extern bool egg;
 
     enum button_mode {
         none, left, middle, right,

@@ -11,7 +11,7 @@
 #define HRrate 0.2886751345948129
 #define PI 3.14159265358979323846
 #define EdgeNum 6
-#define BULLET_SPEED 45.0f
+#define BULLET_SPEED 128.0f
 
 class Bullet{
 private:
@@ -26,7 +26,7 @@ private:
     float radius;
 
     float lastTime;
-
+    
     unsigned int bulletVAO,bulletVBO;
     Shader shader;
 public:
@@ -112,7 +112,10 @@ public:
     glm::vec3 getPosition(){
         return Position;
     }
-
+    glm::vec3 getTargetPos()
+    {
+        return TargetPos;
+    }
     bool IsAttack(){
         return IsAttacking;
     }
@@ -127,10 +130,16 @@ public:
     void SetDirection(const glm::vec3 direc){
         direction = glm::normalize(direc);
     }
-    void Attack(){
-        IsAttacking=true;
-        Position = startPos;
-        Hitted = 0;
+    bool Attack(int &bullet){
+        if(bullet > 0){
+            bullet --;
+            IsAttacking=true;
+            Position = startPos;
+            Hitted = 0;
+            velocity = glm::normalize(direction) * BULLET_SPEED;
+            return true;
+        }
+        else return false;
     }
     void ShutDown(){
         IsAttacking=false;
@@ -142,19 +151,19 @@ public:
             Hitted = 0;
         }
         if(IsAttacking){
-            velocity = glm::normalize(direction) * BULLET_SPEED * deltaTime;
-            bool IsHit = false;
+            velocity += glm::vec3(0.0f, -9.8f, 0.0f) * deltaTime;
+            Position += velocity * deltaTime;
+            TargetPos = Position + 10.0f * velocity * deltaTime;
             
-            Position += velocity;
-            TargetPos = Position + 50.0f * velocity;
-
+            bool IsHit = false;
             IsHit = physicsEngine->outCollisionTest(Position, TargetPos);
             IsHit = physicsEngine->inCollisionTest(Position, TargetPos, height/2.0f);
             
-            if( IsHit || curTime - lastTime > 2.0f ){
+            if( IsHit || curTime - lastTime > 0.5f ){
                 IsAttacking = false;
                 Hitted = true;
             }
+
         }
     }
     void draw(const glm::mat4 &projection,const glm::mat4 &view,const glm::vec3 &cameraPos,const unsigned int skyboxID,float deltaTime)

@@ -1,11 +1,11 @@
 #include "Header/Room.h"
 using namespace RoomRule;
 
-Room::Room(Camera &camera, glm::mat4 &model):
+Room::Room(Camera &camera, glm::mat4 &model,glm::vec3 &leftbottom,glm::vec3 &rightup):
     directory("Resource/Texture")
 {
     ModelMatrix = model;
-    initRoom(camera);
+    initRoom(camera,leftbottom,rightup);
     bindVAO();
 }
 
@@ -22,6 +22,7 @@ Room::Room(const std::vector<float> &_wall, const std::vector<float> &_floor,
 
 void Room::Draw(Shader &materialShader)
 {
+	materialShader.setBool("outer", 0);
     // set up point light
     setDirLight(materialShader, "dir_light", dir_light);
     setPointLight(materialShader, "point_light", point_light);
@@ -46,7 +47,11 @@ void Room::Draw(Shader &materialShader)
     setMaterial(materialShader, "wall_material", wall_material);
     glBindVertexArray(wall_VAO);
         glDrawArrays(GL_TRIANGLES, 0, wall_vertices.size()>>3);
-    
+
+	// third, draw outer wall
+	materialShader.setBool("outer", 1);
+	glBindVertexArray(outer_VAO);
+		glDrawArrays(GL_TRIANGLES, 0, outer_vertices.size() >> 3);
     // unbind the VAO
     glBindVertexArray(0);
 }
@@ -83,10 +88,19 @@ void setMaterial(Shader &shader, const std::string &name, const Material &value)
 
 void setPointLight(Shader &shader, const std::string &name, const PointLight &value)
 {
-    shader.setVec3(name + ".color", value.color);
-    shader.setFloat(name + ".ambient", value.ambient);
-    shader.setFloat(name + ".diffuse", value.diffuse);
-    shader.setFloat(name + ".specular", value.specular);
+	if (settings::flashlight_on)
+	{
+		shader.setFloat(name + ".ambient", 0);
+		shader.setFloat(name + ".diffuse", 0);
+		shader.setFloat(name + ".specular", 0);
+	}
+	else
+	{
+		shader.setVec3(name + ".color", value.color);
+		shader.setFloat(name + ".ambient", value.ambient);
+		shader.setFloat(name + ".diffuse", value.diffuse);
+		shader.setFloat(name + ".specular", value.specular);
+	}
 }
 
 void setDirLight(Shader &shader, const std::string &name, const DirLight &value)
@@ -142,12 +156,27 @@ inline void Room::bindVAO()
 			glEnableVertexAttribArray(2);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+
+	glGenVertexArrays(1, &outer_VAO);
+	glBindVertexArray(outer_VAO);
+		glGenBuffers(1, &outer_VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, outer_VBO);
+			glBufferData(GL_ARRAY_BUFFER, outer_vertices.size() * sizeof(float), &outer_vertices[0], GL_STATIC_DRAW);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid *)(0));
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid *)(3 * sizeof(GLfloat)));
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid *)(6 * sizeof(GLfloat)));
+			glEnableVertexAttribArray(2);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 }
 
-inline void Room::initRoom(Camera &camera)
+inline void Room::initRoom(Camera &camera,glm::vec3 &leftbottom,glm::vec3 &rightup)
 {
-    floor_vertices = GetFirstFloorDefaultGround(camera, ModelMatrix);
-    wall_vertices = GetFirstFloorDefaultWall(camera, ModelMatrix);
+    floor_vertices = GetFirstFloorDefaultGround(camera,ModelMatrix,leftbottom,rightup);
+    wall_vertices = GetFirstFloorDefaultWall(camera,ModelMatrix);
+	outer_vertices = GetFirstFloorDefaultOuter(camera, ModelMatrix);
     point_light_pos = GetFirstFloorDefaultLightPos();
     point_light = GetFirstFloorDefaultPointLight();
     wall_material = GetFirstFloorDefaultWallMaterial();
@@ -214,9 +243,9 @@ void GetVertexByRules(std::vector<float> &vertices, Camera &camera, const std::v
 }
 //||||||||||||||||||||||||||||||||||||||||||||||||||
 // first floor
-std::vector<float> GetFirstFloorDefaultGround(Camera &camera,const glm::mat4 &ModelMatrix)
+std::vector<float> GetFirstFloorDefaultGround(Camera &camera,const glm::mat4 &ModelMatrix,glm::vec3 &leftbottom,glm::vec3 &rightup)
 {
-    float cy = -0.05, ce = 10;
+    float cy = -0, ce = 10;
     std::vector<float> vertices;
     std::vector<Rule> rules{
         Rule(_top, 15, 25, 7.5, cy, 12.5),//1
@@ -231,7 +260,45 @@ std::vector<float> GetFirstFloorDefaultGround(Camera &camera,const glm::mat4 &Mo
         Rule(_buttom, 10, 45, 80+5, ce, 15+22.5),//4
     };
     GetVertexByRules(vertices, camera, rules, ModelMatrix);
+    leftbottom = glm::vec3(Infinity);
+    rightup = glm::vec3(-Infinity);
+    for(int i=0;i< vertices.size()/6 ;i++){
+        if(vertices[i*3] < leftbottom.x)leftbottom.x=vertices[i*3];
+        if(vertices[i*3] > rightup.x)rightup.x=vertices[i*3];
+        if(vertices[i*3 + 1] < leftbottom.y)leftbottom.y=vertices[i*3 + 1];
+        if(vertices[i*3 + 1] > rightup.y)rightup.y=vertices[i*3 + 1];
+        if(vertices[i*3 + 2] < leftbottom.z)leftbottom.z=vertices[i*3 + 2];
+        if(vertices[i*3 + 2] > rightup.z)rightup.z=vertices[i*3 + 2];
+    }
+    leftbottom = glm::vec3(ModelMatrix * glm::vec4(leftbottom,1.0f));
+    rightup = glm::vec3(ModelMatrix * glm::vec4(rightup,1.0f));
     return vertices;
+}
+
+std::vector<float> GetFirstFloorDefaultOuter(Camera &camera, const glm::mat4 &ModelMatrix)
+{
+	float wall_height = 10, door_height = 7.5, wall_width = 1.5, cy = wall_height / 2, dy = (door_height + wall_height) / 2;
+	float e = 1.5;
+	std::vector<float> vertices;
+	std::vector<Rule> rules{
+		Rule(_back, 15, wall_height, 7.5-e, cy, 25+e),//1
+		Rule(_back, 65+2*e, wall_height,  15 + 32.5, cy, 75+e),//5
+		Rule(_back, 10, wall_height,  90 - 5 +e, cy, 60),//9
+		Rule(_front, 50, wall_height,  40 + 25 +e, cy, 15-e),//23
+		Rule(_front, 31+e, wall_height,  9 + 15.5 + e/2, cy, 0),//25
+		Rule(_front, 6+e, wall_height,  3-e/2, cy, 0),//27
+
+		Rule(_left, 25+e, wall_height,  0-e, cy, 12.5+e/2),//1
+		Rule(_left, 50, wall_height,  15-e, cy, 25 + 25+e),//4
+		Rule(_right, 15-e, wall_height,  40+e, cy, 7.5-e/2),//12
+		Rule(_right, 15+e, wall_height,  80+e, cy, 75 - 7.5+e/2),//26
+		Rule(_right, 45+e, wall_height,  90+e, cy, 15 + 22.5-e/2),//28
+
+		//door
+		Rule(_front, 3, wall_height - door_height, 6 + 1.5, dy, 0),//1
+	};
+	GetVertexByRules(vertices, camera, rules, ModelMatrix);
+	return vertices;
 }
 
 std::vector<float> GetFirstFloorDefaultWall(Camera &camera,const glm::mat4 &ModelMatrix)
@@ -252,7 +319,7 @@ std::vector<float> GetFirstFloorDefaultWall(Camera &camera,const glm::mat4 &Mode
        Rule(_front, 15, wall_height,  50+7.5, cy, 60-e),//6
        Rule(_front, 3, wall_height,  40+1.5, cy, 60-wall_width),//7
        Rule(_front, 3, wall_height,  47+1.5, cy, 60-wall_width),//8
-       Rule(_back, 17, wall_height,  90-8.5, cy, 60),//9
+       Rule(_back, 7, wall_height,  80-3.5, cy, 60),//9
        Rule(_front, 4, wall_height,  65+2, cy, 60-wall_width),//10
        Rule(_front, 17, wall_height,  90-8.5, cy, 60-wall_width),//11
        Rule(_back, 4, wall_height,  65+2, cy, 60-3-wall_width),//12
@@ -269,9 +336,9 @@ std::vector<float> GetFirstFloorDefaultWall(Camera &camera,const glm::mat4 &Mode
        Rule(_back, wall_width, wall_height,  65+wall_width/2, cy, 30),//22
        Rule(_back, 50, wall_height,  40+25, cy, 15),//23
        Rule(_back, 31, wall_height,  9+15.5, cy, wall_width),//24
-       Rule(_back, 31, wall_height,  9+15.5, cy, 0),//25
+       //Rule(_back, 31, wall_height,  9+15.5, cy, 0),//25
        Rule(_back, 6, wall_height,  3, cy, wall_width),//26
-       Rule(_back, 6, wall_height,  3, cy, 0),//27
+       //Rule(_back, 6, wall_height,  3, cy, 0),//27
        Rule(_back, wall_width, wall_height, 15+wall_width/2, cy, 7),//28
 
        Rule(_right, 25, wall_height,  0, cy, 12.5),//1
@@ -309,7 +376,7 @@ std::vector<float> GetFirstFloorDefaultWall(Camera &camera,const glm::mat4 &Mode
 
        //door
        Rule(_back, 3, wall_height-door_height, 6+1.5, dy, wall_width), //1
-       Rule(_front, 3, wall_height-door_height, 6+1.5, dy, 0),//1
+       //Rule(_back, 3, wall_height-door_height, 6+1.5, dy, 0),//1
        Rule(_buttom, 3, wall_width, 6+1.5, door_height, wall_width/2),//1
        Rule(_back, 4, wall_height-door_height, 43+2, dy, 60),//2
        Rule(_front, 4, wall_height-door_height, 43+2, dy, 60-wall_width),//2
@@ -362,13 +429,13 @@ struct PointLight{
 */
 PointLight GetFirstFloorDefaultPointLight()
 {
-    return PointLight(glm::vec3(1.0), 0.5, 1.5, 1.0);
+    return PointLight(glm::vec3(1.0), 0.5, 1.5, 0.9);
     // return PointLight(glm::vec3(1.0), 0.0, 0.0, 0.0);
 }
 
 DirLight GetFirstFloorDefaultDirLight()
 {
-    return DirLight(glm::vec3(0, -1, 1), glm::vec3(1), 0, 0, 0);
+    return DirLight(glm::vec3(0, -1, 1), glm::vec3(1), 0.2, 0.5, 0.5);
 }
 /*
 struct Material{
@@ -385,7 +452,7 @@ struct Material{
 Material GetFirstFloorDefaultWallMaterial()
 {
     return Material(
-        "matrix.jpg",
+        /*"matrix.jpg",*/
         glm::vec3(1, 1, 0.953),//#fffff3
         16
     );
